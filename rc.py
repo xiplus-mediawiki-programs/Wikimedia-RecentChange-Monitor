@@ -24,8 +24,8 @@ db = pymysql.connect(host=config.get('database', 'host'),
 cur = db.cursor()
 url = 'https://stream.wikimedia.org/v2/stream/recentchange'
 
-followwiki = ['zhwiki']
-recordwiki = ['zhwiki']
+followwiki = json.loads(config.get('monitor', 'followwiki'))
+recordwiki = json.loads(config.get('monitor', 'recordwiki'))
 
 M = Monitor()
 
@@ -46,25 +46,25 @@ for event in EventSource(url):
 			title = change["title"]
 			comment = change["comment"]
 
-			if wiki.startswith("zh") and wiki not in followwiki:
-				print(json.dumps(change, indent=4, sort_keys=True, ensure_ascii=False))
-
-			rows = M.check_user_blacklist(user)
-			is_black_user = (len(rows) != 0)
-			if is_black_user:
-				black_user_reason = rows[0][0]+', '+M.formattimediff(rows[0][1])
-
-			rows = M.check_page_blacklist(title)
-			is_black_page = (len(rows) != 0)
-			if is_black_page:
-				black_page_reason = rows[0][0]+', '+M.formattimediff(rows[0][1])
-
-			if wiki not in followwiki and not is_black_user and not is_black_page:
-				continue
-
 			issend = False
 			isrecord = (wiki in recordwiki)
 			message = ""
+			message_append = ""
+
+			rows = M.check_user_blacklist(user)
+			if len(rows) != 0:
+				issend = True
+				isrecord = True
+				message_append += "(blacklist: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
+
+			rows = M.check_page_blacklist(title)
+			if len(rows) != 0:
+				issend = True
+				isrecord = True
+				message_append += "(watch: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
+
+			if wiki not in followwiki and not isrecord:
+				continue
 
 			if type == "edit":
 				isrecord and M.addRC_edit(change)
@@ -155,29 +155,18 @@ for event in EventSource(url):
 							issend = True
 
 			if not isrecord:
-				M.log(json.dumps(change, ensure_ascii=False))
 				print(json.dumps(change, indent=4, sort_keys=True, ensure_ascii=False))
 
 			if (wiki in followwiki and type in ["edit", "new"]) and change["namespace"] == 3 and re.match(r"^User talk:", title) and re.match(r"^(層級|层级)[234]", comment):
 				reason = "warn by "+user+": "+comment
 				M.addblack_user(title[10:], change["timestamp"], reason, msgprefix="auto ")
 
-			append = ""
-
-			if is_black_user:
-				issend = True
-				append += "(blacklist: "+black_user_reason+")"
-
-			if is_black_page:
-				issend = True
-				append += "(watch: "+black_page_reason+")"
-
 			if change["bot"]:
 				issend = False
 
 			if issend and message != "":
-				if append != "":
-					message += "\n"+append
+				if message_append != "":
+					message += "\n"+message_append
 				M.sendmessage(message)
 		except Exception as e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
