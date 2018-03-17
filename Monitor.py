@@ -72,6 +72,10 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `RC_log_block` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params_flags`, `log_params_duration`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["flags"], change["log_params"]["duration"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
+	def addRC_log_block_unblock(self, change):
+		self.cur.execute("""INSERT INTO `RC_log_block` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params_flags`, `log_params_duration`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], "", "", change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.db.commit()
+
 	def addRC_log_upload(self, change):
 		self.cur.execute("""INSERT INTO `RC_log_upload` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params_img_timestamp`, `log_params_img_sha1`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["img_timestamp"], change["log_params"]["img_sha1"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()

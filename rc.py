@@ -90,9 +90,12 @@ for event in EventSource(url):
 					isrecord and M.addRC_log_move(change)
 
 				elif log_type == "block":
-					isrecord and M.addRC_log_block(change)
+					if log_action == "unblock":
+						isrecord and M.addRC_log_block_unblock(change)
+					else :
+						isrecord and M.addRC_log_block(change)
 
-					print(user+" block "+title+" comment:"+change["log_action_comment"])
+					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
 					message = M.link_user(user)+' '+log_action+' '+M.link_user(title[5:])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
 					if len(M.check_user_blacklist(title[5:])) != 0:
 						issend = True
