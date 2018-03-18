@@ -26,7 +26,9 @@ def telegram():
 			m_user_id = int(data["message"]["from"]["id"])
 			m_first_name = data["message"]["from"]["first_name"]
 
-			if "text" in data["message"] and m_chat_id == M.chat_id:
+			if "text" in data["message"] and m_chat_id in M.response_chat_id:
+				M.chat_id = m_chat_id
+
 				m_text = data["message"]["text"]
 				M.log(m_text)
 

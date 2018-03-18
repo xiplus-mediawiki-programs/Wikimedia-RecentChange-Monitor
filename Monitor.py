@@ -15,7 +15,8 @@ class Monitor():
 		configpath = os.path.dirname(os.path.realpath(__file__))+'/config.ini'
 		config.read(configpath)
 		self.token = config.get('telegram', 'token')
-		self.chat_id = config.getint('telegram', 'chat_id')
+		self.chat_id = config.getint('telegram', 'default_chat_id')
+		self.response_chat_id = json.loads(config.get('telegram', 'response_chat_id'))
 		self.db = pymysql.connect(host=config.get('database', 'host'),
 								  user=config.get('database', 'user'),
 								  passwd=config.get('database', 'passwd'),
