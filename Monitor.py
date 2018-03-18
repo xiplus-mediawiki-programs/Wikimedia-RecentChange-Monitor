@@ -46,7 +46,7 @@ class Monitor():
 		self.db.commit()
 
 	def addRC_log_abusefilter_hit(self, change):
-		self.cur.execute("""INSERT INTO `RC_log_abusefilter_hit` (`bot`, `comment`, `log_action_comment`, `log_id`, `log_params_action`, `log_params_actions`, `log_params_filter`, `log_params_log`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["log_action_comment"], change["log_id"], change["log_params"]["action"], change["log_params"]["actions"], change["log_params"]["filter"], change["log_params"]["log"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.cur.execute("""INSERT INTO `RC_log_abusefilter_hit` (`bot`, `log_action_comment`, `log_id`, `log_params_action`, `log_params_actions`, `log_params_filter`, `log_params_log`, `namespace`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["log_action_comment"], change["log_id"], change["log_params"]["action"], change["log_params"]["actions"], change["log_params"]["filter"], change["log_params"]["log"], change["namespace"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
 	def addRC_log_abuselog(self, change):
@@ -62,7 +62,7 @@ class Monitor():
 		self.db.commit()
 
 	def addRC_log_abusefilter_modify(self, change):
-		self.cur.execute("""INSERT INTO `RC_log_abusefilter_modify` (`bot`, `comment`, `log_action_comment`, `log_id`, `log_params_historyId`, `log_params_newId`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["log_action_comment"], change["log_id"], change["log_params"]["historyId"], change["log_params"]["newId"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.cur.execute("""INSERT INTO `RC_log_abusefilter_modify` (`bot`, `log_action_comment`, `log_id`, `log_params_historyId`, `log_params_newId`, `namespace`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["log_action_comment"], change["log_id"], change["log_params"]["historyId"], change["log_params"]["newId"], change["namespace"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
 	def addRC_log_newusers(self, change):
@@ -102,11 +102,11 @@ class Monitor():
 		self.db.commit()
 
 	def addRC_log_patrol(self, change):
-		self.cur.execute("""INSERT INTO `RC_log_patrol` (`bot`, `comment`, `log_action`, `log_action_comment`, `log_id`, `log_params_auto`, `log_params_previd`, `log_params_curid`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["auto"], change["log_params"]["previd"], change["log_params"]["curid"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.cur.execute("""INSERT INTO `RC_log_patrol` (`bot`, `log_action`, `log_action_comment`, `log_id`, `log_params_auto`, `log_params_previd`, `log_params_curid`, `namespace`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["auto"], change["log_params"]["previd"], change["log_params"]["curid"], change["namespace"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
 	def addRC_log_thanks(self, change):
-		self.cur.execute("""INSERT INTO `RC_log_thanks` (`bot`, `comment`, `log_action`, `log_action_comment`, `log_id`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["log_action"], change["log_action_comment"], change["log_id"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.cur.execute("""INSERT INTO `RC_log_thanks` (`bot`, `log_action`, `log_action_comment`, `log_id`, `namespace`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["log_action"], change["log_action_comment"], change["log_id"], change["namespace"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
 	def addRC_log_delete(self, change):
