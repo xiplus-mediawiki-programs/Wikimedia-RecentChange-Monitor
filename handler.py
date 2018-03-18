@@ -114,6 +114,32 @@ def telegram():
 					M.delblack_page(page, wiki)
 					return "OK"
 
+				m = re.match(r"/checkuser\n(.+)", m_text)
+				if m != None:
+					user, wiki = M.parse_user(m.group(1))
+
+					message = ""
+					rows = M.check_user_whitelist(user)
+					if len(rows) != 0:
+						message += "\non whitelist:"
+						for record in rows:
+							message += "\n"+record[0]+', '+M.formattimediff(record[1])
+
+					rows = M.check_user_blacklist(user, wiki, ignorewhite=True)
+					if len(rows) != 0:
+						message += "\non blacklist:"
+						for record in rows:
+							message += "\n"+record[0]
+							if record[2] != "":
+								message += "("+record[2]+")"
+							message += ', '+M.formattimediff(record[1])
+
+					if message != "":
+						M.sendmessage(message)
+					else :
+						M.sendmessage("no result found")
+					return "OK"
+
 				m = re.match(r"/status", m_text)
 				if m != None:
 					message = "working"

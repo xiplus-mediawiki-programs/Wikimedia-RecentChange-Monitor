@@ -15,6 +15,24 @@ CREATE TABLE `admin` (
   `last_name` varchar(255) COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `black_ipv4` (
+  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `val` varchar(255) NOT NULL,
+  `start` decimal(10,0) NOT NULL,
+  `end` decimal(10,0) NOT NULL,
+  `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `timestamp` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `black_ipv6` (
+  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `val` varchar(255) NOT NULL,
+  `start` decimal(39,0) NOT NULL,
+  `end` decimal(39,0) NOT NULL,
+  `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `timestamp` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `black_page` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `page` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,

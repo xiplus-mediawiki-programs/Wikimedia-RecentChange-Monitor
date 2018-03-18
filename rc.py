@@ -55,7 +55,10 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n(blacklist: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
+				message_append += "\n(blacklist: "+rows[0][0]
+				if rows[0][2] != "" and rows[0][2] != user:
+					message_append += "("+rows[0][2]+")"
+				message_append += ', '+M.formattimediff(rows[0][1])+")"
 
 			rows = M.check_page_blacklist(title)
 			if len(rows) != 0:

@@ -2,12 +2,15 @@
 import pymysql
 import configparser
 import os
+import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import json
 import cgi
+import ipaddress
+import re
 
 class Monitor():
 	def __init__(self):
@@ -26,6 +29,8 @@ class Monitor():
 		self.defaultwiki = config.get('monitor', 'defaultwiki')
 		self.wiki = config.get('monitor', 'defaultwiki')
 		self.domain = config.get('monitor', 'defaultdomain')
+		self.ipv4limit = config.getint('monitor', 'ipv4limit')
+		self.ipv6limit = config.getint('monitor', 'ipv6limit')
 
 	def change_wiki_and_domain(self, wiki, domain):
 		self.wiki = wiki
@@ -136,11 +141,38 @@ class Monitor():
 			wiki = self.wiki
 		user = user.strip()
 		wiki = wiki.strip()
-		self.log(user+" "+str(timestamp)+" "+reason)
-		self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
-			(wiki, user, str(timestamp), reason) )
-		self.db.commit()
-		self.sendmessage(msgprefix+"added "+self.link_user(user, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+
+		userobj = self.user_type(user)
+		if type(userobj) == User:
+			self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
+				(wiki, userobj.user, str(timestamp), reason) )
+			self.db.commit()
+			self.sendmessage(msgprefix+"added User:"+self.link_user(userobj.user, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+			return
+		elif type(userobj) == IPv4:
+			if int(userobj.end) - int(userobj.start) > self.ipv4limit:
+				self.sendmessage("IP數量超過上限")
+				return
+			self.cur.execute("""INSERT INTO `black_ipv4` (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s, %s, %s)""",
+				(wiki, str(userobj.val), str(int(userobj.start)), str(int(userobj.end)), str(timestamp), reason) )
+			self.db.commit()
+		elif type(userobj) == IPv6:
+			if int(userobj.end) - int(userobj.start) > self.ipv6limit:
+				self.sendmessage("IP數量超過上限")
+				return
+			self.cur.execute("""INSERT INTO `black_ipv6` (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s, %s, %s)""",
+				(wiki, str(userobj.val), str(int(userobj.start)), str(int(userobj.end)), str(timestamp), reason) )
+			self.db.commit()
+		else:
+			self.error("cannot detect user type: "+user)
+			return
+		if type(userobj) in [IPv4, IPv6]:
+			if userobj.start == userobj.end:
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+			elif userobj.type == "CIDR":
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+			elif userobj.type == "range":
+				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
 
 	def delblack_user(self, user, wiki=None, msgprefix=""):
 		if wiki == None:
@@ -148,10 +180,31 @@ class Monitor():
 		user = user.strip()
 		wiki = wiki.strip()
 
-		self.cur.execute("""DELETE FROM `black_user` WHERE `user` = %s AND `wiki` = %s""",
-			(user, wiki) )
-		self.db.commit()
-		self.sendmessage("deleted "+self.link_user(user, wiki)+"("+wiki+") from user blacklist")
+		userobj = self.user_type(user)
+		if type(userobj) == User:
+			count = self.cur.execute("""DELETE FROM `black_user` WHERE `user` = %s AND `wiki` = %s""",
+				(userobj.user, wiki) )
+			self.db.commit()
+			self.sendmessage(str(count)+" records about User:"+self.link_user(userobj.user, wiki)+"("+wiki+") deleted from user blacklist")
+			return
+		elif type(userobj) == IPv4:
+			count = self.cur.execute("""DELETE FROM `black_ipv4` WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
+				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+			self.db.commit()
+		elif type(userobj) == IPv6:
+			count = self.cur.execute("""DELETE FROM `black_ipv6` WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
+				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+			self.db.commit()
+		else:
+			self.error("cannot detect user type: "+user)
+			return
+		if type(userobj) in [IPv4, IPv6]:
+			if userobj.start == userobj.end:
+				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" deleted from user blacklist")
+			elif userobj.type == "CIDR":
+				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" deleted from user blacklist")
+			elif userobj.type == "range":
+				self.sendmessage(msgprefix+str(count)+" records about IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" deleted from user blacklist")
 
 	def addwhite_user(self, user, timestamp, reason, msgprefix=""):
 		user = user.strip()
@@ -160,27 +213,66 @@ class Monitor():
 		self.db.commit()
 		self.sendmessage(msgprefix+"added "+self.link_user(user, "")+"@global into user whitelist\nreason: "+cgi.escape(reason, quote=False))
 
-	def check_user_blacklist(self, user, wiki=None):
+	def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
 		if wiki == None:
 			wiki = self.wiki
 		user = user.strip()
 		wiki = wiki.strip()
-		self.cur.execute("""SELECT `reason` FROM `white_user` WHERE `user` = %s""", (user))
-		rows = self.cur.fetchall()
-		if len(rows) != 0:
-			return []
-		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, wiki))
-		return self.cur.fetchall()
 
-	def check_user_blacklist_with_reason(self, user, reason, wiki=None):
+		if not ignorewhite:
+			rows = self.check_user_whitelist(user, wiki)
+			if len(rows) != 0:
+				return []
+
+		userobj = self.user_type(user)
+		if type(userobj) == User:
+			self.cur.execute("""SELECT `reason`, `timestamp`, '' AS `val` FROM `black_user` WHERE `user` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, wiki))
+			return self.cur.fetchall()
+		elif type(userobj) == IPv4:
+			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
+				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+			return self.cur.fetchall()
+		elif type(userobj) == IPv6:
+			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
+				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+			return self.cur.fetchall()
+		else:
+			self.error("cannot detect user type: "+user)
+			return []
+
+	def check_user_blacklist_with_reason(self, user, reason, wiki=None, ignorewhite=False):
 		if wiki == None:
 			wiki = self.wiki
 		user = user.strip()
-		self.cur.execute("""SELECT `reason` FROM `white_user` WHERE `user` = %s""", (user))
-		rows = self.cur.fetchall()
-		if len(rows) != 0:
+
+		if not ignorewhite:
+			rows = self.check_user_whitelist(user, wiki)
+			if len(rows) != 0:
+				return []
+
+		userobj = self.user_type(user)
+		if type(userobj) == User:
+			self.cur.execute("""SELECT `reason`, `timestamp`, `user` FROM `black_user` WHERE `user` = %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, reason, wiki))
+			return self.cur.fetchall()
+		elif type(userobj) == IPv4:
+			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
+				(str(int(userobj.start)), str(int(userobj.end)), reason, wiki) )
+			return self.cur.fetchall()
+		elif type(userobj) == IPv6:
+			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
+				(str(int(userobj.start)), str(int(userobj.end)), reason, wiki) )
+			return self.cur.fetchall()
+		else:
+			self.error("cannot detect user type: "+user)
 			return []
-		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, reason, wiki))
+
+	def check_user_whitelist(self, user, wiki=None):
+		if wiki == None:
+			wiki = self.wiki
+		user = user.strip()
+		wiki = wiki.strip()
+
+		self.cur.execute("""SELECT `reason`, `timestamp` FROM `white_user` WHERE `user` = %s ORDER BY `timestamp` DESC""", (user))
 		return self.cur.fetchall()
 
 	def addblack_page(self, page, timestamp, reason, wiki=None, msgprefix=""):
@@ -200,10 +292,10 @@ class Monitor():
 		page = page.strip()
 		wiki = wiki.strip()
 
-		self.cur.execute("""DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
+		count = self.cur.execute("""DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
 			(page, wiki) )
 		self.db.commit()
-		self.sendmessage("deleted "+self.link_page(page, wiki)+"("+wiki+") from watched page")
+		self.sendmessage(str(count)+" records about "+self.link_page(page, wiki)+"("+wiki+") deleted from watched page")
 
 	def check_page_blacklist(self, page, wiki=None):
 		if wiki == None:
@@ -297,5 +389,62 @@ class Monitor():
 		else :
 			return reason
 
+	def user_type(self, user):
+		try:
+			user = user.strip()
+			m = re.match(r"(.+)\-(.+)", user)
+			if m != None:
+				ip1 = ipaddress.ip_address(m.group(1))
+				ip2 = ipaddress.ip_address(m.group(2))
+				if ip1 > ip2:
+					ip1, ip2 = ip2, ip1
+				if type(ip1) == type(ip2):
+					if type(ip1) == ipaddress.IPv4Address:
+						return IPv4(ip1, ip2, "range", user)
+					elif type(ip1) == ipaddress.IPv6Address:
+						return IPv6(ip1, ip2, "range", user)
+				self.error("cannot detect user type: "+user)
+				raise ValueError
+			network = ipaddress.ip_network(user, strict=False)
+			if type(network) == ipaddress.IPv4Network:
+				if network[0] == network[-1]:
+					return IPv4(network[0], network[-1], "CIDR", network[0])
+				else :
+					return IPv4(network[0], network[-1], "CIDR", network)
+			elif type(network) == ipaddress.IPv6Network:
+				if network[0] == network[-1]:
+					return IPv6(network[0], network[-1], "CIDR", network[0])
+				else :
+					return IPv6(network[0], network[-1], "CIDR", network)
+			else :
+				self.error("cannot detect user type: "+user)
+				raise ValueError
+		except ValueError as e:
+			return User(user)
+		except Exception as e:
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			self.error(str(e))
+			self.error(str(exc_type)+" "+str(fname)+" "+str(exc_tb.tb_lineno))
+			return None
+
 	def __exit__(self):
 		self.db.close()
+
+class User():
+	def __init__(self, user):
+		self.user = user
+
+class IPv4():
+	def __init__(self, start, end, type, val):
+		self.start = start
+		self.end = end
+		self.type = type
+		self.val = val
+
+class IPv6():
+	def __init__(self, start, end, type, val):
+		self.start = start
+		self.end = end
+		self.type = type
+		self.val = val
