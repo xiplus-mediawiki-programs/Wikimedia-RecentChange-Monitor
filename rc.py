@@ -105,11 +105,17 @@ for event in EventSource(url):
 				elif log_type == "protect":
 					if log_action == "unprotect":
 						isrecord and M.addRC_log_protect_unprotect(change)
+						
+						print(user+" unprotect "+title+" comment:"+comment)
+					elif log_action == "move_prot":
+						isrecord and M.addRC_log_protect_move_prot(change)
+
+						print(user+" move_prot "+title+" comment:"+comment)
 					else :
 						isrecord and M.addRC_log_protect(change)
 
-					print(user+" protect "+title+" comment:"+comment)
-					message = M.link_user(user)+' '+log_action+' '+M.link_page(title)+' ('+cgi.escape(comment, quote=False)+') ('+cgi.escape(change["log_params"]["description"], quote=False)+')'
+						print(user+" protect "+title+" comment:"+comment)
+						message = M.link_user(user)+' '+log_action+' '+M.link_page(title)+' ('+cgi.escape(comment, quote=False)+') ('+cgi.escape(change["log_params"]["description"], quote=False)+')'
 				elif log_type == "newusers":
 					isrecord and M.addRC_log_newusers(change)
 

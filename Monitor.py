@@ -87,7 +87,11 @@ class Monitor():
 		self.db.commit()
 
 	def addRC_log_protect_unprotect(self, change):
-		self.cur.execute("""INSERT INTO `RC_log_protect` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params_details`, `log_params_description`, `log_params_cascade`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], "[]", "", "0", change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.cur.execute("""INSERT INTO `RC_log_protect_unprotect` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.db.commit()
+
+	def addRC_log_protect_move_prot(self, change):
+		self.cur.execute("""INSERT INTO `RC_log_protect_move_prot` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params_oldtitle`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %r, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["oldtitle"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
 	def addRC_log_renameuser(self, change):

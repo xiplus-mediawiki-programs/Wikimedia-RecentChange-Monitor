@@ -267,6 +267,37 @@ CREATE TABLE `RC_log_protect` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `RC_log_protect_move_prot` (
+  `bot` tinyint(1) NOT NULL,
+  `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `id` int(11) NOT NULL,
+  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `log_id` int(11) NOT NULL,
+  `log_params_oldtitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `namespace` int(11) NOT NULL,
+  `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `timestamp` int(11) NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `RC_log_protect_unprotect` (
+  `bot` tinyint(1) NOT NULL,
+  `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `id` int(11) NOT NULL,
+  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `log_id` int(11) NOT NULL,
+  `namespace` int(11) NOT NULL,
+  `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `timestamp` int(11) NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `RC_log_renameuser` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
