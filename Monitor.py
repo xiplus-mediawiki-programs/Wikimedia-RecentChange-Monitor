@@ -22,8 +22,9 @@ class Monitor():
 								  db=config.get('database', 'db'),
 								  charset=config.get('database', 'charset'))
 		self.cur = self.db.cursor()
-		self.wiki = 'zhwiki'
-		self.domain = 'zh.wikipedia.org'
+		self.defaultwiki = config.get('monitor', 'defaultwiki')
+		self.wiki = config.get('monitor', 'defaultwiki')
+		self.domain = config.get('monitor', 'defaultdomain')
 
 	def addRC_edit(self, change):
 		self.cur.execute("""INSERT INTO `RC_edit` (`bot`, `comment`, `id`, `length_new`, `length_old`, `minor`, `namespace`, `parsedcomment`, `revision_new`, `revision_old`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["length"]["new"], change["length"]["old"], change["minor"], change["namespace"], change["parsedcomment"], change["revision"]["new"], change["revision"]["old"], change["timestamp"], change["title"], change["user"], change["wiki"]))
@@ -58,7 +59,7 @@ class Monitor():
 		elif change["revid"] == "":
 			change["revid"] = "0"
 		change["timestamp"] = str(int(dateutil.parser.parse(change["timestamp"]).timestamp()))
-		self.cur.execute("""INSERT INTO `RC_log_abuselog` (`id`, `filter_id`, `filter`, `user`, `ns`, `revid`, `result`, `action`, `timestamp`, `title`, `wiki`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["id"], change["filter_id"], change["filter"], change["user"], change["ns"], change["revid"], change["result"], change["action"], change["timestamp"], change["title"], "zhwiki"))
+		self.cur.execute("""INSERT INTO `RC_log_abuselog` (`id`, `filter_id`, `filter`, `user`, `ns`, `revid`, `result`, `action`, `timestamp`, `title`, `wiki`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["id"], change["filter_id"], change["filter"], change["user"], change["ns"], change["revid"], change["result"], change["action"], change["timestamp"], change["title"], self.defaultwiki))
 		self.db.commit()
 
 	def addRC_log_abusefilter_modify(self, change):

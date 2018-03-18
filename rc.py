@@ -24,6 +24,7 @@ db = pymysql.connect(host=config.get('database', 'host'),
 cur = db.cursor()
 url = 'https://stream.wikimedia.org/v2/stream/recentchange'
 
+defaultwiki = config.get('monitor', 'defaultwiki')
 followwiki = json.loads(config.get('monitor', 'followwiki'))
 recordwiki = json.loads(config.get('monitor', 'recordwiki'))
 
@@ -55,13 +56,13 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "(blacklist: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
+				message_append += "\n(blacklist: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
 
 			rows = M.check_page_blacklist(title)
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "(watch: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
+				message_append += "\n(watch: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
 
 			if wiki not in followwiki and not isrecord:
 				continue
@@ -167,8 +168,10 @@ for event in EventSource(url):
 				issend = False
 
 			if issend and message != "":
+				if wiki != defaultwiki:
+					message += "("+wiki+")"
 				if message_append != "":
-					message += "\n"+message_append
+					message += message_append
 				M.sendmessage(message)
 		except Exception as e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
