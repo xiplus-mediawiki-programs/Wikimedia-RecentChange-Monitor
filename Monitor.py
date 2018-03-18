@@ -143,7 +143,7 @@ class Monitor():
 		rows = self.cur.fetchall()
 		if len(rows) != 0:
 			return []
-		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND (`wiki` = %s OR `wiki` = 'global')""", (user, wiki))
+		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, wiki))
 		return self.cur.fetchall()
 
 	def check_user_blacklist_with_reason(self, user, reason, wiki=None):
@@ -153,13 +153,13 @@ class Monitor():
 		rows = self.cur.fetchall()
 		if len(rows) != 0:
 			return []
-		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')""", (user, reason, wiki))
+		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, reason, wiki))
 		return self.cur.fetchall()
 
 	def check_page_blacklist(self, page, wiki=None):
 		if wiki == None:
 			wiki = self.wiki
-		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_page` WHERE `page` = %s AND `wiki` = %s""", (page, wiki))
+		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_page` WHERE `page` = %s AND `wiki` = %s ORDER BY `timestamp` DESC""", (page, wiki))
 		return self.cur.fetchall()
 
 	def link_all(self, page, text):
