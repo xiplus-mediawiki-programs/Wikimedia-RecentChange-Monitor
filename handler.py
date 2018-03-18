@@ -125,9 +125,9 @@ def telegram():
 	except Exception as e:
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-		M.log(str(request.data.decode("utf8")))
-		M.log(str(e))
-		M.log(str(exc_type)+" "+str(fname)+" "+str(exc_tb.tb_lineno))
+		M.error(str(request.data.decode("utf8")))
+		M.error(str(e))
+		M.error(str(exc_type)+" "+str(fname)+" "+str(exc_tb.tb_lineno))
 		return "OK"
 
 if __name__ == "__main__":

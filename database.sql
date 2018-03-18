@@ -29,6 +29,12 @@ CREATE TABLE `black_user` (
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `error` (
+  `timestamp` int(11) NOT NULL,
+  `log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `log` (
   `timestamp` int(11) NOT NULL,
   `log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,

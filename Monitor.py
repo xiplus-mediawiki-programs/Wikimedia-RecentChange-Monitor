@@ -247,13 +247,20 @@ class Monitor():
 			url = "https://api.telegram.org/bot"+self.token+"/sendMessage?chat_id="+str(self.chat_id)+"&parse_mode=HTML&disable_web_page_preview=1&text="+urllib.parse.quote_plus(message.encode())
 			res = urllib.request.urlopen(url).read().decode("utf8")
 		except urllib.error.HTTPError as e:
-			self.log("send message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message: "+message)
+			self.error("send message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message: "+message)
 
 	def log(self, log, timestamp=None):
 		if timestamp == None:
 			timestamp = int(time.time())
 		self.cur.execute("""INSERT INTO `log` (`timestamp`, `log`) VALUES (%s, %s)""",
 			(timestamp, str(log)) )
+		self.db.commit()
+
+	def error(self, error, timestamp=None):
+		if timestamp == None:
+			timestamp = int(time.time())
+		self.cur.execute("""INSERT INTO `error` (`timestamp`, `error`) VALUES (%s, %s)""",
+			(timestamp, str(error)) )
 		self.db.commit()
 
 	def formattimediff(self, timestamp, basetime = None):
