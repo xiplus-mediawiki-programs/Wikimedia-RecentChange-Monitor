@@ -27,14 +27,17 @@ def telegram():
 			m_first_name = data["message"]["from"]["first_name"]
 
 			if "text" in data["message"] and m_chat_id == M.chat_id:
+				m_text = data["message"]["text"]
+				M.log(m_text)
+
+				if not m_text.startswith("/"):
+					return "OK"
+
 				M.cur.execute("""SELECT * FROM `admin` WHERE `user_id` = %s""", (str(m_user_id)))
 				rows = M.cur.fetchall()
 				if len(rows) == 0:
 					M.sendmessage("You are not an admin.")
 					return "OK"
-
-				m_text = data["message"]["text"]
-				M.log(m_text)
 
 				m = re.match(r"/setadmin", m_text)
 				if m != None:
