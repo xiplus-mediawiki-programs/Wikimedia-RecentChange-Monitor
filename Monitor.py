@@ -7,6 +7,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import json
+import cgi
 
 class Monitor():
 	def __init__(self):
@@ -127,13 +128,13 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
 			(wiki, user, str(timestamp), reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"added "+self.link_user(user)+"@"+wiki+" into user blacklist\nreason: "+reason)
+		self.sendmessage(msgprefix+"added "+self.link_user(user)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
 
 	def addwhite_user(self, user, timestamp, reason, msgprefix=""):
 		self.cur.execute("""INSERT INTO `white_user` (`user`, `timestamp`, `reason`) VALUES (%s, %s, %s)""",
 			(user, timestamp, reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"added "+self.link_user(user)+"@global into user whitelist\nreason: "+reason)
+		self.sendmessage(msgprefix+"added "+self.link_user(user)+"@global into user whitelist\nreason: "+cgi.escape(reason, quote=False))
 
 	def check_user_blacklist(self, user, wiki=None):
 		if wiki == None:
