@@ -81,88 +81,35 @@ def telegram():
 
 				m = re.match(r"/adduser\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
-					user = m.group(1)
-					M.log(user)
-					M.log(str(user.split("|")))
-					if "|" in user:
-						wiki = user.split("|")[1]
-						user = user.split("|")[0]
-					else :
-						wiki = M.wiki
-
-					reason = "add by "+m_first_name
-					if m.group(2) == None or m.group(2).strip() == "":
-						reason += ": no reason"
-					else :
-						reason += ": "+m.group(2)
+					user, wiki = M.parse_user(m.group(1))
+					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
 					M.addblack_user(user, m_date, reason, wiki)
 					return "OK"
 
 				m = re.match(r"/addwhiteuser\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					user = m.group(1)
-					reason = "add by "+m_first_name
-					if m.group(2) == None or m.group(2).strip() == "":
-						reason += ": no reason"
-					else :
-						reason += ": "+m.group(2)
+					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
 				m = re.match(r"/deluser\n(.+)(?:\n.+)?", m_text)
 				if m != None:
-					user = m.group(1)
-					if "@" in user:
-						wiki = user.split("@")[1]
-						user = user.split("@")[0]
-					else :
-						wiki = M.wiki
-
-					M.cur.execute("""DELETE FROM `black_user` WHERE `user` = %s AND `wiki` = %s""",
-						(user, wiki) )
-					M.db.commit()
-					message = "deleted "+M.link_user(user)+"@"+wiki+" from user blacklist"
-					M.sendmessage(message)
+					user, wiki = M.parse_user(m.group(1))
+					M.delblack_user(user, wiki)
 					return "OK"
 
 				m = re.match(r"/addpage\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
-					page = m.group(1)
-					if "|" in page:
-						wiki = page.split("|")[1]
-						page = page.split("|")[0]
-					else :
-						wiki = M.wiki
-
-					reason = "add by "+m_first_name
-					if m.group(2) == None or m.group(2).strip() == "":
-						reason += ": no reason"
-					else :
-						reason += ": "+m.group(2)
-					M.cur.execute("""INSERT INTO `black_page` (`wiki`, `page`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
-						(wiki, page, m_date, reason) )
-					M.db.commit()
-					if wiki == M.wiki:
-						message = "added "+M.link_page(page)+"("+wiki+") into watched page\nreason: "+reason
-					else :
-						message = "added "+page+"("+wiki+") into watched page\nreason: "+reason
-					M.sendmessage(message)
+					page, wiki = M.parse_page(m.group(1))
+					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
+					M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
 				m = re.match(r"/delpage\n(.+)(?:\n.+)?", m_text)
 				if m != None:
-					page = m.group(1)
-					if "|" in page:
-						wiki = page.split("|")[1]
-						page = page.split("|")[0]
-					else :
-						wiki = M.wiki
-
-					M.cur.execute("""DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
-						(page, wiki) )
-					M.db.commit()
-					message = "deleted "+M.link_page(page)+"("+wiki+") from watched page"
-					M.sendmessage(message)
+					page, wiki = M.parse_page(m.group(1))
+					M.delblack_page(page, wiki)
 					return "OK"
 
 				m = re.match(r"/status", m_text)

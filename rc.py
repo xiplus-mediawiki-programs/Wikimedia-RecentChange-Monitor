@@ -38,8 +38,7 @@ for event in EventSource(url):
 			continue
 
 		try:
-			M.wiki = change['wiki']
-			M.domain = change["meta"]["domain"]
+			M.change_wiki_and_domain(change['wiki'], change["meta"]["domain"])
 
 			wiki = change["wiki"]
 			type = change["type"]

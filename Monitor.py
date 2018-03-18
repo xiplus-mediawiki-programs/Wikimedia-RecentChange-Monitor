@@ -26,6 +26,10 @@ class Monitor():
 		self.wiki = config.get('monitor', 'defaultwiki')
 		self.domain = config.get('monitor', 'defaultdomain')
 
+	def change_wiki_and_domain(self, wiki, domain):
+		self.wiki = wiki
+		self.domain = domain
+
 	def addRC_edit(self, change):
 		self.cur.execute("""INSERT INTO `RC_edit` (`bot`, `comment`, `id`, `length_new`, `length_old`, `minor`, `namespace`, `parsedcomment`, `revision_new`, `revision_old`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["length"]["new"], change["length"]["old"], change["minor"], change["namespace"], change["parsedcomment"], change["revision"]["new"], change["revision"]["old"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
@@ -129,21 +133,37 @@ class Monitor():
 	def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
 		if wiki == None:
 			wiki = self.wiki
+		user = user.strip()
+		wiki = wiki.strip()
 		self.log(user+" "+str(timestamp)+" "+reason)
 		self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
 			(wiki, user, str(timestamp), reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"added "+self.link_user(user)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+		self.sendmessage(msgprefix+"added "+self.link_user(user, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+
+	def delblack_user(self, user, wiki=None, msgprefix=""):
+		if wiki == None:
+			wiki = self.wiki
+		user = user.strip()
+		wiki = wiki.strip()
+
+		self.cur.execute("""DELETE FROM `black_user` WHERE `user` = %s AND `wiki` = %s""",
+			(user, wiki) )
+		self.db.commit()
+		self.sendmessage("deleted "+self.link_user(user, wiki)+"("+wiki+") from user blacklist")
 
 	def addwhite_user(self, user, timestamp, reason, msgprefix=""):
+		user = user.strip()
 		self.cur.execute("""INSERT INTO `white_user` (`user`, `timestamp`, `reason`) VALUES (%s, %s, %s)""",
 			(user, timestamp, reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"added "+self.link_user(user)+"@global into user whitelist\nreason: "+cgi.escape(reason, quote=False))
+		self.sendmessage(msgprefix+"added "+self.link_user(user, "")+"@global into user whitelist\nreason: "+cgi.escape(reason, quote=False))
 
 	def check_user_blacklist(self, user, wiki=None):
 		if wiki == None:
 			wiki = self.wiki
+		user = user.strip()
+		wiki = wiki.strip()
 		self.cur.execute("""SELECT `reason` FROM `white_user` WHERE `user` = %s""", (user))
 		rows = self.cur.fetchall()
 		if len(rows) != 0:
@@ -154,6 +174,7 @@ class Monitor():
 	def check_user_blacklist_with_reason(self, user, reason, wiki=None):
 		if wiki == None:
 			wiki = self.wiki
+		user = user.strip()
 		self.cur.execute("""SELECT `reason` FROM `white_user` WHERE `user` = %s""", (user))
 		rows = self.cur.fetchall()
 		if len(rows) != 0:
@@ -161,19 +182,51 @@ class Monitor():
 		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_user` WHERE `user` = %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, reason, wiki))
 		return self.cur.fetchall()
 
+	def addblack_page(self, page, timestamp, reason, wiki=None, msgprefix=""):
+		if wiki == None:
+			wiki = self.wiki
+		page = page.strip()
+		wiki = wiki.strip()
+
+		self.cur.execute("""INSERT INTO `black_page` (`wiki`, `page`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
+			(wiki, page, timestamp, reason) )
+		self.db.commit()
+		self.sendmessage("added "+self.link_page(page, wiki)+"("+wiki+") into watched page\nreason: "+reason)
+
+	def delblack_page(self, page, wiki=None, msgprefix=""):
+		if wiki == None:
+			wiki = self.wiki
+		page = page.strip()
+		wiki = wiki.strip()
+
+		self.cur.execute("""DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
+			(page, wiki) )
+		self.db.commit()
+		self.sendmessage("deleted "+self.link_page(page, wiki)+"("+wiki+") from watched page")
+
 	def check_page_blacklist(self, page, wiki=None):
 		if wiki == None:
 			wiki = self.wiki
+		page = page.strip()
+		wiki = wiki.strip()
 		self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_page` WHERE `page` = %s AND `wiki` = %s ORDER BY `timestamp` DESC""", (page, wiki))
 		return self.cur.fetchall()
 
-	def link_all(self, page, text):
+	def link_all(self, page, text=None, wiki=None):
+		if text == None:
+			text = page
+		if wiki != None and wiki != self.wiki:
+			return page
 		return '<a href="https://'+self.domain+'/wiki/'+urllib.parse.quote(page)+'">'+text+'</a>'
 
-	def link_user(self, user):
+	def link_user(self, user, wiki=None):
+		if wiki != None and wiki != self.wiki:
+			return user
 		return '<a href="https://'+self.domain+'/wiki/Special:Contributions/'+urllib.parse.quote(user)+'">'+user+'</a>'
 
-	def link_page(self, title):
+	def link_page(self, title, wiki=None):
+		if wiki != None and wiki != self.wiki:
+			return title
 		return '<a href="https://'+self.domain+'/wiki/'+urllib.parse.quote(title)+'">'+title+'</a>'
 
 	def link_diff(self, id):
@@ -214,5 +267,27 @@ class Monitor():
 			return str(int(diff/60/60))+" hrs"
 		return str(int(diff/60/60/24))+" days"
 	
+	def parse_user(self, user, delimiter="|"):
+		if delimiter in user:
+			wiki = user.split(delimiter)[1]
+			user = user.split(delimiter)[0]
+		else :
+			wiki = self.wiki
+		return user, wiki
+
+	def parse_page(self, page, delimiter="|"):
+		if delimiter in page:
+			wiki = page.split(delimiter)[1]
+			page = page.split(delimiter)[0]
+		else :
+			wiki = self.wiki
+		return page, wiki
+
+	def parse_reason(self, reason):
+		if reason == None or reason.strip() == "":
+			return "no reason"
+		else :
+			return reason
+
 	def __exit__(self):
 		self.db.close()
