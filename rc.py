@@ -55,7 +55,7 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n(blacklist: "+rows[0][0]
+				message_append += "\n(blacklist: "+cgi.escape(rows[0][0], quote=False)
 				if rows[0][2] != "" and rows[0][2] != user:
 					message_append += "("+rows[0][2]+")"
 				message_append += ', '+M.formattimediff(rows[0][1])+")"
@@ -64,7 +64,7 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n(watch: "+rows[0][0]+', '+M.formattimediff(rows[0][1])+")"
+				message_append += "\n(watch: "+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+")"
 
 			if wiki not in followwiki and not isrecord:
 				continue
