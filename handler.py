@@ -4,6 +4,7 @@ from flask import Flask, request, abort
 import re
 import os
 import sys
+import cgi
 from Monitor import Monitor
 
 os.environ['TZ'] = 'UTC'
@@ -123,13 +124,13 @@ def telegram():
 					if len(rows) != 0:
 						message += "\non whitelist:"
 						for record in rows:
-							message += "\n"+record[0]+', '+M.formattimediff(record[1])
+							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
 
 					rows = M.check_user_blacklist(user, wiki, ignorewhite=True)
 					if len(rows) != 0:
 						message += "\non blacklist:"
 						for record in rows:
-							message += "\n"+record[0]
+							message += "\n"+cgi.escape(record[0], quote=False)
 							if record[2] != "":
 								message += "("+record[2]+")"
 							message += ', '+M.formattimediff(record[1])
