@@ -132,7 +132,9 @@ def telegram():
 						for record in rows:
 							message += "\n"+cgi.escape(record[0], quote=False)
 							if record[2] != "":
-								message += "("+record[2]+")"
+								message += "("+record[2]+"@"+record[3]+")"
+							else :
+								message += "("+record[3]+")"
 							message += ', '+M.formattimediff(record[1])
 
 					if message != "":

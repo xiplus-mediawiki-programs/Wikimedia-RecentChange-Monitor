@@ -226,14 +226,14 @@ class Monitor():
 
 		userobj = self.user_type(user)
 		if type(userobj) == User:
-			self.cur.execute("""SELECT `reason`, `timestamp`, '' AS `val` FROM `black_user` WHERE `user` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, wiki))
+			self.cur.execute("""SELECT `reason`, `timestamp`, '' AS `val`, `wiki` FROM `black_user` WHERE `user` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""", (user, wiki))
 			return self.cur.fetchall()
 		elif type(userobj) == IPv4:
-			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
+			self.cur.execute("""SELECT `reason`, `timestamp`, `val`, `wiki` FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
 				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
 			return self.cur.fetchall()
 		elif type(userobj) == IPv6:
-			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
+			self.cur.execute("""SELECT `reason`, `timestamp`, `val`, `wiki` FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
 				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
 			return self.cur.fetchall()
 		else:
