@@ -61,7 +61,7 @@ for event in EventSource(url):
 				message_append += ', '+M.formattimediff(rows[0][1])+")"
 
 			rows = M.check_page_blacklist(title)
-			if len(rows) != 0:
+			if len(rows) != 0 and len(check_user_whitelist(user)) != 0:
 				issend = True
 				isrecord = True
 				message_append += "\n(watch: "+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+")"
