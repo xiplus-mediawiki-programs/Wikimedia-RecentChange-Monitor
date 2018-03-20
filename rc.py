@@ -61,7 +61,7 @@ for event in EventSource(url):
 				message_append += ', '+M.formattimediff(rows[0][1])+")"
 
 			rows = M.check_page_blacklist(title)
-			if len(rows) != 0 and len(check_user_whitelist(user)) != 0:
+			if len(rows) != 0 and len(M.check_user_whitelist(user)) != 0:
 				issend = True
 				isrecord = True
 				message_append += "\n(watch: "+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+")"
@@ -97,7 +97,7 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_block_unblock(change)
 					else :
 						isrecord and M.addRC_log_block(change)
-						if re.match(r"proxy|school", change["comment"], re.IGNORECASE) == None:
+						if re.search(r"proxy|school", change["comment"], re.IGNORECASE) == None:
 							reason = "blocked on "+wiki+": "+change["comment"]
 							M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
 
