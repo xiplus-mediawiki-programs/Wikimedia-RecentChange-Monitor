@@ -97,8 +97,9 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_block_unblock(change)
 					else :
 						isrecord and M.addRC_log_block(change)
-						reason = "blocked on "+wiki+": "+change["comment"]
-						M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
+						if re.match(r"proxy|school", change["comment"], re.IGNORECASE) == None:
+							reason = "blocked on "+wiki+": "+change["comment"]
+							M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
 
 					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
 					message = M.link_user(user)+' '+log_action+' '+M.link_user(title[5:])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
