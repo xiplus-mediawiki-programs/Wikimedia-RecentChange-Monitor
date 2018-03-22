@@ -143,6 +143,23 @@ def telegram():
 						M.sendmessage("no result found")
 					return "OK"
 
+				m = re.match(r"/checkpage\n(.+)", m_text)
+				if m != None:
+					page, wiki = M.parse_page(m.group(1))
+
+					message = ""
+					rows = M.check_page_blacklist(page, wiki)
+					if len(rows) != 0:
+						message += "\non blacklist:"
+						for record in rows:
+							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
+
+					if message != "":
+						M.sendmessage(message)
+					else :
+						M.sendmessage("no result found")
+					return "OK"
+
 				m = re.match(r"/status", m_text)
 				if m != None:
 					message = "working"

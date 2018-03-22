@@ -9,6 +9,7 @@
 | /checkuser<br>`user` | /checkuser<br>`user`&#124;`wiki` | /checkuser<br>`user`&#124;global| N/A | 列出`user`的監視狀態 |
 | /addpage<br>`page` | /addpage<br>`page`&#124;`wiki` | N/A |  /addpage<br>`page`<br>`reason` | 監視`wiki`上的`page`的編輯<br>可附加原因`reason` |
 | /delpage<br>`page` | /delpage<br>`page`&#124;`wiki` | N/A | N/A | 取消監視`wiki`上的`page`的編輯 |
+| /checkpage<br>`page` | /checkpage<br>`page`&#124;`wiki` | N/A | N/A | 列出`page`的監視狀態 |
 
 | 頻道指令 | 功能 |
 | ------------- | ------------- |
