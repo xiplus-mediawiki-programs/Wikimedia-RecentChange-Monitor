@@ -60,7 +60,7 @@ for event in EventSource(url):
 					message_append += "("+rows[0][2]+")"
 				message_append += ', '+M.formattimediff(rows[0][1])+")"
 
-			rows = M.check_page_blacklist(title)
+			rows = M.check_page_blacklist(title, wiki)
 			if len(rows) != 0 and len(M.check_user_whitelist(user)) != 0:
 				issend = True
 				isrecord = True

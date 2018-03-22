@@ -118,7 +118,7 @@ class Monitor():
 		self.db.commit()
 
 	def addRC_log_patrol(self, change):
-		self.cur.execute("""INSERT INTO `RC_log_patrol` (`bot`, `log_action`, `log_action_comment`, `log_id`, `log_params_auto`, `log_params_previd`, `log_params_curid`, `namespace`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["auto"], change["log_params"]["previd"], change["log_params"]["curid"], change["namespace"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.cur.execute("""INSERT INTO `RC_log_patrol` (`bot`, `log_action`, `log_action_comment`, `log_id`, `log_params_auto`, `log_params_previd`, `log_params_curid`, `namespace`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %r, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["auto"], change["log_params"]["previd"], change["log_params"]["curid"], change["namespace"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
 	def addRC_log_thanks(self, change):
