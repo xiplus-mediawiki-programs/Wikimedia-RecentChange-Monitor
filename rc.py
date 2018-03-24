@@ -8,7 +8,7 @@ import re
 import urllib
 from sseclient import SSEClient as EventSource
 import cgi
-from Monitor import Monitor
+from Monitor import *
 
 os.environ['TZ'] = 'UTC'
 
@@ -42,7 +42,7 @@ for event in EventSource(url):
 			M.change_wiki_and_domain(change['wiki'], change["meta"]["domain"])
 
 			wiki = change["wiki"]
-			type = change["type"]
+			ctype = change["type"]
 			user = change["user"]
 			title = change["title"]
 			comment = change["comment"]
@@ -70,24 +70,24 @@ for event in EventSource(url):
 			if wiki not in followwiki and not isrecord:
 				continue
 
-			if type == "edit":
+			if ctype == "edit":
 				isrecord and M.addRC_edit(change)
 
 				print(user+" edit "+title)
 				message = M.link_user(user)+' edit '+M.link_page(title)+' ('+M.link_diff(change["revision"]["new"])+')'
-			elif type == "new":
+			elif ctype == "new":
 				isrecord and M.addRC_new(change)
 
 				print(user+" create "+title)
 				message = M.link_user(user)+' create '+M.link_page(title)
-			elif type == "142":
+			elif ctype == "142":
 				isrecord and M.addRC_142(change)
 			
-			elif type == "categorize":
+			elif ctype == "categorize":
 				isrecord and M.addRC_categorize(change)
 
 				print(user+" categorize "+title)
-			elif type == "log":
+			elif ctype == "log":
 				log_type = change["log_type"]
 				log_action = change["log_action"]
 				if log_type == "move":
@@ -174,7 +174,7 @@ for event in EventSource(url):
 			if not isrecord:
 				print(json.dumps(change, indent=4, sort_keys=True, ensure_ascii=False))
 
-			if (wiki in followwiki and type in ["edit", "new"]) and change["namespace"] == 3 and re.match(r"^User talk:", title) and re.match(r"^(層級|层级)[234]", comment):
+			if (wiki in followwiki and ctype in ["edit", "new"]) and change["namespace"] == 3 and re.match(r"^User talk:", title) and re.match(r"^(層級|层级)[234]", comment):
 				reason = "warn by "+user+": "+comment
 				M.addblack_user(title[10:], change["timestamp"], reason, msgprefix="auto ")
 
