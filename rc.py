@@ -27,6 +27,7 @@ url = 'https://stream.wikimedia.org/v2/stream/recentchange'
 defaultwiki = config.get('monitor', 'defaultwiki')
 followwiki = json.loads(config.get('monitor', 'followwiki'))
 recordwiki = json.loads(config.get('monitor', 'recordwiki'))
+blockreasonblacklist = config.get('monitor', 'blockreasonblacklist')
 
 M = Monitor()
 
@@ -97,9 +98,13 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_block_unblock(change)
 					else :
 						isrecord and M.addRC_log_block(change)
-						if re.search(r"proxy|school|range", change["comment"], re.IGNORECASE) == None:
+						if re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
 							reason = "blocked on "+wiki+": "+change["comment"]
-							M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
+							user_type = M.user_type(title[5:])
+							if type(user_type) != User and user_type.start != user_type.end:
+								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki=wiki)
+							else:
+								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
 
 					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
 					message = M.link_user(user)+' '+log_action+' '+M.link_user(title[5:])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
