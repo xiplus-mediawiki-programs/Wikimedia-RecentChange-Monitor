@@ -16,7 +16,7 @@ class Monitor():
 	def __init__(self):
 		config = configparser.ConfigParser()
 		configpath = os.path.dirname(os.path.realpath(__file__))+'/config.ini'
-		config.read(configpath)
+		config.read_file(open(configpath, encoding="utf8"))
 		self.token = config.get('telegram', 'token')
 		self.chat_id = config.getint('telegram', 'default_chat_id')
 		self.response_chat_id = json.loads(config.get('telegram', 'response_chat_id'))
