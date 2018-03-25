@@ -36,14 +36,19 @@ def telegram():
 				if not m_text.startswith("/"):
 					return "OK"
 
-				M.cur.execute("""SELECT * FROM `admin` WHERE `user_id` = %s""", (str(m_user_id)))
-				rows = M.cur.fetchall()
-				if len(rows) == 0:
-					M.sendmessage("You are not an admin.")
-					return "OK"
+				def checkadmin():
+					M.cur.execute("""SELECT * FROM `admin` WHERE `user_id` = %s""", (str(m_user_id)))
+					rows = M.cur.fetchall()
+					if len(rows) == 0:
+						M.sendmessage("You are not an admin.")
+						return False
+					return True
 
 				m = re.match(r"/setadmin", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+
 					if "reply_to_message" not in data["message"]:
 						M.sendmessage("You need to reply a message")
 						return "OK"
@@ -64,6 +69,9 @@ def telegram():
 
 				m = re.match(r"/deladmin", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+						
 					if "reply_to_message" not in data["message"]:
 						M.sendmessage("You need to reply a message")
 						return "OK"
@@ -84,6 +92,9 @@ def telegram():
 
 				m = re.match(r"/adduser\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+						
 					user, wiki = M.parse_user(m.group(1))
 					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
 					M.addblack_user(user, m_date, reason, wiki)
@@ -91,6 +102,9 @@ def telegram():
 
 				m = re.match(r"/addwhiteuser\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+						
 					user = m.group(1)
 					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
 					M.addwhite_user(user, m_date, reason)
@@ -98,12 +112,18 @@ def telegram():
 
 				m = re.match(r"/deluser\n(.+)(?:\n.+)?", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+						
 					user, wiki = M.parse_user(m.group(1))
 					M.delblack_user(user, wiki)
 					return "OK"
 
 				m = re.match(r"/addpage\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+						
 					page, wiki = M.parse_page(m.group(1))
 					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
 					M.addblack_page(page, m_date, reason, wiki)
@@ -111,6 +131,9 @@ def telegram():
 
 				m = re.match(r"/delpage\n(.+)(?:\n.+)?", m_text)
 				if m != None:
+					if not checkadmin():
+						return "OK"
+						
 					page, wiki = M.parse_page(m.group(1))
 					M.delblack_page(page, wiki)
 					return "OK"
