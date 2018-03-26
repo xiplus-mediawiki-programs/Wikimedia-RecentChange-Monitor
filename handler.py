@@ -129,6 +129,17 @@ def telegram():
 					M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
+				m = re.match(r"/massaddpage\n(.+(?:\n.+)*)\n(.+)", m_text)
+				if m != None:
+					if not checkadmin():
+						return "OK"
+					
+					for pageline in m.group(1).split("\n"):
+						page, wiki = M.parse_page(pageline)
+						reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
+						M.addblack_page(page, m_date, reason, wiki)
+					return "OK"
+
 				m = re.match(r"/delpage\n(.+)(?:\n.+)?", m_text)
 				if m != None:
 					if not checkadmin():
