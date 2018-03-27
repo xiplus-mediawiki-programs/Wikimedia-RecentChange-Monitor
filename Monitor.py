@@ -32,6 +32,11 @@ class Monitor():
 		self.ipv4limit = config.getint('monitor', 'ipv4limit')
 		self.ipv6limit = config.getint('monitor', 'ipv6limit')
 		self.recordkept = config.getint('monitor', 'recordkept')
+		self.wp_api = config.get('wikipedia', 'api')
+		self.wp_user = config.get('wikipedia', 'user')
+		self.wp_pass = config.get('wikipedia', 'pass')
+		self.wp_user_agent = config.get('wikipedia', 'user_agent')
+		self.afblacklist = json.loads(config.get('monitor', 'afblacklist'))
 
 	def change_wiki_and_domain(self, wiki, domain):
 		self.wiki = wiki

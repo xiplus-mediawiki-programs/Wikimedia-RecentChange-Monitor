@@ -12,29 +12,19 @@ import sys
 from http.cookiejar import CookieJar
 from Monitor import Monitor
 
+os.chdir(os.path.dirname(__file__))
+
 os.environ['TZ'] = 'UTC'
 
-config = configparser.ConfigParser()
-configpath = os.path.dirname(os.path.realpath(__file__))+'/config.ini'
-config.read(configpath)
-
-wp_api = config.get('wikipedia', 'api')
-wp_user = config.get('wikipedia', 'user')
-wp_pass = config.get('wikipedia', 'pass')
-wp_user_agent = config.get('wikipedia', 'user_agent')
-
-afblacklist = json.loads(config.get("monitor","afblacklist"))
-
+M = Monitor()
 
 abusefilter_list = {}
 import csv
-with open(os.path.dirname(os.path.realpath(__file__))+'/abusefilter_list.csv') as csvfile:
+with open('abusefilter_list.csv') as csvfile:
 	reader = csv.reader(csvfile)
 	for row in reader:
 		abusefilter_list[int(row[0])] = row[1]
 
-
-jar = CookieJar()
 
 session = requests.Session()
 
@@ -47,7 +37,7 @@ except Exception as e:
 
 print("checking is logged in")
 params = {'action': 'query', 'assert': 'user', 'format': 'json'}
-res = session.get(wp_api, params = params, cookies = jar).json()
+res = session.get(M.wp_api, params = params).json()
 if "error" in res:
 	print("fetching login token")
 	params = {
@@ -56,18 +46,18 @@ if "error" in res:
 		'type': 'login',
 		'format': 'json'
 		}
-	res = session.get(wp_api, params = params, cookies = jar).json()
+	res = session.get(M.wp_api, params = params).json()
 	logintoken = res["query"]["tokens"]["logintoken"]
 
 	print("logging in")
 	params = {
 		'action': 'login',
-		'lgname': wp_user,
-		'lgpassword': wp_pass,
+		'lgname': M.wp_user,
+		'lgpassword': M.wp_pass,
 		'lgtoken': logintoken,
 		'format': 'json'
 		}
-	res = session.post(wp_api, data = params, cookies = jar).json()
+	res = session.post(M.wp_api, data = params).json()
 	if res["login"]["result"] == "Success":
 		print("login success")
 	else :
@@ -78,9 +68,6 @@ else :
 
 with open('cookie.txt', 'wb') as f:
 	pickle.dump(session.cookies, f)
-
-
-M = Monitor()
 
 M.cur.execute("""SELECT `timestamp` FROM `RC_log_abuselog` ORDER BY `timestamp` DESC LIMIT 1""")
 timestamp = M.cur.fetchall()[0][0]
@@ -95,11 +82,11 @@ params = {
 		'afllimit': '500',
 		'format': 'json'
 		}
-res = session.get(wp_api, params = params, cookies = jar).json()
+res = session.get(M.wp_api, params = params).json()
 
 try:
 	afblacklistname = []
-	for id in afblacklist:
+	for id in M.afblacklist:
 		afblacklistname.append(abusefilter_list[id])
 
 	for log in res["query"]["abuselog"]:
