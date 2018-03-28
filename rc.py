@@ -49,8 +49,10 @@ for event in EventSource(url):
 
 			issend = False
 			isrecord = (wiki in recordwiki)
-			message = ""
 			message_append = ""
+
+			if wiki != defaultwiki:
+				message_append += "("+wiki+")"
 
 			rows = M.check_user_blacklist(user)
 			if len(rows) != 0:
@@ -67,6 +69,9 @@ for event in EventSource(url):
 				isrecord = True
 				message_append += "\n(watch: "+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+")"
 
+			if change["bot"]:
+				issend = False
+
 			if wiki not in followwiki and not isrecord:
 				continue
 
@@ -75,11 +80,13 @@ for event in EventSource(url):
 
 				print(user+" edit "+title)
 				message = M.link_user(user)+' edit '+M.link_page(title)+' ('+M.link_diff(change["revision"]["new"])+')'
+				issend and M.sendmessage(message+message_append)
 			elif ctype == "new":
 				isrecord and M.addRC_new(change)
 
 				print(user+" create "+title)
 				message = M.link_user(user)+' create '+M.link_page(title)
+				issend and M.sendmessage(message+message_append)
 			elif ctype == "142":
 				isrecord and M.addRC_142(change)
 			
@@ -94,6 +101,14 @@ for event in EventSource(url):
 					isrecord and M.addRC_log_move(change)
 
 				elif log_type == "block":
+					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
+
+					if len(M.check_user_blacklist(title[5:])) != 0:
+						issend = True
+
+					message = M.link_user(user)+' '+log_action+' '+M.link_user(title[5:])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+					issend and M.sendmessage(message+message_append)
+
 					if log_action == "unblock":
 						isrecord and M.addRC_log_block_unblock(change)
 					else :
@@ -106,10 +121,6 @@ for event in EventSource(url):
 							else:
 								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
 
-					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
-					message = M.link_user(user)+' '+log_action+' '+M.link_user(title[5:])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
-					if len(M.check_user_blacklist(title[5:])) != 0:
-						issend = True
 				elif log_type == "protect":
 					if log_action == "unprotect":
 						isrecord and M.addRC_log_protect_unprotect(change)
@@ -124,6 +135,8 @@ for event in EventSource(url):
 
 						print(user+" protect "+title+" comment:"+comment)
 						message = M.link_user(user)+' '+log_action+' '+M.link_page(title)+' ('+cgi.escape(comment, quote=False)+') ('+cgi.escape(change["log_params"]["description"], quote=False)+')'
+						issend and M.sendmessage(message+message_append)
+
 				elif log_type == "newusers":
 					isrecord and M.addRC_log_newusers(change)
 
@@ -168,9 +181,12 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_abusefilter_modify(change)
 
 						message = M.link_user(user)+' modify '+M.link_abusefilter(change["log_params"]["newId"])+' ('+M.link_all('Special:Abusefilter/history/'+str(change["log_params"]["newId"])+'/diff/prev/'+str(change["log_params"]["historyId"]), 'diff')+')'
+
 						if wiki in followwiki:
 							issend = True
 
+						issend and M.sendmessage(message+message_append)
+						
 			if not isrecord:
 				print(json.dumps(change, indent=4, sort_keys=True, ensure_ascii=False))
 
@@ -178,15 +194,6 @@ for event in EventSource(url):
 				reason = "warn by "+user+": "+comment
 				M.addblack_user(title[10:], change["timestamp"], reason, msgprefix="auto ")
 
-			if change["bot"]:
-				issend = False
-
-			if issend and message != "":
-				if wiki != defaultwiki:
-					message += "("+wiki+")"
-				if message_append != "":
-					message += message_append
-				M.sendmessage(message)
 		except Exception as e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
