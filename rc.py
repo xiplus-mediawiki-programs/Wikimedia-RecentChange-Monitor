@@ -49,6 +49,7 @@ for event in EventSource(url):
 
 			issend = False
 			isrecord = (wiki in recordwiki)
+			unknowntype = True
 			message_append = ""
 
 			if wiki != defaultwiki:
@@ -81,17 +82,21 @@ for event in EventSource(url):
 				print(user+" edit "+title)
 				message = M.link_user(user)+' edit '+M.link_page(title)+' ('+M.link_diff(change["revision"]["new"])+')'
 				issend and M.sendmessage(message+message_append)
+				unknowntype = False
 			elif ctype == "new":
 				isrecord and M.addRC_new(change)
 
 				print(user+" create "+title)
 				message = M.link_user(user)+' create '+M.link_page(title)
+				unknowntype = False
 				issend and M.sendmessage(message+message_append)
 			elif ctype == "142":
 				isrecord and M.addRC_142(change)
+				unknowntype = False
 			
 			elif ctype == "categorize":
 				isrecord and M.addRC_categorize(change)
+				unknowntype = False
 
 				print(user+" categorize "+title)
 			elif ctype == "log":
@@ -99,6 +104,7 @@ for event in EventSource(url):
 				log_action = change["log_action"]
 				if log_type == "move":
 					isrecord and M.addRC_log_move(change)
+					unknowntype = False
 
 				elif log_type == "block":
 					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
@@ -111,7 +117,8 @@ for event in EventSource(url):
 
 					if log_action == "unblock":
 						isrecord and M.addRC_log_block_unblock(change)
-					else :
+						unknowntype = False
+					elif log_action == "block" or log_action == "reblock":
 						isrecord and M.addRC_log_block(change)
 						if re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
 							reason = "blocked on "+wiki+": "+change["comment"]
@@ -120,63 +127,79 @@ for event in EventSource(url):
 								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki=wiki)
 							else:
 								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
+						unknowntype = False
 
 				elif log_type == "protect":
 					if log_action == "unprotect":
 						isrecord and M.addRC_log_protect_unprotect(change)
 						
 						print(user+" unprotect "+title+" comment:"+comment)
+						unknowntype = False
 					elif log_action == "move_prot":
 						isrecord and M.addRC_log_protect_move_prot(change)
 
 						print(user+" move_prot "+title+" comment:"+comment)
-					else :
+						unknowntype = False
+					elif log_action == "protect" or log_action == "modify":
 						isrecord and M.addRC_log_protect(change)
 
 						print(user+" protect "+title+" comment:"+comment)
 						message = M.link_user(user)+' '+log_action+' '+M.link_page(title)+' ('+cgi.escape(comment, quote=False)+') ('+cgi.escape(change["log_params"]["description"], quote=False)+')'
 						issend and M.sendmessage(message+message_append)
+						unknowntype = False
 
 				elif log_type == "newusers":
 					isrecord and M.addRC_log_newusers(change)
 
 					print(user+" newusers "+title)
+					unknowntype = False
 				elif log_type == "thanks":
 					isrecord and M.addRC_log_thanks(change)
+					unknowntype = False
 
 				elif log_type == "patrol":
 					isrecord and M.addRC_log_patrol(change)
+					unknowntype = False
 
 				elif log_type == "upload":
 					isrecord and M.addRC_log_upload(change)
+					unknowntype = False
 
 				elif log_type == "rights":
 					isrecord and M.addRC_log_rights(change)
+					unknowntype = False
 
 				elif log_type == "renameuser":
 					isrecord and M.addRC_log_renameuser(change)
+					unknowntype = False
 
 				elif log_type == "merge":
 					isrecord and M.addRC_log_merge(change)
+					unknowntype = False
 
 				elif log_type == "delete":
 					if log_action == "delete":
 						isrecord and M.addRC_log_delete(change)
+						unknowntype = False
 
 					elif log_action == "delete_redir":
 						isrecord and M.addRC_log_delete(change)
+						unknowntype = False
 
 					elif log_action == "restore":
 						isrecord and M.addRC_log_delete_restore(change)
+						unknowntype = False
 
 					elif log_action == "revision":
 						isrecord and M.addRC_log_delete_revision(change)
+						unknowntype = False
 
 				elif log_type == "abusefilter":
 					if log_action == "hit":
 						isrecord and M.addRC_log_abusefilter_hit(change)
 
 						print(user+" hit af "+str(change["log_params"]["filter"])+" in "+title)
+						unknowntype = False
 					elif log_action == "modify":
 						isrecord and M.addRC_log_abusefilter_modify(change)
 
@@ -186,7 +209,11 @@ for event in EventSource(url):
 							issend = True
 
 						issend and M.sendmessage(message+message_append)
-						
+						unknowntype = False
+			
+			if unknowntype:
+				M.log(json.dumps(change, ensure_ascii=False), logtype="unknowntype")
+
 			if not isrecord:
 				print(json.dumps(change, indent=4, sort_keys=True, ensure_ascii=False))
 
