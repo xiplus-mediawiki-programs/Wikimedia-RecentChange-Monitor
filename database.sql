@@ -49,12 +49,13 @@ CREATE TABLE `black_user` (
 
 CREATE TABLE `error` (
   `timestamp` int(11) NOT NULL,
-  `log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `log` (
   `timestamp` int(11) NOT NULL,
+  `type` varchar(20) NOT NULL DEFAULT '',
   `log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -409,6 +410,10 @@ CREATE TABLE `white_user` (
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE `admin`
+  ADD UNIQUE KEY `user_id` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

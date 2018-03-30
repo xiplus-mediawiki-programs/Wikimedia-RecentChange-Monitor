@@ -31,7 +31,7 @@ def telegram():
 				M.chat_id = m_chat_id
 
 				m_text = data["message"]["text"]
-				M.log(m_text)
+				M.log(m_text, logtype="request")
 
 				if not m_text.startswith("/"):
 					return "OK"
