@@ -212,6 +212,22 @@ for event in EventSource(url):
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 			
+				elif log_type == "globalauth":
+					if log_action == "setstatus":
+						isrecord and M.addRC_log_globalauth(change)
+
+						message = M.link_user(user)+' setstatus '+M.link_user(title[5:-7])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+						issend and M.sendmessage(message+message_append)
+						unknowntype = False
+			
+				elif log_type == "gblblock":
+					if log_action == "gblock2":
+						isrecord and M.addRC_log_gblblock(change)
+
+						message = M.link_user(user)+' gblock '+M.link_user(title[5:-7])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+						issend and M.sendmessage(message+message_append)
+						unknowntype = False
+			
 			if unknowntype:
 				M.log(json.dumps(change, ensure_ascii=False), logtype="unknowntype")
 

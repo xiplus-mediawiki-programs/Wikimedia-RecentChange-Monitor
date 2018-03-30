@@ -142,6 +142,14 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `RC_log_delete_revision` (`bot`, `comment`, `id`, `log_action_comment`, `log_id`, `log_params_ids`, `log_params_type`, `log_params_nfield`, `log_params_ofield`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action_comment"], change["log_id"], json.dumps(change["log_params"]["ids"]), change["log_params"]["type"], change["log_params"]["nfield"], change["log_params"]["ofield"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
+	def addRC_log_globalauth(self, change):
+		self.cur.execute("""INSERT INTO `RC_log_globalauth` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], json.dumps(change["log_params"]), change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.db.commit()
+
+	def addRC_log_gblblock(self, change):
+		self.cur.execute("""INSERT INTO `RC_log_gblblock` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], json.dumps(change["log_params"]), change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.db.commit()
+
 	def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
 		if wiki == None:
 			wiki = self.wiki
