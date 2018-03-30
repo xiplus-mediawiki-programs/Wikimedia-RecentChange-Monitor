@@ -121,6 +121,7 @@ for event in EventSource(url):
 					elif log_action == "block" or log_action == "reblock":
 						isrecord and M.addRC_log_block(change)
 						if re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
+							(not issend) and M.sendmessage(message+message_append)
 							reason = "blocked on "+wiki+": "+change["comment"]
 							user_type = M.user_type(title[5:])
 							if type(user_type) != User and user_type.start != user_type.end:
