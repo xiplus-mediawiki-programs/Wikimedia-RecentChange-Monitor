@@ -150,6 +150,10 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `RC_log_gblblock` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], json.dumps(change["log_params"]), change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
 		self.db.commit()
 
+	def addRC_log_gblrename(self, change):
+		self.cur.execute("""INSERT INTO `RC_log_gblrename` (`bot`, `comment`, `id`, `log_action`, `log_action_comment`, `log_id`, `log_params_movepages`, `log_params_suppressredirects`, `log_params_olduser`, `log_params_newuser`, `namespace`, `parsedcomment`, `timestamp`, `title`, `user`, `wiki`) VALUES (%r, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", (change["bot"], change["comment"], change["id"], change["log_action"], change["log_action_comment"], change["log_id"], change["log_params"]["movepages"], change["log_params"]["suppressredirects"], change["log_params"]["olduser"], change["log_params"]["newuser"], change["namespace"], change["parsedcomment"], change["timestamp"], change["title"], change["user"], change["wiki"]))
+		self.db.commit()
+
 	def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
 		if wiki == None:
 			wiki = self.wiki

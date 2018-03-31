@@ -228,6 +228,12 @@ for event in EventSource(url):
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 			
+				elif log_type == "gblrename":
+					if log_action == "rename":
+						isrecord and M.addRC_log_gblrename(change)
+
+						unknowntype = False
+			
 			if unknowntype:
 				M.log(json.dumps(change, ensure_ascii=False), logtype="unknowntype")
 
