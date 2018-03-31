@@ -168,14 +168,14 @@ class Monitor():
 				self.sendmessage("IP數量超過上限")
 				return
 			self.cur.execute("""INSERT INTO `black_ipv4` (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s, %s, %s)""",
-				(wiki, str(userobj.val), str(int(userobj.start)), str(int(userobj.end)), str(timestamp), reason) )
+				(wiki, str(userobj.val), int(userobj.start), int(userobj.end), str(timestamp), reason) )
 			self.db.commit()
 		elif type(userobj) == IPv6:
 			if int(userobj.end) - int(userobj.start) > self.ipv6limit:
 				self.sendmessage("IP數量超過上限")
 				return
 			self.cur.execute("""INSERT INTO `black_ipv6` (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s, %s, %s)""",
-				(wiki, str(userobj.val), str(int(userobj.start)), str(int(userobj.end)), str(timestamp), reason) )
+				(wiki, str(userobj.val), int(userobj.start), int(userobj.end), str(timestamp), reason) )
 			self.db.commit()
 		else:
 			self.error("cannot detect user type: "+user)
@@ -203,11 +203,11 @@ class Monitor():
 			return
 		elif type(userobj) == IPv4:
 			count = self.cur.execute("""DELETE FROM `black_ipv4` WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
-				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+				(int(userobj.start), int(userobj.end), wiki) )
 			self.db.commit()
 		elif type(userobj) == IPv6:
 			count = self.cur.execute("""DELETE FROM `black_ipv6` WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
-				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+				(int(userobj.start), int(userobj.end), wiki) )
 			self.db.commit()
 		else:
 			self.error("cannot detect user type: "+user)
@@ -244,11 +244,11 @@ class Monitor():
 			return self.cur.fetchall()
 		elif type(userobj) == IPv4:
 			self.cur.execute("""SELECT `reason`, `timestamp`, `val`, `wiki` FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
-				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+				(int(userobj.start), int(userobj.end), wiki) )
 			return self.cur.fetchall()
 		elif type(userobj) == IPv6:
 			self.cur.execute("""SELECT `reason`, `timestamp`, `val`, `wiki` FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
-				(str(int(userobj.start)), str(int(userobj.end)), wiki) )
+				(int(userobj.start), int(userobj.end), wiki) )
 			return self.cur.fetchall()
 		else:
 			self.error("cannot detect user type: "+user)
@@ -270,11 +270,11 @@ class Monitor():
 			return self.cur.fetchall()
 		elif type(userobj) == IPv4:
 			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
-				(str(int(userobj.start)), str(int(userobj.end)), reason, wiki) )
+				(int(userobj.start), int(userobj.end), reason, wiki) )
 			return self.cur.fetchall()
 		elif type(userobj) == IPv6:
 			self.cur.execute("""SELECT `reason`, `timestamp`, `val` FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global') ORDER BY `timestamp` DESC""",
-				(str(int(userobj.start)), str(int(userobj.end)), reason, wiki) )
+				(int(userobj.start), int(userobj.end), reason, wiki) )
 			return self.cur.fetchall()
 		else:
 			self.error("cannot detect user type: "+user)
