@@ -27,6 +27,7 @@ url = 'https://stream.wikimedia.org/v2/stream/recentchange'
 defaultwiki = config.get('monitor', 'defaultwiki')
 followwiki = json.loads(config.get('monitor', 'followwiki'))
 recordwiki = json.loads(config.get('monitor', 'recordwiki'))
+blockblacklistwiki = json.loads(config.get('monitor', 'blockblacklistwiki'))
 blockreasonblacklist = config.get('monitor', 'blockreasonblacklist')
 
 M = Monitor()
@@ -120,7 +121,7 @@ for event in EventSource(url):
 						unknowntype = False
 					elif log_action == "block" or log_action == "reblock":
 						isrecord and M.addRC_log_block(change)
-						if re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
+						if wiki in blockblacklistwiki and re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
 							(not issend) and M.sendmessage(message+message_append)
 							reason = "blocked on "+wiki+": "+change["comment"]
 							user_type = M.user_type(title[5:])
