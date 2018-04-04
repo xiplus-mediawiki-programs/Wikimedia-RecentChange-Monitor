@@ -234,6 +234,24 @@ for event in EventSource(url):
 
 						unknowntype = False
 			
+				elif log_type == "pagetranslation":
+					if log_action == "associate":
+						# ignore
+						unknowntype = False
+			
+				elif log_type == "translationreview":
+					if log_action == "group":
+						# ignore
+						unknowntype = False
+			
+				elif log_type == "review":
+					if log_action == "approve-i":
+						# ignore
+						unknowntype = False
+					elif log_action == "approve":
+						# ignore
+						unknowntype = False
+			
 			if unknowntype:
 				M.log(json.dumps(change, ensure_ascii=False), logtype="unknowntype")
 
