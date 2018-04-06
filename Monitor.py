@@ -186,11 +186,11 @@ class Monitor():
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"@"+wiki)
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"|"+wiki)
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"@"+wiki)
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"|"+wiki)
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"@"+wiki)
+				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"|"+wiki)
 
 	def delblack_user(self, user, wiki=None, msgprefix=""):
 		if wiki == None:
