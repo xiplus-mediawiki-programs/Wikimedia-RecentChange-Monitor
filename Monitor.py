@@ -186,11 +186,11 @@ class Monitor():
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"@"+wiki)
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"@"+wiki)
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"@"+wiki)
 
 	def delblack_user(self, user, wiki=None, msgprefix=""):
 		if wiki == None:
@@ -351,13 +351,28 @@ class Monitor():
 	def link_abuselog(self, id):
 		return '<a href="https://'+self.domain+'/wiki/Special:Abuselog/'+str(id)+'">detail</a>'
 
-	def sendmessage(self, message):
+	def sendmessage(self, message, user=None):
 		try:
 			self.log(message, logtype="response")
 			url = "https://api.telegram.org/bot"+self.token+"/sendMessage?chat_id="+str(self.chat_id)+"&parse_mode=HTML&disable_web_page_preview=1&text="+urllib.parse.quote_plus(message.encode())
 			res = urllib.request.urlopen(url).read().decode("utf8")
+			if user != None:
+				res = json.loads(res)
+				if res["ok"]:
+					self.bot_message(res["result"]["message_id"], user, message)
+				else :
+					self.error("send message error:"+str(json.dumps(res)))
 		except urllib.error.HTTPError as e:
 			self.error("send message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message: "+message)
+
+	def bot_message(self, message_id, user, message):
+		self.cur.execute("""INSERT INTO `bot_message` (`message_id`, `user`, `message`) VALUES (%s, %s, %s)""",
+			(message_id, user, message) )
+		self.db.commit()
+
+	def get_user_from_message_id(self, message_id):
+		self.cur.execute("""SELECT `user` FROM `bot_message` WHERE `message_id` = %s""", (message_id))
+		return self.cur.fetchall()
 
 	def log(self, log, timestamp=None, logtype=""):
 		if timestamp == None:

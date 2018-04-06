@@ -45,6 +45,7 @@ for event in EventSource(url):
 			wiki = change["wiki"]
 			ctype = change["type"]
 			user = change["user"]
+			blackuser = user
 			title = change["title"]
 			comment = change["comment"]
 
@@ -63,7 +64,11 @@ for event in EventSource(url):
 				message_append += "\n(blacklist: "+cgi.escape(rows[0][0], quote=False)
 				if rows[0][2] != "" and rows[0][2] != user:
 					message_append += "("+rows[0][2]+")"
+					blackuser = rows[0][2]
 				message_append += ', '+M.formattimediff(rows[0][1])+")"
+				blackuser += "|"+rows[0][3]
+			else :
+				blackuser = None
 
 			rows = M.check_page_blacklist(title, wiki)
 			if len(rows) != 0 and len(M.check_user_whitelist(user)) != 0:
@@ -82,7 +87,7 @@ for event in EventSource(url):
 
 				print(user+" edit "+title)
 				message = M.link_user(user)+' edit '+M.link_page(title)+' ('+M.link_diff(change["revision"]["new"])+')'
-				issend and M.sendmessage(message+message_append)
+				issend and M.sendmessage(message+message_append, blackuser)
 				unknowntype = False
 			elif ctype == "new":
 				isrecord and M.addRC_new(change)
@@ -90,7 +95,7 @@ for event in EventSource(url):
 				print(user+" create "+title)
 				message = M.link_user(user)+' create '+M.link_page(title)
 				unknowntype = False
-				issend and M.sendmessage(message+message_append)
+				issend and M.sendmessage(message+message_append, blackuser)
 			elif ctype == "142":
 				isrecord and M.addRC_142(change)
 				unknowntype = False

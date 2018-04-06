@@ -47,6 +47,12 @@ CREATE TABLE `black_user` (
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `bot_message` (
+  `message_id` int(11) NOT NULL,
+  `user` varchar(255) COLLATE utf8_bin NOT NULL,
+  `message` text COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `error` (
   `timestamp` int(11) NOT NULL,
   `error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,

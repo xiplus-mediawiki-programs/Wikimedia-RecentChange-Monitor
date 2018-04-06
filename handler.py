@@ -110,12 +110,24 @@ def telegram():
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
-				m = re.match(r"/deluser\n(.+)(?:\n.+)?", m_text)
+				m = re.match(r"/deluser", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
-						
-					user, wiki = M.parse_user(m.group(1))
+
+					m = re.match(r"/deluser\n(.+)(?:\n.+)?", m_text)
+					if m != None:
+						user, wiki = M.parse_user(m.group(1))
+					elif "reply_to_message" in data["message"]:
+						user = M.get_user_from_message_id(data["message"]["reply_to_message"]["message_id"])
+						if len(user) == 0:
+							M.sendmessage("User not found")
+							return "OK"
+						else :
+							user, wiki = M.parse_user(user[0][0])
+					else :
+						return "OK"
+					
 					M.delblack_user(user, wiki)
 					return "OK"
 
@@ -149,9 +161,20 @@ def telegram():
 					M.delblack_page(page, wiki)
 					return "OK"
 
-				m = re.match(r"/checkuser\n(.+)", m_text)
+				m = re.match(r"/checkuser", m_text)
 				if m != None:
-					user, wiki = M.parse_user(m.group(1))
+					m = re.match(r"/checkuser\n(.+)", m_text)
+					if m != None:
+						user, wiki = M.parse_user(m.group(1))
+					elif "reply_to_message" in data["message"]:
+						user = M.get_user_from_message_id(data["message"]["reply_to_message"]["message_id"])
+						if len(user) == 0:
+							M.sendmessage("User not found")
+							return "OK"
+						else :
+							user, wiki = M.parse_user(user[0][0])
+					else :
+						return "OK"
 
 					message = ""
 					rows = M.check_user_whitelist(user)
@@ -172,9 +195,9 @@ def telegram():
 							message += ', '+M.formattimediff(record[1])
 
 					if message != "":
-						M.sendmessage(message)
+						M.sendmessage(user+"@"+wiki+message)
 					else :
-						M.sendmessage("no result found")
+						M.sendmessage(user+"@"+wiki+" : no result found")
 					return "OK"
 
 				m = re.match(r"/checkpage\n(.+)", m_text)
