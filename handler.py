@@ -90,7 +90,7 @@ def telegram():
 					M.sendmessage("revoke "+from_firstname+" "+from_lastname+" ("+str(from_user_id)+") as an admin")
 					return "OK"
 
-				m = re.match(r"/adduser\n(.+)(?:\n(.+))?", m_text)
+				m = re.match(r"/(?:adduser|au)\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -110,12 +110,12 @@ def telegram():
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
-				m = re.match(r"/deluser", m_text)
+				m = re.match(r"/(?:deluser|du)", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
 
-					m = re.match(r"/deluser\n(.+)(?:\n.+)?", m_text)
+					m = re.match(r"/(?:deluser|du)\n(.+)(?:\n.+)?", m_text)
 					if m != None:
 						user, wiki = M.parse_user(m.group(1))
 					elif "reply_to_message" in data["message"]:
@@ -131,7 +131,7 @@ def telegram():
 					M.delblack_user(user, wiki)
 					return "OK"
 
-				m = re.match(r"/addpage\n(.+)(?:\n(.+))?", m_text)
+				m = re.match(r"/(?:addpage|ap)\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -152,7 +152,7 @@ def telegram():
 						M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
-				m = re.match(r"/delpage\n(.+)(?:\n.+)?", m_text)
+				m = re.match(r"/(?:delpage|dp)\n(.+)(?:\n.+)?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -161,9 +161,9 @@ def telegram():
 					M.delblack_page(page, wiki)
 					return "OK"
 
-				m = re.match(r"/checkuser", m_text)
+				m = re.match(r"/(?:checkuser|cu)", m_text)
 				if m != None:
-					m = re.match(r"/checkuser\n(.+)", m_text)
+					m = re.match(r"/(?:checkuser|cu)\n(.+)", m_text)
 					if m != None:
 						user, wiki = M.parse_user(m.group(1))
 					elif "reply_to_message" in data["message"]:
@@ -200,7 +200,7 @@ def telegram():
 						M.sendmessage(user+"@"+wiki+" : no result found")
 					return "OK"
 
-				m = re.match(r"/checkpage\n(.+)", m_text)
+				m = re.match(r"/(?:checkpage|cp)\n(.+)", m_text)
 				if m != None:
 					page, wiki = M.parse_page(m.group(1))
 
