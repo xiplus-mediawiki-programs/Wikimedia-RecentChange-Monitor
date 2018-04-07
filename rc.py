@@ -207,10 +207,10 @@ for event in EventSource(url):
 
 						print(user+" hit af "+str(change["log_params"]["filter"])+" in "+title)
 						unknowntype = False
-					elif log_action == "modify":
+					elif log_action == "modify" or log_action == "create":
 						isrecord and M.addRC_log_abusefilter_modify(change)
 
-						message = M.link_user(user)+' modify '+M.link_abusefilter(change["log_params"]["newId"])+' ('+M.link_all('Special:Abusefilter/history/'+str(change["log_params"]["newId"])+'/diff/prev/'+str(change["log_params"]["historyId"]), 'diff')+')'
+						message = M.link_user(user)+' '+log_action+' '+M.link_abusefilter(change["log_params"]["newId"])+' ('+M.link_all('Special:Abusefilter/history/'+str(change["log_params"]["newId"])+'/diff/prev/'+str(change["log_params"]["historyId"]), 'diff')+')'
 
 						if wiki in followwiki:
 							issend = True
