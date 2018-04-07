@@ -249,12 +249,28 @@ for event in EventSource(url):
 					if log_action == "group":
 						# ignore
 						unknowntype = False
+					elif log_action == "message":
+						# ignore
+						unknowntype = False
 			
 				elif log_type == "review":
 					if log_action == "approve-i":
 						# ignore
 						unknowntype = False
 					elif log_action == "approve":
+						# ignore
+						unknowntype = False
+					elif log_action == "unapprove":
+						# ignore
+						unknowntype = False
+			
+				elif log_type == "import":
+					if log_action == "interwiki":
+						# ignore
+						unknowntype = False
+			
+				elif log_type == "tag":
+					if log_action == "update":
 						# ignore
 						unknowntype = False
 			
