@@ -165,7 +165,7 @@ class Monitor():
 			self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
 				(wiki, userobj.user, str(timestamp), reason) )
 			self.db.commit()
-			self.sendmessage(msgprefix+"added User:"+self.link_user(userobj.user, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False))
+			self.sendmessage(msgprefix+"added User:"+self.link_user(userobj.user, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.user+"|"+wiki)
 			return
 		elif type(userobj) == IPv4:
 			if int(userobj.end) - int(userobj.start) > self.ipv4limit:
