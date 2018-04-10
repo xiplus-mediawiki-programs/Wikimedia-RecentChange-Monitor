@@ -15,7 +15,56 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-	return "Hello Wikimedia-RecentChange-Monitor!"
+	html = ''
+	html += '<form>'
+	html += '<button type="submit" name="type" value="blackipv4">blackipv4</button>'
+	html += '<button type="submit" name="type" value="blackipv6">blackipv6</button>'
+	html += '<button type="submit" name="type" value="blackuser">blackuser</button>'
+	html += '<button type="submit" name="type" value="whiteuser">whiteuser</button>'
+	html += '<button type="submit" name="type" value="blackpage">blackpage</button>'
+	html += '</form>'
+	if "type" in request.args:
+		if request.args["type"] == "blackipv4":
+			M.cur.execute("""SELECT `wiki`, `val`, `reason`, `timestamp` FROM `black_ipv4` ORDER BY `timestamp` DESC""")
+			rows = M.cur.fetchall()
+			html += '<table>'
+			html += '<tr><th>wiki</th><th>ip</th><th>reason</th><th>timestamp</th></tr>'
+			for row in rows:
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+			html += '</table>'
+		elif request.args["type"] == "blackipv6":
+			M.cur.execute("""SELECT `wiki`, `val`, `reason`, `timestamp` FROM `black_ipv6` ORDER BY `timestamp` DESC""")
+			rows = M.cur.fetchall()
+			html += '<table>'
+			html += '<tr><th>wiki</th><th>ip</th><th>reason</th><th>timestamp</th></tr>'
+			for row in rows:
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+			html += '</table>'
+		elif request.args["type"] == "blackuser":
+			M.cur.execute("""SELECT `wiki`, `user`, `reason`, `timestamp` FROM `black_user` ORDER BY `timestamp` DESC""")
+			rows = M.cur.fetchall()
+			html += '<table>'
+			html += '<tr><th>wiki</th><th>user</th><th>reason</th><th>timestamp</th></tr>'
+			for row in rows:
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+			html += '</table>'
+		elif request.args["type"] == "whiteuser":
+			M.cur.execute("""SELECT `user`, `reason`, `timestamp` FROM `white_user` ORDER BY `timestamp` DESC""")
+			rows = M.cur.fetchall()
+			html += '<table>'
+			html += '<tr><th>user</th><th>reason</th><th>timestamp</th></tr>'
+			for row in rows:
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], cgi.escape(row[1], quote=False), M.formattimediff(row[2]))
+			html += '</table>'
+		elif request.args["type"] == "blackpage":
+			M.cur.execute("""SELECT `wiki`, `page`, `reason`, `timestamp` FROM `black_page` ORDER BY `timestamp` DESC""")
+			rows = M.cur.fetchall()
+			html += '<table>'
+			html += '<tr><th>wiki</th><th>page</th><th>reason</th><th>timestamp</th></tr>'
+			for row in rows:
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+			html += '</table>'
+	return html
 
 @app.route("/webhook", methods=['POST'])
 def telegram():
