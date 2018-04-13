@@ -231,6 +231,13 @@ class Monitor():
 		self.db.commit()
 		self.sendmessage(msgprefix+"added "+self.link_user(user, "")+"@global into user whitelist\nreason: "+cgi.escape(reason, quote=False))
 
+	def delwhite_user(self, user, msgprefix=""):
+		user = user.strip()
+		count = self.cur.execute("""DELETE FROM `white_user` WHERE `user` = %s""",
+			(user) )
+		self.db.commit()
+		self.sendmessage(str(count)+" records about "+user+"@global deleted from user whitelist")
+
 	def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
 		if wiki == None:
 			wiki = self.wiki

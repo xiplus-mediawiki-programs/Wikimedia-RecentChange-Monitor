@@ -159,6 +159,15 @@ def telegram():
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
+				m = re.match(r"/delwhiteuser\n(.+)(?:\n.+)?", m_text)
+				if m != None:
+					if not checkadmin():
+						return "OK"
+						
+					user = m.group(1)
+					M.delwhite_user(user)
+					return "OK"
+
 				m = re.match(r"/(?:deluser|du)", m_text)
 				if m != None:
 					if not checkadmin():
