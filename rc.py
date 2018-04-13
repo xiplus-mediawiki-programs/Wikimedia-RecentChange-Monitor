@@ -227,7 +227,7 @@ for event in EventSource(url):
 						unknowntype = False
 			
 				elif log_type == "gblblock":
-					if log_action == "gblock2":
+					if log_action == "gblock2" or log_action == "modify":
 						isrecord and M.addRC_log_gblblock(change)
 
 						message = M.link_user(user)+' gblock '+M.link_user(title[5:-7])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
@@ -240,8 +240,19 @@ for event in EventSource(url):
 
 						unknowntype = False
 			
+				elif log_type == "gblrights":
+					if log_action == "usergroups":
+						# ignore
+						unknowntype = False
+			
 				elif log_type == "pagetranslation":
 					if log_action == "associate":
+						# ignore
+						unknowntype = False
+					elif log_action == "mark":
+						# ignore
+						unknowntype = False
+					elif log_action == "deletelok":
 						# ignore
 						unknowntype = False
 			
@@ -271,6 +282,14 @@ for event in EventSource(url):
 			
 				elif log_type == "tag":
 					if log_action == "update":
+						# ignore
+						unknowntype = False
+			
+				elif log_type == "massmessage":
+					if log_action == "send":
+						# ignore
+						unknowntype = False
+					elif log_action == "skipoptout":
 						# ignore
 						unknowntype = False
 			
