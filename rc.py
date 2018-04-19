@@ -115,11 +115,19 @@ for event in EventSource(url):
 				elif log_type == "block":
 					print(user+" "+log_action+" "+title+" comment:"+change["log_action_comment"])
 
-					if len(M.check_user_blacklist(title[5:])) != 0:
+					blockuser = title[5:]
+
+					if len(M.check_user_blacklist(blockuser)) != 0:
 						issend = True
 
-					message = M.link_user(user)+' '+log_action+' '+M.link_user(title[5:])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
-					issend and M.sendmessage(message+message_append)
+					user_type = M.user_type(blockuser)
+					if type(user_type) != User and user_type.start != user_type.end:
+						blockwiki = wiki
+					else:
+						blockwiki = "global"
+
+					message = M.link_user(user)+' '+log_action+' '+M.link_user(blockuser)+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+					issend and M.sendmessage(message+message_append, blockuser+"|"+blockwiki)
 
 					if log_action == "unblock":
 						isrecord and M.addRC_log_block_unblock(change)
@@ -127,13 +135,9 @@ for event in EventSource(url):
 					elif log_action == "block" or log_action == "reblock":
 						isrecord and M.addRC_log_block(change)
 						if wiki in blockblacklistwiki and re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
-							(not issend) and M.sendmessage(message+message_append)
+							(not issend) and M.sendmessage(message+message_append, blockuser+"|"+blockwiki)
 							reason = "blocked on "+wiki+": "+change["comment"]
-							user_type = M.user_type(title[5:])
-							if type(user_type) != User and user_type.start != user_type.end:
-								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki=wiki)
-							else:
-								M.addblack_user(title[5:], change["timestamp"], reason, msgprefix="auto ", wiki="global")
+							M.addblack_user(blockuser, change["timestamp"], reason, msgprefix="auto ", wiki=blockwiki)
 						unknowntype = False
 
 				elif log_type == "protect":
