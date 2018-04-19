@@ -85,6 +85,9 @@ params = {
 res = session.get(M.wp_api, params = params).json()
 
 try:
+	afwatchlistname = []
+	for id in M.afwatchlist:
+		afwatchlistname.append(abusefilter_list[id])
 	afblacklistname = []
 	for id in M.afblacklist:
 		afblacklistname.append(abusefilter_list[id])
@@ -93,8 +96,8 @@ try:
 		print(log["filter"], log["timestamp"])
 
 		rows = M.check_user_blacklist(log["user"])
-		if len(rows) != 0:
-			M.sendmessage(M.link_user(log["user"])+' hit '+M.link_abusefilter(log["filter_id"])+' '+log["filter"]+' in '+M.link_page(log["title"])+' ('+M.link_abuselog(log["id"])+')\n(blacklist: '+rows[0][0]+', '+M.formattimediff(rows[0][1])+')')
+		if len(rows) != 0 or log["filter"] in afwatchlistname or log["filter"] in afblacklistname:
+			M.sendmessage(M.link_user(log["user"])+' hit '+M.link_abusefilter(log["filter_id"])+' '+log["filter"]+' in '+M.link_page(log["title"])+' ('+M.link_abuselog(log["id"])+')\n(blacklist: '+rows[0][0]+', '+M.formattimediff(rows[0][1])+')', log["user"]+"|"+M.wiki)
 
 		if log["filter"] in afblacklistname:
 			reason = "hit AF "+log["filter"]

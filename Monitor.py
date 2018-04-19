@@ -37,6 +37,7 @@ class Monitor():
 		self.wp_pass = config.get('wikipedia', 'pass')
 		self.wp_user_agent = config.get('wikipedia', 'user_agent')
 		self.afblacklist = json.loads(config.get('monitor', 'afblacklist'))
+		self.afwatchlist = json.loads(config.get('monitor', 'afwatchlist'))
 
 	def change_wiki_and_domain(self, wiki, domain):
 		self.wiki = wiki
