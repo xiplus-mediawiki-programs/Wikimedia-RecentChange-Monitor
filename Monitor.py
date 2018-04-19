@@ -173,25 +173,25 @@ class Monitor():
 				self.sendmessage("IP數量超過上限")
 				return
 			self.cur.execute("""INSERT INTO `black_ipv4` (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s, %s, %s)""",
-				(wiki, str(userobj.val), int(userobj.start), int(userobj.end), str(timestamp), reason) )
+				(wiki, userobj.val, int(userobj.start), int(userobj.end), str(timestamp), reason) )
 			self.db.commit()
 		elif type(userobj) == IPv6:
 			if int(userobj.end) - int(userobj.start) > self.ipv6limit:
 				self.sendmessage("IP數量超過上限")
 				return
 			self.cur.execute("""INSERT INTO `black_ipv6` (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s, %s, %s)""",
-				(wiki, str(userobj.val), int(userobj.start), int(userobj.end), str(timestamp), reason) )
+				(wiki, userobj.val, int(userobj.start), int(userobj.end), str(timestamp), reason) )
 			self.db.commit()
 		else:
 			self.error("cannot detect user type: "+user)
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"|"+wiki)
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"|"+wiki)
+				self.sendmessage(msgprefix+"added IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), str(userobj.val)+"|"+wiki)
+				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
 
 	def delblack_user(self, user, wiki=None, msgprefix=""):
 		if wiki == None:
@@ -221,7 +221,7 @@ class Monitor():
 			if userobj.start == userobj.end:
 				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" deleted from user blacklist")
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(str(userobj.val), wiki)+"@"+wiki+" deleted from user blacklist")
+				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+" deleted from user blacklist")
 			elif userobj.type == "range":
 				self.sendmessage(msgprefix+str(count)+" records about IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" deleted from user blacklist")
 
@@ -481,11 +481,11 @@ class IPv4():
 		self.start = start
 		self.end = end
 		self.type = type
-		self.val = val
+		self.val = str(val)
 
 class IPv6():
 	def __init__(self, start, end, type, val):
 		self.start = start
 		self.end = end
 		self.type = type
-		self.val = val
+		self.val = str(val).upper()
