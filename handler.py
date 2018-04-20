@@ -20,7 +20,6 @@ def hello():
 	html += '<button type="submit" name="type" value="blackipv4">blackipv4</button>'
 	html += '<button type="submit" name="type" value="blackipv6">blackipv6</button>'
 	html += '<button type="submit" name="type" value="blackuser">blackuser</button>'
-	html += '<button type="submit" name="type" value="whiteuser">whiteuser</button>'
 	html += '<button type="submit" name="type" value="blackpage">blackpage</button>'
 	html += '</form>'
 	if "type" in request.args:
@@ -270,9 +269,9 @@ def telegram():
 							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
 
 					if message != "":
-						M.sendmessage(message)
+						M.sendmessage(page+"@"+wiki+message)
 					else :
-						M.sendmessage("no result found")
+						M.sendmessage(page+"@"+wiki+" : no result found")
 					return "OK"
 
 				m = re.match(r"/status", m_text)

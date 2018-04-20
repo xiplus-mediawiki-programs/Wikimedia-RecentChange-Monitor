@@ -422,6 +422,7 @@ class Monitor():
 			page = page.split(delimiter)[0]
 		else :
 			wiki = self.wiki
+		page = page.replace("_", " ")
 		return page, wiki
 
 	def parse_reason(self, reason):
