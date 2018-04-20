@@ -373,6 +373,22 @@ class Monitor():
 		except urllib.error.HTTPError as e:
 			self.error("send message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message: "+message)
 
+	def deletemessage(self, message_id):
+		try:
+			url = "https://api.telegram.org/bot"+self.token+"/deleteMessage?chat_id="+str(self.chat_id)+"&message_id="+str(message_id)
+			urllib.request.urlopen(url)
+			self.log(message_id, logtype="delete")
+			self.cur.execute("""DELETE FROM `bot_message` WHERE `message_id` = %s""", (message_id))
+			self.db.commit()
+		except urllib.error.HTTPError as e:
+			datastr = e.read().decode("utf8")
+			data = json.loads(datastr)
+			if data["description"] == "Bad Request: message to delete not found":
+				self.cur.execute("""DELETE FROM `bot_message` WHERE `message_id` = %s""", (message_id))
+				self.db.commit()
+			else :
+				self.log("delete message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message_id: "+message_id)
+
 	def bot_message(self, message_id, user, message):
 		self.cur.execute("""INSERT INTO `bot_message` (`message_id`, `user`, `message`) VALUES (%s, %s, %s)""",
 			(message_id, user, message) )

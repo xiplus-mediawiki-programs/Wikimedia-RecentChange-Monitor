@@ -274,6 +274,36 @@ def telegram():
 						M.sendmessage(page+"@"+wiki+" : no result found")
 					return "OK"
 
+				if re.match(r"/os$", m_text) and "reply_to_message" in data["message"]:
+					if not checkadmin():
+						return "OK"
+
+					M.deletemessage(data["message"]["message_id"])
+					M.deletemessage(data["message"]["reply_to_message"]["message_id"])
+					return "OK"
+
+				if re.match(r"/osall$", m_text) and "reply_to_message" in data["message"]:
+					if not checkadmin():
+						return "OK"
+
+					M.deletemessage(data["message"]["message_id"])
+					
+					message_id = data["message"]["reply_to_message"]["message_id"]
+					M.cur.execute("""SELECT `user` FROM `bot_message` WHERE `message_id` = %s""", (message_id))
+					rows = M.cur.fetchall()
+					if len(rows) == 0:
+						M.sendmessage("User not found")
+						return "OK"
+					user = rows[0][0]
+
+					M.sendmessage("os "+str(len(rows))+" messages")
+
+					M.cur.execute("""SELECT `message_id` FROM `bot_message` WHERE `user` = %s""", (user))
+					rows = M.cur.fetchall()
+					for row in rows:
+						M.deletemessage(row[0])
+					return "OK"
+
 				m = re.match(r"/status", m_text)
 				if m != None:
 					message = "working"
