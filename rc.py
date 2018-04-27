@@ -61,11 +61,11 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n(blacklist: "+cgi.escape(rows[0][0], quote=False)
+				message_append += "\n（黑名單："+cgi.escape(rows[0][0], quote=False)
 				if rows[0][2] != "" and rows[0][2] != user:
-					message_append += "("+rows[0][2]+")"
+					message_append += "（"+rows[0][2]+"）"
 					blackuser = rows[0][2]
-				message_append += ', '+M.formattimediff(rows[0][1])+")"
+				message_append += '，'+M.formattimediff(rows[0][1])+"）"
 				blackuser += "|"+rows[0][3]
 			else :
 				blackuser = None
@@ -74,7 +74,7 @@ for event in EventSource(url):
 			if len(rows) != 0 and len(M.check_user_whitelist(user)) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n(watch: "+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+")"
+				message_append += "\n（監視："+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+"）"
 
 			if change["bot"]:
 				issend = False
@@ -86,14 +86,14 @@ for event in EventSource(url):
 				isrecord and M.addRC_edit(change)
 
 				print(user+" edit "+title)
-				message = M.link_user(user)+' edit '+M.link_page(title)+' ('+M.link_diff(change["revision"]["new"])+')'
+				message = M.link_user(user)+'編輯'+M.link_page(title)+'（'+M.link_diff(change["revision"]["new"])+'）'
 				issend and M.sendmessage(message+message_append, blackuser)
 				unknowntype = False
 			elif ctype == "new":
 				isrecord and M.addRC_new(change)
 
 				print(user+" create "+title)
-				message = M.link_user(user)+' create '+M.link_page(title)
+				message = M.link_user(user)+'建立'+M.link_page(title)
 				unknowntype = False
 				issend and M.sendmessage(message+message_append, blackuser)
 			elif ctype == "142":
@@ -126,7 +126,9 @@ for event in EventSource(url):
 					else:
 						blockwiki = "global"
 
-					message = M.link_user(user)+' '+log_action+' '+M.link_user(blockuser)+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+					blockname = {"unblock":"解封", "block": "封禁", "reblock": "重新封禁"}
+
+					message = M.link_user(user)+blockname[log_action]+M.link_user(blockuser)+'（'+cgi.escape(change["log_action_comment"], quote=False)+'）'
 					issend and M.sendmessage(message+message_append, blockuser+"|"+blockwiki)
 
 					if log_action == "unblock":
@@ -136,11 +138,13 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_block(change)
 						if wiki in blockblacklistwiki and re.search(blockreasonblacklist, change["comment"], re.IGNORECASE) != None:
 							(not issend) and M.sendmessage(message+message_append, blockuser+"|"+blockwiki)
-							reason = "blocked on "+wiki+": "+change["comment"]
-							M.addblack_user(blockuser, change["timestamp"], reason, msgprefix="auto ", wiki=blockwiki)
+							reason = "於"+wiki+"封禁："+change["comment"]
+							M.addblack_user(blockuser, change["timestamp"], reason, msgprefix="自動", wiki=blockwiki)
 						unknowntype = False
 
 				elif log_type == "protect":
+					protectname = {"unprotect":"解除保護", "move_prot": "移動保護", "protect": "保護", "modify": "變更保護"}
+
 					if log_action == "unprotect":
 						isrecord and M.addRC_log_protect_unprotect(change)
 						
@@ -155,7 +159,7 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_protect(change)
 
 						print(user+" protect "+title+" comment:"+comment)
-						message = M.link_user(user)+' '+log_action+' '+M.link_page(title)+' ('+cgi.escape(comment, quote=False)+') ('+cgi.escape(change["log_params"]["description"], quote=False)+')'
+						message = M.link_user(user)+protectname[log_action]+M.link_page(title)+'（'+cgi.escape(comment, quote=False)+'）（'+cgi.escape(change["log_params"]["description"], quote=False)+'）'
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 
@@ -206,6 +210,8 @@ for event in EventSource(url):
 						unknowntype = False
 
 				elif log_type == "abusefilter":
+					abusefiltername = {"hit": "觸發", "modify": "修改", "create": "建立"}
+
 					if log_action == "hit":
 						isrecord and M.addRC_log_abusefilter_hit(change)
 
@@ -214,7 +220,7 @@ for event in EventSource(url):
 					elif log_action == "modify" or log_action == "create":
 						isrecord and M.addRC_log_abusefilter_modify(change)
 
-						message = M.link_user(user)+' '+log_action+' '+M.link_abusefilter(change["log_params"]["newId"])+' ('+M.link_all('Special:Abusefilter/history/'+str(change["log_params"]["newId"])+'/diff/prev/'+str(change["log_params"]["historyId"]), 'diff')+')'
+						message = M.link_user(user)+abusefiltername[log_action]+M.link_abusefilter(change["log_params"]["newId"])+'（'+M.link_all('Special:Abusefilter/history/'+str(change["log_params"]["newId"])+'/diff/prev/'+str(change["log_params"]["historyId"]), '差異')+'）'
 
 						if wiki in followwiki:
 							issend = True
@@ -226,7 +232,7 @@ for event in EventSource(url):
 					if log_action == "setstatus":
 						isrecord and M.addRC_log_globalauth(change)
 
-						message = M.link_user(user)+' setstatus '+M.link_user(title[5:-7])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+						message = M.link_user(user)+'全域鎖定'+M.link_user(title[5:-7])+'（'+cgi.escape(change["log_action_comment"], quote=False)+'）'
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 			
@@ -234,7 +240,7 @@ for event in EventSource(url):
 					if log_action == "gblock2" or log_action == "modify":
 						isrecord and M.addRC_log_gblblock(change)
 
-						message = M.link_user(user)+' gblock '+M.link_user(title[5:-7])+' ('+cgi.escape(change["log_action_comment"], quote=False)+')'
+						message = M.link_user(user)+'全域封禁'+M.link_user(title[5:-7])+'（'+cgi.escape(change["log_action_comment"], quote=False)+'）'
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 			
@@ -304,8 +310,8 @@ for event in EventSource(url):
 				print(json.dumps(change, indent=4, sort_keys=True, ensure_ascii=False))
 
 			if (wiki in followwiki and ctype in ["edit", "new"]) and change["namespace"] == 3 and re.match(r"^User talk:", title) and re.match(r"^(層級|层级)[234]", comment):
-				reason = "warn by "+user+": "+comment
-				M.addblack_user(title[10:], change["timestamp"], reason, msgprefix="auto ")
+				reason = "被"+user+"警告："+comment
+				M.addblack_user(title[10:], change["timestamp"], reason, msgprefix="自動")
 
 		except Exception as e:
 			exc_type, exc_obj, exc_tb = sys.exc_info()

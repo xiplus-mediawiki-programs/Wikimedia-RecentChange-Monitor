@@ -166,7 +166,7 @@ class Monitor():
 			self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
 				(wiki, userobj.user, str(timestamp), reason) )
 			self.db.commit()
-			self.sendmessage(msgprefix+"added User:"+self.link_user(userobj.user, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.user+"|"+wiki)
+			self.sendmessage(msgprefix+"加入User:"+self.link_user(userobj.user, wiki)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.user+"|"+wiki)
 			return
 		elif type(userobj) == IPv4:
 			if int(userobj.end) - int(userobj.start) > self.ipv4limit:
@@ -187,11 +187,11 @@ class Monitor():
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
+				self.sendmessage(msgprefix+"加入IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+"added IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
+				self.sendmessage(msgprefix+"加入IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+"added IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" into user blacklist\nreason: "+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
+				self.sendmessage(msgprefix+"加入IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
 
 	def delblack_user(self, user, wiki=None, msgprefix=""):
 		if wiki == None:
@@ -204,7 +204,7 @@ class Monitor():
 			count = self.cur.execute("""DELETE FROM `black_user` WHERE `user` = %s AND `wiki` = %s""",
 				(userobj.user, wiki) )
 			self.db.commit()
-			self.sendmessage(str(count)+" records about User:"+self.link_user(userobj.user, wiki)+"("+wiki+") deleted from user blacklist")
+			self.sendmessage(str(count)+"條對於User:"+self.link_user(userobj.user, wiki)+"("+wiki+")的紀錄從黑名單刪除")
 			return
 		elif type(userobj) == IPv4:
 			count = self.cur.execute("""DELETE FROM `black_ipv4` WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
@@ -219,25 +219,25 @@ class Monitor():
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+" deleted from user blacklist")
+				self.sendmessage(msgprefix+str(count)+"條對於IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+"的紀錄從黑名單刪除")
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+str(count)+" records about IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+" deleted from user blacklist")
+				self.sendmessage(msgprefix+str(count)+"條對於IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+"的紀錄從黑名單刪除")
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+str(count)+" records about IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+" deleted from user blacklist")
+				self.sendmessage(msgprefix+str(count)+"條對於IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+"的紀錄從黑名單刪除")
 
 	def addwhite_user(self, user, timestamp, reason, msgprefix=""):
 		user = user.strip()
 		self.cur.execute("""INSERT INTO `white_user` (`user`, `timestamp`, `reason`) VALUES (%s, %s, %s)""",
 			(user, timestamp, reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"added "+self.link_user(user, "")+"@global into user whitelist\nreason: "+cgi.escape(reason, quote=False))
+		self.sendmessage(msgprefix+"加入"+self.link_user(user, "")+"@global into user whitelist\n原因："+cgi.escape(reason, quote=False))
 
 	def delwhite_user(self, user, msgprefix=""):
 		user = user.strip()
 		count = self.cur.execute("""DELETE FROM `white_user` WHERE `user` = %s""",
 			(user) )
 		self.db.commit()
-		self.sendmessage(str(count)+" records about "+user+"@global deleted from user whitelist")
+		self.sendmessage(str(count)+"條對於"+user+"@global deleted from user whitelist")
 
 	def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
 		if wiki == None:
@@ -310,7 +310,7 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `black_page` (`wiki`, `page`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
 			(wiki, page, timestamp, reason) )
 		self.db.commit()
-		self.sendmessage("added "+self.link_page(page, wiki)+"("+wiki+") into watched page\nreason: "+reason)
+		self.sendmessage("加入"+self.link_page(page, wiki)+"("+wiki+")至監視頁面\n原因："+reason)
 
 	def delblack_page(self, page, wiki=None, msgprefix=""):
 		if wiki == None:
@@ -321,7 +321,7 @@ class Monitor():
 		count = self.cur.execute("""DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
 			(page, wiki) )
 		self.db.commit()
-		self.sendmessage(str(count)+" records about "+self.link_page(page, wiki)+"("+wiki+") deleted from watched page")
+		self.sendmessage(str(count)+"條對於"+self.link_page(page, wiki)+"("+wiki+")從監視頁面刪除")
 
 	def check_page_blacklist(self, page, wiki=None):
 		if wiki == None:
@@ -349,15 +349,15 @@ class Monitor():
 		return '<a href="https://'+self.domain+'/wiki/'+urllib.parse.quote(title)+'">'+title+'</a>'
 
 	def link_diff(self, id):
-		return '<a href="https://'+self.domain+'/wiki/Special:Diff/'+str(id)+'">diff</a>'
+		return '<a href="https://'+self.domain+'/wiki/Special:Diff/'+str(id)+'">差異</a>'
 
 	def link_abusefilter(self, id):
 		if id == "":
-			return "AF"
-		return '<a href="https://'+self.domain+'/wiki/Special:Abusefilter/'+str(id)+'">AF '+str(id)+'</a>'
+			return "過濾器"
+		return '<a href="https://'+self.domain+'/wiki/Special:Abusefilter/'+str(id)+'">過濾器'+str(id)+'</a>'
 
 	def link_abuselog(self, id):
-		return '<a href="https://'+self.domain+'/wiki/Special:Abuselog/'+str(id)+'">detail</a>'
+		return '<a href="https://'+self.domain+'/wiki/Special:Abuselog/'+str(id)+'">詳情</a>'
 
 	def sendmessage(self, message, user=None):
 		try:
@@ -387,7 +387,7 @@ class Monitor():
 				self.cur.execute("""DELETE FROM `bot_message` WHERE `message_id` = %s""", (message_id))
 				self.db.commit()
 			else :
-				self.log("delete message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message_id: "+message_id)
+				self.log("delete message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message_id: "+str(message_id))
 
 	def bot_message(self, message_id, user, message):
 		self.cur.execute("""INSERT INTO `bot_message` (`message_id`, `user`, `message`) VALUES (%s, %s, %s)""",
@@ -417,12 +417,12 @@ class Monitor():
 			basetime = int(time.time())
 		diff = abs(int(timestamp) - basetime)
 		if diff < 60:
-			return str(diff)+" secs"
+			return str(diff)+"秒"
 		if diff < 60*60:
-			return str(int(diff/60))+" mins"
+			return str(int(diff/60))+"分"
 		if diff < 60*60*24:
-			return str(int(diff/60/60))+" hrs"
-		return str(int(diff/60/60/24))+" days"
+			return str(int(diff/60/60))+"小時"
+		return str(int(diff/60/60/24))+"日"
 	
 	def parse_user(self, user, delimiter="|"):
 		if delimiter in user:
@@ -443,7 +443,7 @@ class Monitor():
 
 	def parse_reason(self, reason):
 		if reason == None or reason.strip() == "":
-			return "no reason"
+			return "無原因"
 		else :
 			return reason
 

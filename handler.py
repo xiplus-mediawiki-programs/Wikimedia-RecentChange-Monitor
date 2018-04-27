@@ -88,7 +88,7 @@ def telegram():
 					M.cur.execute("""SELECT * FROM `admin` WHERE `user_id` = %s""", (str(m_user_id)))
 					rows = M.cur.fetchall()
 					if len(rows) == 0:
-						M.sendmessage("You are not an admin.")
+						M.sendmessage("你沒有權限")
 						return False
 					return True
 
@@ -98,7 +98,7 @@ def telegram():
 						return "OK"
 
 					if "reply_to_message" not in data["message"]:
-						M.sendmessage("You need to reply a message")
+						M.sendmessage("需要reply訊息")
 						return "OK"
 					from_user_id = data["message"]["reply_to_message"]["from"]["id"]
 
@@ -112,7 +112,7 @@ def telegram():
 					M.cur.execute("""INSERT INTO `admin` (`user_id`, `first_name`, `last_name`) VALUES (%s, %s, %s)""",
 						(str(from_user_id), from_firstname, from_lastname) )
 					M.db.commit()
-					M.sendmessage("set "+from_firstname+" "+from_lastname+" ("+str(from_user_id)+") as an admin")
+					M.sendmessage("設定"+from_firstname+" "+from_lastname+" ("+str(from_user_id)+")為管理員")
 					return "OK"
 
 				m = re.match(r"/deladmin", m_text)
@@ -121,12 +121,12 @@ def telegram():
 						return "OK"
 						
 					if "reply_to_message" not in data["message"]:
-						M.sendmessage("You need to reply a message")
+						M.sendmessage("需要reply訊息")
 						return "OK"
 					from_user_id = data["message"]["reply_to_message"]["from"]["id"]
 
 					if from_user_id == m_user_id:
-						M.sendmessage("You cannot revoke yourself")
+						M.sendmessage("你不能將自己除權")
 						return "OK"
 
 					from_firstname = data["message"]["reply_to_message"]["from"]["first_name"]
@@ -135,7 +135,7 @@ def telegram():
 					M.cur.execute("""DELETE FROM `admin` WHERE `user_id` = %s""",
 						(str(from_user_id)) )
 					M.db.commit()
-					M.sendmessage("revoke "+from_firstname+" "+from_lastname+" ("+str(from_user_id)+") as an admin")
+					M.sendmessage("移除"+from_firstname+" "+from_lastname+" ("+str(from_user_id)+")為管理員")
 					return "OK"
 
 				m = re.match(r"/(?:adduser|au)\n(.+)(?:\n(.+))?", m_text)
@@ -144,7 +144,7 @@ def telegram():
 						return "OK"
 						
 					user, wiki = M.parse_user(m.group(1))
-					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
+					reason = m_first_name+"加入："+M.parse_reason(m.group(2))
 					M.addblack_user(user, m_date, reason, wiki)
 					return "OK"
 
@@ -154,7 +154,7 @@ def telegram():
 						return "OK"
 						
 					user = m.group(1)
-					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
+					reason = m_first_name+"加入："+M.parse_reason(m.group(2))
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
@@ -178,7 +178,7 @@ def telegram():
 					elif "reply_to_message" in data["message"]:
 						user = M.get_user_from_message_id(data["message"]["reply_to_message"]["message_id"])
 						if len(user) == 0:
-							M.sendmessage("User not found")
+							M.sendmessage("無法從訊息找到所對應的對象")
 							return "OK"
 						else :
 							user, wiki = M.parse_user(user[0][0])
@@ -194,7 +194,7 @@ def telegram():
 						return "OK"
 						
 					page, wiki = M.parse_page(m.group(1))
-					reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
+					reason = m_first_name+"加入："+M.parse_reason(m.group(2))
 					M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
@@ -205,7 +205,7 @@ def telegram():
 					
 					for pageline in m.group(1).split("\n"):
 						page, wiki = M.parse_page(pageline)
-						reason = "add by "+m_first_name+": "+M.parse_reason(m.group(2))
+						reason = m_first_name+"加入："+M.parse_reason(m.group(2))
 						M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
@@ -226,7 +226,7 @@ def telegram():
 					elif "reply_to_message" in data["message"]:
 						user = M.get_user_from_message_id(data["message"]["reply_to_message"]["message_id"])
 						if len(user) == 0:
-							M.sendmessage("User not found")
+							M.sendmessage("無法從訊息找到所對應的對象")
 							return "OK"
 						else :
 							user, wiki = M.parse_user(user[0][0])
@@ -236,13 +236,13 @@ def telegram():
 					message = ""
 					rows = M.check_user_whitelist(user)
 					if len(rows) != 0:
-						message += "\non whitelist:"
+						message += "\n於白名單："
 						for record in rows:
 							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
 
 					rows = M.check_user_blacklist(user, wiki, ignorewhite=True)
 					if len(rows) != 0:
-						message += "\non blacklist:"
+						message += "\n於黑名單："
 						for record in rows:
 							message += "\n"+cgi.escape(record[0], quote=False)
 							if record[2] != "":
@@ -254,7 +254,7 @@ def telegram():
 					if message != "":
 						M.sendmessage(user+"@"+wiki+message)
 					else :
-						M.sendmessage(user+"@"+wiki+" : no result found")
+						M.sendmessage(user+"@"+wiki+"：查無結果")
 					return "OK"
 
 				m = re.match(r"/(?:checkpage|cp)\n(.+)", m_text)
@@ -264,14 +264,14 @@ def telegram():
 					message = ""
 					rows = M.check_page_blacklist(page, wiki)
 					if len(rows) != 0:
-						message += "\non blacklist:"
+						message += "\n於黑名單："
 						for record in rows:
 							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
 
 					if message != "":
 						M.sendmessage(page+"@"+wiki+message)
 					else :
-						M.sendmessage(page+"@"+wiki+" : no result found")
+						M.sendmessage(page+"@"+wiki+"：查無結果")
 					return "OK"
 
 				if re.match(r"/os$", m_text) and "reply_to_message" in data["message"]:
@@ -292,21 +292,21 @@ def telegram():
 					M.cur.execute("""SELECT `user` FROM `bot_message` WHERE `message_id` = %s""", (message_id))
 					rows = M.cur.fetchall()
 					if len(rows) == 0:
-						M.sendmessage("User not found")
+						M.sendmessage("無法從訊息找到所對應的對象")
 						return "OK"
 					user = rows[0][0]
-
-					M.sendmessage("os "+str(len(rows))+" messages")
 
 					M.cur.execute("""SELECT `message_id` FROM `bot_message` WHERE `user` = %s""", (user))
 					rows = M.cur.fetchall()
 					for row in rows:
 						M.deletemessage(row[0])
+
+					M.sendmessage("已濫權掉"+str(len(rows))+"條訊息")
 					return "OK"
 
 				m = re.match(r"/status", m_text)
 				if m != None:
-					message = "working"
+					message = '<a href="https://zh.wikipedia.org/wiki/WORKING!!">WORKING!!</a>'
 					M.sendmessage(message)
 					return "OK"
 

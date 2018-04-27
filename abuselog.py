@@ -9,6 +9,7 @@ import datetime
 import dateutil.parser
 import pytz
 import sys
+import cgi
 from http.cookiejar import CookieJar
 from Monitor import Monitor
 
@@ -95,19 +96,19 @@ try:
 	for log in res["query"]["abuselog"]:
 		print(log["filter"], log["timestamp"])
 
-		message = M.link_user(log["user"])+' hit '+M.link_abusefilter(log["filter_id"])+' '+log["filter"]+' in '+M.link_page(log["title"])+' ('+M.link_abuselog(log["id"])+')'
+		message = M.link_user(log["user"])+'於'+M.link_page(log["title"])+'觸發'+M.link_abusefilter(log["filter_id"])+'：'+log["filter"]+'（'+M.link_abuselog(log["id"])+'）'
 
 		rows = M.check_user_blacklist(log["user"])
 		if len(rows) != 0:
-			M.sendmessage(message+'\n(blacklist: '+rows[0][0]+', '+M.formattimediff(rows[0][1])+')', log["user"]+"|"+M.wiki)
+			M.sendmessage(message+'\n（黑名單：'+cgi.escape(rows[0][0], quote=False)+'，'+M.formattimediff(rows[0][1])+'）', log["user"]+"|"+M.wiki)
 		elif log["filter"] in afwatchlistname or log["filter"] in afblacklistname:
 			M.sendmessage(message, log["user"]+"|"+M.wiki)
 
 		if log["filter"] in afblacklistname:
-			reason = "hit AF "+log["filter"]
+			reason = "觸發過濾器："+log["filter"]
 			rows = M.check_user_blacklist_with_reason(log["user"], reason)
 			if len(rows) == 0:
-				M.addblack_user(log["user"], str(int(dateutil.parser.parse(log["timestamp"]).timestamp())), reason, msgprefix="auto ")
+				M.addblack_user(log["user"], str(int(dateutil.parser.parse(log["timestamp"]).timestamp())), reason, msgprefix="自動")
 		M.addRC_log_abuselog(log)
 
 except Exception as e:
