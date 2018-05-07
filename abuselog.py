@@ -13,7 +13,7 @@ import cgi
 from http.cookiejar import CookieJar
 from Monitor import Monitor
 
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ['TZ'] = 'UTC'
 
@@ -96,7 +96,10 @@ try:
 	for log in res["query"]["abuselog"]:
 		print(log["filter"], log["timestamp"])
 
-		message = M.link_user(log["user"])+'於'+M.link_page(log["title"])+'觸發'+M.link_abusefilter(log["filter_id"])+'：'+log["filter"]+'（'+M.link_abuselog(log["id"])+'）'
+		message = M.link_user(log["user"])+'於'+M.link_page(log["title"])+'觸發'+M.link_abusefilter(log["filter_id"])+'：'+log["filter"]+'（'+M.link_abuselog(log["id"])
+		if "revid" in log and log["revid"] != "":
+			message += "|"+M.link_diff(log["revid"])
+		message += '）'
 
 		rows = M.check_user_blacklist(log["user"])
 		if len(rows) != 0:

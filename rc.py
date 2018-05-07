@@ -224,6 +224,8 @@ for event in EventSource(url):
 
 						if wiki in followwiki:
 							issend = True
+						if wiki in ["metawiki"]:
+							issend = False
 
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
