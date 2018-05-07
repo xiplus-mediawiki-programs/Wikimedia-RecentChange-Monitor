@@ -61,7 +61,7 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n（黑名單："+cgi.escape(rows[0][0], quote=False)
+				message_append += "\n（黑名單："+M.parse_wikicode(rows[0][0])
 				if rows[0][2] != "" and rows[0][2] != user:
 					message_append += "（"+rows[0][2]+"）"
 					blackuser = rows[0][2]
@@ -74,7 +74,7 @@ for event in EventSource(url):
 			if len(rows) != 0 and len(M.check_user_whitelist(user)) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n（監視："+cgi.escape(rows[0][0], quote=False)+', '+M.formattimediff(rows[0][1])+"）"
+				message_append += "\n（監視："+M.parse_wikicode(rows[0][0])+', '+M.formattimediff(rows[0][1])+"）"
 
 			if change["bot"]:
 				issend = False
@@ -128,7 +128,7 @@ for event in EventSource(url):
 
 					blockname = {"unblock":"解封", "block": "封禁", "reblock": "重新封禁"}
 
-					message = M.link_user(user)+blockname[log_action]+M.link_user(blockuser)+'（'+cgi.escape(change["log_action_comment"], quote=False)+'）'
+					message = M.link_user(user)+blockname[log_action]+M.link_user(blockuser)+'（'+M.parse_wikicode(change["log_action_comment"])+'）'
 					issend and M.sendmessage(message+message_append, blockuser+"|"+blockwiki)
 
 					if log_action == "unblock":
@@ -159,7 +159,7 @@ for event in EventSource(url):
 						isrecord and M.addRC_log_protect(change)
 
 						print(user+" protect "+title+" comment:"+comment)
-						message = M.link_user(user)+protectname[log_action]+M.link_page(title)+'（'+cgi.escape(comment, quote=False)+'）（'+cgi.escape(change["log_params"]["description"], quote=False)+'）'
+						message = M.link_user(user)+protectname[log_action]+M.link_page(title)+'（'+M.parse_wikicode(comment)+'）（'+M.parse_wikicode(change["log_params"]["description"])+'）'
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 
@@ -232,7 +232,7 @@ for event in EventSource(url):
 					if log_action == "setstatus":
 						isrecord and M.addRC_log_globalauth(change)
 
-						message = M.link_user(user)+'全域鎖定'+M.link_user(title[5:-7])+'（'+cgi.escape(change["log_action_comment"], quote=False)+'）'
+						message = M.link_user(user)+'全域鎖定'+M.link_user(title[5:-7])+'（'+M.parse_wikicode(change["log_action_comment"])+'）'
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 			
@@ -240,7 +240,7 @@ for event in EventSource(url):
 					if log_action == "gblock2" or log_action == "modify":
 						isrecord and M.addRC_log_gblblock(change)
 
-						message = M.link_user(user)+'全域封禁'+M.link_user(title[5:-7])+'（'+cgi.escape(change["log_action_comment"], quote=False)+'）'
+						message = M.link_user(user)+'全域封禁'+M.link_user(title[5:-7])+'（'+M.parse_wikicode(change["log_action_comment"])+'）'
 						issend and M.sendmessage(message+message_append)
 						unknowntype = False
 			

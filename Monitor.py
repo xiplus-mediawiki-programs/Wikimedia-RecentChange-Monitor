@@ -166,7 +166,7 @@ class Monitor():
 			self.cur.execute("""INSERT INTO `black_user` (`wiki`, `user`, `timestamp`, `reason`) VALUES (%s, %s, %s, %s)""",
 				(wiki, userobj.user, str(timestamp), reason) )
 			self.db.commit()
-			self.sendmessage(msgprefix+"加入User:"+self.link_user(userobj.user, wiki)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.user+"|"+wiki)
+			self.sendmessage(msgprefix+"加入User:"+self.link_user(userobj.user, wiki)+"@"+wiki+"至黑名單\n原因："+self.parse_wikicode(reason), userobj.user+"|"+wiki)
 			return
 		elif type(userobj) == IPv4:
 			if int(userobj.end) - int(userobj.start) > self.ipv4limit:
@@ -187,11 +187,11 @@ class Monitor():
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+"加入IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
+				self.sendmessage(msgprefix+"加入IP:"+self.link_user(str(userobj.start), wiki)+"@"+wiki+"至黑名單\n原因："+self.parse_wikicode(reason), userobj.val+"|"+wiki)
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+"加入IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
+				self.sendmessage(msgprefix+"加入IP:"+self.link_user(userobj.val, wiki)+"@"+wiki+"至黑名單\n原因："+self.parse_wikicode(reason), userobj.val+"|"+wiki)
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+"加入IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+"至黑名單\n原因："+cgi.escape(reason, quote=False), userobj.val+"|"+wiki)
+				self.sendmessage(msgprefix+"加入IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+"至黑名單\n原因："+self.parse_wikicode(reason), userobj.val+"|"+wiki)
 
 	def delblack_user(self, user, wiki=None, msgprefix=""):
 		if wiki == None:
@@ -230,7 +230,7 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `white_user` (`user`, `timestamp`, `reason`) VALUES (%s, %s, %s)""",
 			(user, timestamp, reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"加入"+self.link_user(user, "")+"@global into user whitelist\n原因："+cgi.escape(reason, quote=False))
+		self.sendmessage(msgprefix+"加入"+self.link_user(user, "")+"@global into user whitelist\n原因："+self.parse_wikicode(reason))
 
 	def delwhite_user(self, user, msgprefix=""):
 		user = user.strip()
@@ -446,6 +446,26 @@ class Monitor():
 			return "無原因"
 		else :
 			return reason
+
+	def parse_wikicode(self, code):
+		code = cgi.escape(code, quote=False)
+		def repl1(m):
+			page = m.group(1)
+			if len(m.groups()) == 2:
+				text = m.group(2)
+				return self.link_all(page, text)
+			else:
+				return self.link_all(page)
+		code = re.sub(r"\[\[([^\]\|]+)(?:\|([^\]]+))?\]\]", repl1, code)
+		def repl2(m):
+			text = m.group(1)
+			page = "Template:"+m.group(1)
+			parms = ""
+			if len(m.groups()) == 2 and m.group(2) != None:
+				parms = m.group(2)
+			return "{{"+self.link_all(page, text)+parms+"}}"
+		code = re.sub(r"{{([^\|}]+)(\|[^}]+)?}}", repl2, code)
+		return code
 
 	def user_type(self, user):
 		try:

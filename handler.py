@@ -29,7 +29,7 @@ def hello():
 			html += '<table>'
 			html += '<tr><th>wiki</th><th>ip</th><th>reason</th><th>timestamp</th></tr>'
 			for row in rows:
-				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], M.parse_wikicode(row[2]), M.formattimediff(row[3]))
 			html += '</table>'
 		elif request.args["type"] == "blackipv6":
 			M.cur.execute("""SELECT `wiki`, `val`, `reason`, `timestamp` FROM `black_ipv6` ORDER BY `timestamp` DESC""")
@@ -37,7 +37,7 @@ def hello():
 			html += '<table>'
 			html += '<tr><th>wiki</th><th>ip</th><th>reason</th><th>timestamp</th></tr>'
 			for row in rows:
-				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], M.parse_wikicode(row[2]), M.formattimediff(row[3]))
 			html += '</table>'
 		elif request.args["type"] == "blackuser":
 			M.cur.execute("""SELECT `wiki`, `user`, `reason`, `timestamp` FROM `black_user` ORDER BY `timestamp` DESC""")
@@ -45,7 +45,7 @@ def hello():
 			html += '<table>'
 			html += '<tr><th>wiki</th><th>user</th><th>reason</th><th>timestamp</th></tr>'
 			for row in rows:
-				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], M.parse_wikicode(row[2]), M.formattimediff(row[3]))
 			html += '</table>'
 		elif request.args["type"] == "whiteuser":
 			M.cur.execute("""SELECT `user`, `reason`, `timestamp` FROM `white_user` ORDER BY `timestamp` DESC""")
@@ -53,7 +53,7 @@ def hello():
 			html += '<table>'
 			html += '<tr><th>user</th><th>reason</th><th>timestamp</th></tr>'
 			for row in rows:
-				html += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], cgi.escape(row[1], quote=False), M.formattimediff(row[2]))
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], M.parse_wikicode(row[1]), M.formattimediff(row[2]))
 			html += '</table>'
 		elif request.args["type"] == "blackpage":
 			M.cur.execute("""SELECT `wiki`, `page`, `reason`, `timestamp` FROM `black_page` ORDER BY `timestamp` DESC""")
@@ -61,7 +61,7 @@ def hello():
 			html += '<table>'
 			html += '<tr><th>wiki</th><th>page</th><th>reason</th><th>timestamp</th></tr>'
 			for row in rows:
-				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], cgi.escape(row[2], quote=False), M.formattimediff(row[3]))
+				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], M.parse_wikicode(row[2]), M.formattimediff(row[3]))
 			html += '</table>'
 	return html
 
@@ -238,13 +238,13 @@ def telegram():
 					if len(rows) != 0:
 						message += "\n於白名單："
 						for record in rows:
-							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
+							message += "\n"+M.parse_wikicode(record[0])+', '+M.formattimediff(record[1])
 
 					rows = M.check_user_blacklist(user, wiki, ignorewhite=True)
 					if len(rows) != 0:
 						message += "\n於黑名單："
 						for record in rows:
-							message += "\n"+cgi.escape(record[0], quote=False)
+							message += "\n"+M.parse_wikicode(record[0])
 							if record[2] != "":
 								message += "("+record[2]+"@"+record[3]+")"
 							else :
@@ -266,7 +266,7 @@ def telegram():
 					if len(rows) != 0:
 						message += "\n於黑名單："
 						for record in rows:
-							message += "\n"+cgi.escape(record[0], quote=False)+', '+M.formattimediff(record[1])
+							message += "\n"+M.parse_wikicode(record[0])+', '+M.formattimediff(record[1])
 
 					if message != "":
 						M.sendmessage(page+"@"+wiki+message)

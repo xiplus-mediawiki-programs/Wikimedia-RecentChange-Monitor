@@ -100,7 +100,7 @@ try:
 
 		rows = M.check_user_blacklist(log["user"])
 		if len(rows) != 0:
-			M.sendmessage(message+'\n（黑名單：'+cgi.escape(rows[0][0], quote=False)+'，'+M.formattimediff(rows[0][1])+'）', log["user"]+"|"+M.wiki)
+			M.sendmessage(message+'\n（黑名單：'+M.parse_wikicode(rows[0][0])+'，'+M.formattimediff(rows[0][1])+'）', log["user"]+"|"+M.wiki)
 		elif log["filter"] in afwatchlistname or log["filter"] in afblacklistname:
 			M.sendmessage(message, log["user"]+"|"+M.wiki)
 
