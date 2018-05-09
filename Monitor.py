@@ -390,8 +390,9 @@ class Monitor():
 				self.log("delete message error:"+str(e.code)+" "+str(e.read().decode("utf-8"))+" message_id: "+str(message_id))
 
 	def bot_message(self, message_id, user, message):
-		self.cur.execute("""INSERT INTO `bot_message` (`message_id`, `user`, `message`) VALUES (%s, %s, %s)""",
-			(message_id, user, message) )
+		timestamp = int(time.time())
+		self.cur.execute("""INSERT INTO `bot_message` (`timestamp`, `message_id`, `user`, `message`) VALUES (%s, %s, %s, %s)""",
+			(timestamp, message_id, user, message) )
 		self.db.commit()
 
 	def get_user_from_message_id(self, message_id):
@@ -430,6 +431,7 @@ class Monitor():
 			user = user.split(delimiter)[0]
 		else :
 			wiki = self.wiki
+		user = user[0].upper()+user[1:]
 		return user, wiki
 
 	def parse_page(self, page, delimiter="|"):
