@@ -15,6 +15,6 @@
 
 | 頻道指令 | 功能 |
 | ------------- | ------------- |
-| /setadmin | 設定管理員，需reply對象 |
-| /deladmin | 取消設定管理員，需reply對象 |
+| /setadmin<br>`name` | 設定管理員，需reply對象<br>可選設定別名`name`<br>管理員可更改自己的別名 |
+| /deladmin | 取消設定管理員，需reply對象<br>管理員不可取消自己 |
 | /status | 檢查伺服器狀態 |

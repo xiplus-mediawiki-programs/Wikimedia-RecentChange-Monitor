@@ -73,7 +73,12 @@ def telegram():
 			m_date = data["message"]["date"]
 			m_chat_id = int(data["message"]["chat"]["id"])
 			m_user_id = int(data["message"]["from"]["id"])
-			m_first_name = data["message"]["from"]["first_name"]
+			if "reply_to_message" in data["message"]:
+				from_user_id = data["message"]["reply_to_message"]["from"]["id"]
+				from_firstname = data["message"]["reply_to_message"]["from"]["first_name"]
+				from_lastname = ""
+				if "last_name" in data["message"]["reply_to_message"]["from"]:
+					from_lastname = data["message"]["reply_to_message"]["from"]["last_name"]
 
 			if "text" in data["message"] and m_chat_id in M.response_chat_id:
 				M.chat_id = m_chat_id
@@ -85,14 +90,14 @@ def telegram():
 					return "OK"
 
 				def checkadmin():
-					M.cur.execute("""SELECT * FROM `admin` WHERE `user_id` = %s""", (str(m_user_id)))
+					M.cur.execute("""SELECT `name` FROM `admin` WHERE `user_id` = %s""", (str(m_user_id)))
 					rows = M.cur.fetchall()
 					if len(rows) == 0:
 						M.sendmessage("你沒有權限")
-						return False
-					return True
+						return None
+					return rows[0][0]
 
-				m = re.match(r"/setadmin", m_text)
+				m = re.match(r"/setadmin(?:\n(.+))?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -100,19 +105,15 @@ def telegram():
 					if "reply_to_message" not in data["message"]:
 						M.sendmessage("需要reply訊息")
 						return "OK"
-					from_user_id = data["message"]["reply_to_message"]["from"]["id"]
 
-					if from_user_id == m_user_id:
-						M.sendmessage("You cannot set yourself as admin")
-						return "OK"
+					name = from_firstname
+					if m.group(1) != None and m.group(1).strip() != "":
+						name = m.group(1)
 
-					from_firstname = data["message"]["reply_to_message"]["from"]["first_name"]
-					from_lastname = data["message"]["reply_to_message"]["from"]["last_name"]
-
-					M.cur.execute("""INSERT INTO `admin` (`user_id`, `first_name`, `last_name`) VALUES (%s, %s, %s)""",
-						(str(from_user_id), from_firstname, from_lastname) )
+					M.cur.execute("""REPLACE INTO `admin` (`user_id`, `name`) VALUES (%s, %s)""",
+						(str(from_user_id), name) )
 					M.db.commit()
-					M.sendmessage("設定"+from_firstname+" "+from_lastname+" ("+str(from_user_id)+")為管理員")
+					M.sendmessage("設定"+name+"("+(from_firstname+" "+from_lastname).strip()+")("+str(from_user_id)+")為管理員")
 					return "OK"
 
 				m = re.match(r"/deladmin", m_text)
@@ -129,32 +130,34 @@ def telegram():
 						M.sendmessage("你不能將自己除權")
 						return "OK"
 
-					from_firstname = data["message"]["reply_to_message"]["from"]["first_name"]
-					from_lastname = data["message"]["reply_to_message"]["from"]["last_name"]
-
-					M.cur.execute("""DELETE FROM `admin` WHERE `user_id` = %s""",
+					count = M.cur.execute("""DELETE FROM `admin` WHERE `user_id` = %s""",
 						(str(from_user_id)) )
 					M.db.commit()
-					M.sendmessage("移除"+from_firstname+" "+from_lastname+" ("+str(from_user_id)+")為管理員")
+					if count == 0:
+						M.sendmessage("該用戶不是管理員")
+					else :
+						M.sendmessage("移除"+(from_firstname+" "+from_lastname).strip()+"("+str(from_user_id)+")為管理員")
 					return "OK"
 
 				m = re.match(r"/(?:adduser|au)\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
-					if not checkadmin():
+					name = checkadmin()
+					if name == None:
 						return "OK"
 						
 					user, wiki = M.parse_user(m.group(1))
-					reason = m_first_name+"加入："+M.parse_reason(m.group(2))
+					reason = name+"加入："+M.parse_reason(m.group(2))
 					M.addblack_user(user, m_date, reason, wiki)
 					return "OK"
 
 				m = re.match(r"/addwhiteuser\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
-					if not checkadmin():
+					name = checkadmin()
+					if name == None:
 						return "OK"
 						
 					user = m.group(1)
-					reason = m_first_name+"加入："+M.parse_reason(m.group(2))
+					reason = name+"加入："+M.parse_reason(m.group(2))
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
@@ -190,22 +193,24 @@ def telegram():
 
 				m = re.match(r"/(?:addpage|ap)\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
-					if not checkadmin():
+					name = checkadmin()
+					if name == None:
 						return "OK"
 						
 					page, wiki = M.parse_page(m.group(1))
-					reason = m_first_name+"加入："+M.parse_reason(m.group(2))
+					reason = name+"加入："+M.parse_reason(m.group(2))
 					M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
 				m = re.match(r"/massaddpage\n(.+(?:\n.+)*)\n(.+)", m_text)
 				if m != None:
-					if not checkadmin():
+					name = checkadmin()
+					if name == None:
 						return "OK"
 					
 					for pageline in m.group(1).split("\n"):
 						page, wiki = M.parse_page(pageline)
-						reason = m_first_name+"加入："+M.parse_reason(m.group(2))
+						reason = name+"加入："+M.parse_reason(m.group(2))
 						M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
