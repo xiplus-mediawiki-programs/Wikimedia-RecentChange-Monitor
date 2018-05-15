@@ -426,6 +426,7 @@ class Monitor():
 		return str(int(diff/60/60/24))+"日"
 	
 	def parse_user(self, user, delimiter="|"):
+		user = re.sub(r"^User:", "", user, flags=re.I)
 		if delimiter in user:
 			wiki = user.split(delimiter)[1]
 			user = user.split(delimiter)[0]
