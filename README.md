@@ -8,6 +8,7 @@
 | N/A | N/A | /addwhiteuser<br>`user` | /addwhiteuser<br>`user`<br>`reason` | 永不監視`user`在全域的編輯<br>可附加原因`reason` |
 | N/A | N/A | /delwhiteuser<br>`user` | N/A | 移除白名單 |
 | /checkuser<br>`user` | /checkuser<br>`user`&#124;`wiki` | /checkuser<br>`user`&#124;global| N/A | 列出`user`的監視狀態 |
+| /setwiki<br>`user` | /setwiki<br>`user`&#124;`wiki` | /setwiki<br>`user`&#124;global| N/A | 更改`user`的wiki |
 | /addpage<br>`page` | /addpage<br>`page`&#124;`wiki` | N/A |  /addpage<br>`page`<br>`reason` | 監視`wiki`上的`page`的編輯<br>可附加原因`reason` |
 | /massaddpage<br>`page1`<br>`page2`<br>`reason` | /massaddpage<br>`page1`&#124;`wiki`<br>`page2`&#124;`wiki`<br>`reason` | N/A |  /massaddpage<br>`page1`<br>`page2`<br>`reason` | 大量監視頁面<br>**必須**附加原因`reason` |
 | /delpage<br>`page` | /delpage<br>`page`&#124;`wiki` | N/A | N/A | 取消監視`wiki`上的`page`的編輯 |
