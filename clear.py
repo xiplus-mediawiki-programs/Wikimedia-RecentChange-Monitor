@@ -5,6 +5,7 @@ from Monitor import Monitor
 M = Monitor()
 
 dbs = [
+	'error',
 	'log',
 	'RC_142',
 	'RC_categorize',
