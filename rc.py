@@ -61,9 +61,9 @@ for event in EventSource(url):
 			if len(rows) != 0:
 				issend = True
 				isrecord = True
-				message_append += "\n（黑名單："+M.parse_wikicode(rows[0][0])
+				message_append += "\n（黑名單：\u200b"+M.parse_wikicode(rows[0][0])+"\u200b"
 				if rows[0][2] != "" and rows[0][2] != user:
-					message_append += "（"+rows[0][2]+"）"
+					message_append += "，\u200b"+rows[0][2]+"\u200b"
 					blackuser = rows[0][2]
 				message_append += '，'+M.formattimediff(rows[0][1])+"）"
 				blackuser += "|"+rows[0][3]
