@@ -225,6 +225,38 @@ class Monitor():
 			elif userobj.type == "range":
 				self.sendmessage(msgprefix+str(count)+"條對於IP:"+str(userobj.start)+"-"+str(userobj.end)+"@"+wiki+"的紀錄從黑名單刪除")
 
+	def setwikiblack_user(self, user, wiki=None):
+		if wiki == None:
+			wiki = self.wiki
+		user = user.strip()
+		wiki = wiki.strip()
+
+		userobj = self.user_type(user)
+		if type(userobj) == User:
+			count = self.cur.execute("""UPDATE `black_user` SET `wiki` = %s WHERE `user` = %s""",
+				(wiki, userobj.user) )
+			self.db.commit()
+			self.sendmessage(str(count)+"條對於User:"+self.link_user(userobj.user, wiki)+"的紀錄設定wiki為"+wiki)
+			return
+		elif type(userobj) == IPv4:
+			count = self.cur.execute("""UPDATE `black_ipv4` SET `wiki` = %s WHERE `start` = %s AND `end` = %s""",
+				(wiki, int(userobj.start), int(userobj.end)) )
+			self.db.commit()
+		elif type(userobj) == IPv6:
+			count = self.cur.execute("""UPDATE `black_ipv6` SET `wiki` = %s WHERE `start` = %s AND `end` = %s""",
+				(wiki, int(userobj.start), int(userobj.end)) )
+			self.db.commit()
+		else:
+			self.error("cannot detect user type: "+user)
+			return
+		if type(userobj) in [IPv4, IPv6]:
+			if userobj.start == userobj.end:
+				self.sendmessage(msgprefix+str(count)+"條對於IP:"+self.link_user(str(userobj.start), wiki)+"的紀錄設定wiki為"+wiki)
+			elif userobj.type == "CIDR":
+				self.sendmessage(msgprefix+str(count)+"條對於IP:"+self.link_user(userobj.val, wiki)+"的紀錄設定wiki為"+wiki)
+			elif userobj.type == "range":
+				self.sendmessage(msgprefix+str(count)+"條對於IP:"+str(userobj.start)+"-"+str(userobj.end)+"的紀錄設定wiki為"+wiki)
+
 	def addwhite_user(self, user, timestamp, reason, msgprefix=""):
 		user = user.strip()
 		self.cur.execute("""INSERT INTO `white_user` (`user`, `timestamp`, `reason`) VALUES (%s, %s, %s)""",

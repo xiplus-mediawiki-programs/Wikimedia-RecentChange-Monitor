@@ -191,6 +191,26 @@ def telegram():
 					M.delblack_user(user, wiki)
 					return "OK"
 
+				m = re.match(r"/setwiki", m_text)
+				if m != None:
+					if not checkadmin():
+						return "OK"
+
+					m = re.match(r"/(?:setwiki)\n(.+)?", m_text)
+					if "reply_to_message" in data["message"]:
+						user = M.get_user_from_message_id(data["message"]["reply_to_message"]["message_id"])
+						if len(user) == 0:
+							M.sendmessage("無法從訊息找到所對應的對象")
+							return "OK"
+						else :
+							user, wiki = M.parse_user(user[0][0])
+						wiki = m.group(1).strip()
+					elif m != None:
+						user, wiki = M.parse_user(m.group(1))
+					M.setwikiblack_user(user, wiki)
+					
+					return "OK"
+
 				m = re.match(r"/(?:addpage|ap)\n(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					name = checkadmin()
