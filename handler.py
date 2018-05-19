@@ -97,7 +97,7 @@ def telegram():
 						return None
 					return rows[0][0]
 
-				m = re.match(r"/setadmin(?:\n(.+))?", m_text)
+				m = re.match(r"/setadmin(?:@cvn_smart_bot)?(?:\s+(.+))?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -139,7 +139,7 @@ def telegram():
 						M.sendmessage("移除"+(from_firstname+" "+from_lastname).strip()+"("+str(from_user_id)+")為管理員")
 					return "OK"
 
-				m = re.match(r"/(?:adduser|au)\n(.+)(?:\n(.+))?", m_text)
+				m = re.match(r"/(?:adduser|au)(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					name = checkadmin()
 					if name == None:
@@ -150,7 +150,7 @@ def telegram():
 					M.addblack_user(user, m_date, reason, wiki)
 					return "OK"
 
-				m = re.match(r"/addwhiteuser\n(.+)(?:\n(.+))?", m_text)
+				m = re.match(r"/addwhiteuser(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					name = checkadmin()
 					if name == None:
@@ -161,7 +161,7 @@ def telegram():
 					M.addwhite_user(user, m_date, reason)
 					return "OK"
 
-				m = re.match(r"/delwhiteuser\n(.+)(?:\n.+)?", m_text)
+				m = re.match(r"/delwhiteuser(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -175,7 +175,7 @@ def telegram():
 					if not checkadmin():
 						return "OK"
 
-					m = re.match(r"/(?:deluser|du)\n(.+)(?:\n.+)?", m_text)
+					m = re.match(r"/(?:deluser|du)(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?", m_text)
 					if m != None:
 						user, wiki = M.parse_user(m.group(1))
 					elif "reply_to_message" in data["message"]:
@@ -196,7 +196,7 @@ def telegram():
 					if not checkadmin():
 						return "OK"
 
-					m = re.match(r"/(?:setwiki)\n(.+)?", m_text)
+					m = re.match(r"/(?:setwiki)(?:@cvn_smart_bot)?\s+(.+)?", m_text)
 					if "reply_to_message" in data["message"]:
 						user = M.get_user_from_message_id(data["message"]["reply_to_message"]["message_id"])
 						if len(user) == 0:
@@ -211,7 +211,7 @@ def telegram():
 					
 					return "OK"
 
-				m = re.match(r"/(?:addpage|ap)\n(.+)(?:\n(.+))?", m_text)
+				m = re.match(r"/(?:addpage|ap)(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?", m_text)
 				if m != None:
 					name = checkadmin()
 					if name == None:
@@ -222,7 +222,7 @@ def telegram():
 					M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
-				m = re.match(r"/massaddpage\n(.+(?:\n.+)*)\n(.+)", m_text)
+				m = re.match(r"/massaddpage(?:@cvn_smart_bot)?\s+(.+(?:\n.+)*)\n(.+)", m_text)
 				if m != None:
 					name = checkadmin()
 					if name == None:
@@ -234,7 +234,7 @@ def telegram():
 						M.addblack_page(page, m_date, reason, wiki)
 					return "OK"
 
-				m = re.match(r"/(?:delpage|dp)\n(.+)(?:\n.+)?", m_text)
+				m = re.match(r"/(?:delpage|dp)(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?", m_text)
 				if m != None:
 					if not checkadmin():
 						return "OK"
@@ -245,7 +245,7 @@ def telegram():
 
 				m = re.match(r"/(?:checkuser|cu)", m_text)
 				if m != None:
-					m = re.match(r"/(?:checkuser|cu)\n(.+)", m_text)
+					m = re.match(r"/(?:checkuser|cu)(?:@cvn_smart_bot)?\s+(.+)", m_text)
 					if m != None:
 						user, wiki = M.parse_user(m.group(1))
 					elif "reply_to_message" in data["message"]:
@@ -282,7 +282,7 @@ def telegram():
 						M.sendmessage(user+"@"+wiki+"：查無結果")
 					return "OK"
 
-				m = re.match(r"/(?:checkpage|cp)\n(.+)", m_text)
+				m = re.match(r"/(?:checkpage|cp)(?:@cvn_smart_bot)?\s+(.+)", m_text)
 				if m != None:
 					page, wiki = M.parse_page(m.group(1))
 
@@ -299,7 +299,7 @@ def telegram():
 						M.sendmessage(page+"@"+wiki+"：查無結果")
 					return "OK"
 
-				if re.match(r"/os$", m_text) and "reply_to_message" in data["message"]:
+				if re.match(r"/os(?:@cvn_smart_bot)?$", m_text) and "reply_to_message" in data["message"]:
 					if not checkadmin():
 						return "OK"
 
@@ -307,7 +307,7 @@ def telegram():
 					M.deletemessage(data["message"]["reply_to_message"]["message_id"])
 					return "OK"
 
-				if re.match(r"/osall$", m_text) and "reply_to_message" in data["message"]:
+				if re.match(r"/osall(?:@cvn_smart_bot)?$", m_text) and "reply_to_message" in data["message"]:
 					if not checkadmin():
 						return "OK"
 
