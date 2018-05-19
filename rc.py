@@ -3,11 +3,10 @@ import pymysql
 import configparser
 import json
 import os
-import sys
 import re
 import urllib
 from sseclient import SSEClient as EventSource
-import cgi
+import traceback
 from Monitor import *
 
 os.environ['TZ'] = 'UTC'
@@ -316,9 +315,5 @@ for event in EventSource(url):
 				M.addblack_user(title[10:], change["timestamp"], reason, msgprefix="自動")
 
 		except Exception as e:
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			M.error(str(e)+" "+json.dumps(change))
-			M.error(str(exc_type)+" "+str(fname)+" "+str(exc_tb.tb_lineno))
-			print(e)
-			print(exc_type, fname, exc_tb.tb_lineno)
+			traceback.print_exc()
+			M.error(traceback.format_exc())

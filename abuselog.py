@@ -8,8 +8,7 @@ import pickle
 import datetime
 import dateutil.parser
 import pytz
-import sys
-import cgi
+import traceback
 from http.cookiejar import CookieJar
 from Monitor import Monitor
 
@@ -119,7 +118,5 @@ try:
 		M.addRC_log_abuselog(log)
 
 except Exception as e:
-	exc_type, exc_obj, exc_tb = sys.exc_info()
-	fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-	M.error(str(e))
-	M.error(str(exc_type)+" "+str(fname)+" "+str(exc_tb.tb_lineno))
+	traceback.print_exc()
+	M.error(traceback.format_exc())
