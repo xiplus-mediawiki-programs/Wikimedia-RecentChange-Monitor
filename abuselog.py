@@ -103,8 +103,12 @@ try:
 
 		rows = M.check_user_blacklist(log["user"])
 		if len(rows) != 0:
-			M.sendmessage(message+'\n（黑名單：'+M.parse_wikicode(rows[0][0])+'，'+M.formattimediff(rows[0][1])+'）', log["user"]+"|"+M.wiki)
-		elif log["filter"] in afwatchlistname or log["filter"] in afblacklistname:
+			message += "\n（黑名單：\u200b"+M.parse_wikicode(rows[0][0])+"\u200b"
+			if rows[0][2] != "" and rows[0][2] != log["user"]:
+				message += "，\u200b"+rows[0][2]+"\u200b"
+			message += '，'+M.formattimediff(rows[0][1])+"）"
+
+		if len(rows) != 0 or log["filter"] in afwatchlistname or log["filter"] in afblacklistname:
 			M.sendmessage(message, log["user"]+"|"+M.wiki)
 
 		if log["filter"] in afblacklistname:
