@@ -251,11 +251,11 @@ class Monitor():
 			return
 		if type(userobj) in [IPv4, IPv6]:
 			if userobj.start == userobj.end:
-				self.sendmessage(msgprefix+str(count)+"條對於IP:"+self.link_user(str(userobj.start), wiki)+"的紀錄設定wiki為"+wiki)
+				self.sendmessage(str(count)+"條對於IP:"+self.link_user(str(userobj.start), wiki)+"的紀錄設定wiki為"+wiki)
 			elif userobj.type == "CIDR":
-				self.sendmessage(msgprefix+str(count)+"條對於IP:"+self.link_user(userobj.val, wiki)+"的紀錄設定wiki為"+wiki)
+				self.sendmessage(str(count)+"條對於IP:"+self.link_user(userobj.val, wiki)+"的紀錄設定wiki為"+wiki)
 			elif userobj.type == "range":
-				self.sendmessage(msgprefix+str(count)+"條對於IP:"+str(userobj.start)+"-"+str(userobj.end)+"的紀錄設定wiki為"+wiki)
+				self.sendmessage(str(count)+"條對於IP:"+str(userobj.start)+"-"+str(userobj.end)+"的紀錄設定wiki為"+wiki)
 
 	def addwhite_user(self, user, timestamp, reason, msgprefix=""):
 		user = user.strip()
