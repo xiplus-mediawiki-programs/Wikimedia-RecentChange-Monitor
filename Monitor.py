@@ -26,6 +26,7 @@ class Monitor():
 								  db=config.get('database', 'db'),
 								  charset=config.get('database', 'charset'))
 		self.cur = self.db.cursor()
+		self.siteurl = config.get('site', 'url')
 		self.defaultwiki = config.get('monitor', 'defaultwiki')
 		self.wiki = config.get('monitor', 'defaultwiki')
 		self.domain = config.get('monitor', 'defaultdomain')

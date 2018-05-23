@@ -5,6 +5,8 @@ import re
 import os
 import sys
 import cgi
+import pymysql
+import traceback
 from Monitor import Monitor
 
 os.environ['TZ'] = 'UTC'
@@ -64,6 +66,119 @@ def hello():
 				html += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (row[0], row[1], M.parse_wikicode(row[2]), M.formattimediff(row[3]))
 			html += '</table>'
 	return html
+
+@app.route("/log")
+def log():
+	try:
+		html = ""
+		dbs = [
+			'error',
+			'log',
+			'RC_142',
+			'RC_categorize',
+			'RC_edit',
+			'RC_log_abusefilter_hit',
+			'RC_log_abusefilter_modify',
+			'RC_log_abuselog',
+			'RC_log_block',
+			'RC_log_delete',
+			'RC_log_delete_restore',
+			'RC_log_delete_revision',
+			'RC_log_merge',
+			'RC_log_move',
+			'RC_log_newusers',
+			'RC_log_patrol',
+			'RC_log_protect',
+			'RC_log_protect_move_prot',
+			'RC_log_protect_unprotect',
+			'RC_log_renameuser',
+			'RC_log_rights',
+			'RC_log_thanks',
+			'RC_log_upload',
+			'RC_new'
+			]
+		html += '<form>'
+		for db in dbs:
+			html += '<button type="submit" name="type" value="'+db+'">'+db+'</button> '
+		html += '</form>'
+		if "type" in request.args:
+			logtype = request.args["type"]
+			if logtype in dbs:
+				M.cur2 = M.db.cursor(pymysql.cursors.DictCursor)
+				M.cur2.execute("""SELECT * FROM """+logtype+""" ORDER BY `timestamp` DESC LIMIT 20""")
+				rows = M.cur2.fetchall()
+				if len(rows) == 0:
+					html += 'No record'
+				else:
+					html += '<style>table{ border-collapse: collapse;} th, td{ vertical-align: top; border: 1px solid black; }</style>'
+					html += '<table>'
+					html += '<tr>'
+					for col in rows[0]:
+						if col == "parsedcomment":
+							continue
+						html += '<th>'+col+'</th>'
+					html += '</tr>'
+					for row in rows:
+						html += '<tr>'
+						for col in row:
+							if col == "parsedcomment":
+								continue
+							elif (logtype == "error" and col == "error"):
+								html += '<td><pre>'+cgi.escape(row[col], quote=False)+'</pre></td>'
+							else:
+								html += '<td>'+str(row[col])+'</td>'
+						html += '</tr>'
+					html += '</table>'
+		return html
+	except Exception as e:
+		M.error(traceback.format_exc())
+		return traceback.format_exc()
+
+@app.route("/status")
+def status():
+	try:
+		html = ""
+		html += '<style>table{ border-collapse: collapse;} th, td{ vertical-align: top; border: 1px solid black; }</style>'
+		html += '<table>'
+		html += '<tr><th>database</th><th>last time</th></tr>'
+		dbs = [
+			'error',
+			'log',
+			'RC_142',
+			'RC_categorize',
+			'RC_edit',
+			'RC_log_abusefilter_hit',
+			'RC_log_abusefilter_modify',
+			'RC_log_abuselog',
+			'RC_log_block',
+			'RC_log_delete',
+			'RC_log_delete_restore',
+			'RC_log_delete_revision',
+			'RC_log_merge',
+			'RC_log_move',
+			'RC_log_newusers',
+			'RC_log_patrol',
+			'RC_log_protect',
+			'RC_log_protect_move_prot',
+			'RC_log_protect_unprotect',
+			'RC_log_renameuser',
+			'RC_log_rights',
+			'RC_log_thanks',
+			'RC_log_upload',
+			'RC_new'
+			]
+		for db in dbs:
+			M.cur.execute("""SELECT MAX(`timestamp`) FROM """+db)
+			rows = M.cur.fetchall()
+			if rows[0][0] == None:
+				html += '<tr><td>%s</td><td>No record</td></tr>' % (db)
+			else:
+				html += '<tr><td><a href="{0}log?type={1}" target="_blank">{1}</td><td>{2}</td></tr>'.format(M.siteurl, db, M.formattimediff(rows[0][0]))
+		html += '</table>'
+		return html
+	except Exception as e:
+		M.error(traceback.format_exc())
+		return "OK1"
 
 @app.route("/webhook", methods=['POST'])
 def telegram():
@@ -331,7 +446,7 @@ def telegram():
 
 				m = re.match(r"/status", m_text)
 				if m != None:
-					message = '<a href="https://zh.wikipedia.org/wiki/WORKING!!">WORKING!!</a>'
+					message = 'Webhook: <a href="https://zh.wikipedia.org/wiki/WORKING!!">WORKING!!</a>\n<a href="'+M.siteurl+'status">查看資料接收狀況</a>'
 					M.sendmessage(message)
 					return "OK"
 
