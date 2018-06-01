@@ -11,8 +11,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `admin` (
   `user_id` int(11) NOT NULL,
-  `first_name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `last_name` varchar(255) COLLATE utf8_bin NOT NULL
+  `name` varchar(255) COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `black_ipv4` (
@@ -48,6 +47,7 @@ CREATE TABLE `black_user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `bot_message` (
+  `timestamp` int(11) NOT NULL,
   `message_id` int(11) NOT NULL,
   `user` varchar(255) COLLATE utf8_bin NOT NULL,
   `message` text COLLATE utf8_bin NOT NULL
@@ -157,7 +157,7 @@ CREATE TABLE `RC_log_block` (
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_flags` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `log_params_duration` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_duration` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
