@@ -70,7 +70,7 @@ for event in EventSource(url):
 				blackuser = None
 
 			rows = M.check_page_blacklist(title, wiki)
-			if len(rows) != 0 and len(M.check_user_whitelist(user)) != 0:
+			if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
 				issend = True
 				isrecord = True
 				message_append += "\n（監視："+M.parse_wikicode(rows[0][0])+', '+M.formattimediff(rows[0][1])+"）"
