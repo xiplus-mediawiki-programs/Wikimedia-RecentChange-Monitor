@@ -108,7 +108,7 @@ try:
 			message += '，'+M.formattimediff(rows[0][1])+"）"
 
 		if len(rows) != 0 or log["filter"] in afwatchlistname or log["filter"] in afblacklistname:
-			M.sendmessage(message, log["user"]+"|"+M.wiki)
+			M.sendmessage(message, log["user"]+"|"+M.wiki, log["title"]+"|"+M.wiki)
 
 		if log["filter"] in afblacklistname:
 			reason = "觸發過濾器："+log["filter"]

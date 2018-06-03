@@ -44,7 +44,7 @@ for event in EventSource(url):
 			wiki = change["wiki"]
 			ctype = change["type"]
 			user = change["user"]
-			blackuser = user
+			blackuser = user+"|"+wiki
 			title = change["title"]
 			comment = change["comment"]
 
@@ -66,8 +66,6 @@ for event in EventSource(url):
 					blackuser = rows[0][2]
 				message_append += '，'+M.formattimediff(rows[0][1])+"）"
 				blackuser += "|"+rows[0][3]
-			else :
-				blackuser = None
 
 			rows = M.check_page_blacklist(title, wiki)
 			if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
@@ -86,7 +84,7 @@ for event in EventSource(url):
 
 				print(user+" edit "+title)
 				message = M.link_user(user)+'編輯'+M.link_page(title)+'（'+M.link_diff(change["revision"]["new"])+'）'
-				issend and M.sendmessage(message+message_append, blackuser)
+				issend and M.sendmessage(message+message_append, blackuser, title+"|"+M.wiki)
 				unknowntype = False
 			elif ctype == "new":
 				isrecord and M.addRC_new(change)
@@ -94,7 +92,7 @@ for event in EventSource(url):
 				print(user+" create "+title)
 				message = M.link_user(user)+'建立'+M.link_page(title)
 				unknowntype = False
-				issend and M.sendmessage(message+message_append, blackuser)
+				issend and M.sendmessage(message+message_append, blackuser, title+"|"+M.wiki)
 			elif ctype == "142":
 				isrecord and M.addRC_142(change)
 				unknowntype = False
@@ -159,7 +157,7 @@ for event in EventSource(url):
 
 						print(user+" protect "+title+" comment:"+comment)
 						message = M.link_user(user)+protectname[log_action]+M.link_page(title)+'（'+M.parse_wikicode(comment)+'）（'+M.parse_wikicode(change["log_params"]["description"])+'）'
-						issend and M.sendmessage(message+message_append)
+						issend and M.sendmessage(message+message_append, page=title+"|"+M.wiki)
 						unknowntype = False
 
 				elif log_type == "newusers":
