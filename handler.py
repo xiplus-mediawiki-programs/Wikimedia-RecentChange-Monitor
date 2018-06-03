@@ -3,7 +3,6 @@ import json
 from flask import Flask, request, abort
 import re
 import os
-import sys
 import cgi
 import pymysql
 import traceback
@@ -455,11 +454,8 @@ def telegram():
 		return "OK"
 
 	except Exception as e:
-		exc_type, exc_obj, exc_tb = sys.exc_info()
-		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-		M.error(str(request.data.decode("utf8")))
-		M.error(str(e))
-		M.error(str(exc_type)+" "+str(fname)+" "+str(exc_tb.tb_lineno))
+		traceback.print_exc()
+		M.error(traceback.format_exc())
 		return "OK"
 
 if __name__ == "__main__":
