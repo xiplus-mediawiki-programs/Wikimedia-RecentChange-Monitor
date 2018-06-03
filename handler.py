@@ -125,6 +125,8 @@ def log():
 								continue
 							elif (logtype == "error" and col == "error"):
 								html += '<td><pre>'+cgi.escape(row[col], quote=False)+'</pre></td>'
+							elif col == "log_action_comment" or col == "comment":
+								html += '<td>'+cgi.escape(row[col], quote=False)+'</pre>'
 							else:
 								html += '<td>'+str(row[col])+'</td>'
 						html += '</tr>'
