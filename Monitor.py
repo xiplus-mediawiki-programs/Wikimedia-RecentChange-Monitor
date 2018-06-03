@@ -263,14 +263,14 @@ class Monitor():
 		self.cur.execute("""INSERT INTO `white_user` (`user`, `timestamp`, `reason`) VALUES (%s, %s, %s)""",
 			(user, timestamp, reason) )
 		self.db.commit()
-		self.sendmessage(msgprefix+"加入"+self.link_user(user, "")+"@global into user whitelist\n原因："+self.parse_wikicode(reason))
+		self.sendmessage(msgprefix+"加入"+self.link_user(user, "")+"@global至白名單\n原因："+self.parse_wikicode(reason))
 
 	def delwhite_user(self, user, msgprefix=""):
 		user = user.strip()
 		count = self.cur.execute("""DELETE FROM `white_user` WHERE `user` = %s""",
 			(user) )
 		self.db.commit()
-		self.sendmessage(str(count)+"條對於"+user+"@global deleted from user whitelist")
+		self.sendmessage(str(count)+"條對於"+user+"@global的紀錄從白名單刪除")
 
 	def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
 		if wiki == None:
