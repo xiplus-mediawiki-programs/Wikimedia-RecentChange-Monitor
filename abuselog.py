@@ -9,6 +9,7 @@ import datetime
 import dateutil.parser
 import pytz
 import traceback
+import csv
 from http.cookiejar import CookieJar
 from Monitor import Monitor
 
@@ -19,7 +20,6 @@ os.environ['TZ'] = 'UTC'
 M = Monitor()
 
 abusefilter_list = {}
-import csv
 with open('abusefilter_list.csv') as csvfile:
     reader = csv.reader(csvfile)
     for row in reader:

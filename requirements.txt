@@ -1,4 +1,5 @@
 Flask==0.12.2
+pycodestyle==2.4.0
 PyMySQL==0.7.11
 pytz==2018.3
 requests==2.18.4

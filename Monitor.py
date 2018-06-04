@@ -814,8 +814,8 @@ class Monitor():
                    WHERE `user` = %s""",
                 (wiki, userobj.user))
             self.db.commit()
-            self.sendmessage("{}條對於User:{}-{}的紀錄設定wiki為{}"
-                .format(count, self.link_user(userobj.user, wiki), wiki))
+            self.sendmessage("{}條對於User:{}-{}的紀錄設定wiki為{}".format(
+                count, self.link_user(userobj.user, wiki), wiki))
             return
         elif isinstance(userobj, IPv4):
             count = self.cur.execute(
@@ -834,8 +834,7 @@ class Monitor():
             return
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
-                self.sendmessage("{}條對於IP:{}的紀錄設定wiki為{}"
-                    .format(
+                self.sendmessage("{}條對於IP:{}的紀錄設定wiki為{}".format(
                         count,
                         self.link_user(str(userobj.start), wiki),
                         wiki
