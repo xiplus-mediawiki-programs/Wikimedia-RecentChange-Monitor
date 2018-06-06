@@ -46,10 +46,10 @@ def hello():
             for row in rows:
                 html += """
                     <tr>
-                        <td>{0}</td>
-                        <td>{1}</td>
-                        <td>{2}</td>
-                        <td>{3}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
@@ -72,10 +72,10 @@ def hello():
             for row in rows:
                 html += """
                     <tr>
-                        <td>{0}</td>
-                        <td>{1}</td>
-                        <td>{2}</td>
-                        <td>{3}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
@@ -98,10 +98,10 @@ def hello():
             for row in rows:
                 html += """
                     <tr>
-                        <td>{0}</td>
-                        <td>{1}</td>
-                        <td>{2}</td>
-                        <td>{3}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
@@ -123,9 +123,9 @@ def hello():
             for row in rows:
                 html += """
                     <tr>
-                        <td>{0}</td>
-                        <td>{1}</td>
-                        <td>{2}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                M.parse_wikicode(row[1]),
@@ -147,10 +147,10 @@ def hello():
             for row in rows:
                 html += """
                     <tr>
-                        <td>{0}</td>
-                        <td>{1}</td>
-                        <td>{2}</td>
-                        <td>{3}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
@@ -200,7 +200,7 @@ def log():
             if logtype in dbs:
                 M.cur2 = M.db.cursor(pymysql.cursors.DictCursor)
                 M.cur2.execute(
-                    """SELECT * FROM {0} ORDER BY `timestamp` DESC LIMIT 20"""
+                    """SELECT * FROM {} ORDER BY `timestamp` DESC LIMIT 20"""
                     .format(logtype)
                     )
                 rows = M.cur2.fetchall()
@@ -300,7 +300,7 @@ def status():
             if rows[0][0] is None:
                 html += """
                     <tr>
-                        <td>{0}</td>
+                        <td>{}</td>
                         <td>No record</td>
                     </tr>
                     """.format(db)
@@ -420,7 +420,7 @@ def telegram():
                         return "OK"
 
                     user, wiki = M.parse_user(m.group(1))
-                    reason = name+"加入："+M.parse_reason(m.group(2))
+                    reason = name + "加入：" + M.parse_reason(m.group(2))
                     M.addblack_user(user, m_date, reason, wiki)
                     return "OK"
 
@@ -642,8 +642,8 @@ def telegram():
                 m = re.match(r"/status", m_text)
                 if m is not None:
                     message = (
-                        ('Webhook: <a href="{0}">WORKING!!</a>\n' +
-                         '<a href="{1}status">查看資料接收狀況</a>')
+                        ('Webhook: <a href="{}">WORKING!!</a>\n' +
+                         '<a href="{}status">查看資料接收狀況</a>')
                         .format(
                             'https://zh.wikipedia.org/wiki/WORKING!!',
                             M.siteurl
