@@ -673,6 +673,7 @@ class Monitor():
                              .format(
                                  msgprefix,
                                  self.link_user(userobj.user, wiki),
+                                 wiki,
                                  self.parse_wikicode(reason)
                              ),
                              userobj.user + "|" + wiki)
@@ -709,8 +710,8 @@ class Monitor():
                 self.sendmessage("{}加入IP:{}@{}至黑名單\n原因：{}"
                                  .format(
                                      msgprefix,
-                                     count,
                                      self.link_user(str(userobj.start), wiki),
+                                     wiki,
                                      self.parse_wikicode(reason)
                                  ),
                                  userobj.val + "|" + wiki
@@ -719,8 +720,8 @@ class Monitor():
                 self.sendmessage("{}加入IP:{}@{}至黑名單\n原因：{}"
                                  .format(
                                      msgprefix,
-                                     count,
                                      self.link_user(userobj.val, wiki),
+                                     wiki,
                                      self.parse_wikicode(reason)
                                  ),
                                  userobj.val + "|" + wiki
@@ -729,9 +730,9 @@ class Monitor():
                 self.sendmessage("{}加入IP:{}-{}@{}至黑名單\n原因：{}"
                                  .format(
                                      msgprefix,
-                                     count,
                                      userobj.start,
                                      userobj.end,
+                                     wiki,
                                      self.parse_wikicode(reason)
                                  ),
                                  userobj.val + "|" + wiki
@@ -975,7 +976,9 @@ class Monitor():
             (wiki, page, timestamp, reason))
         self.db.commit()
         self.sendmessage("加入{}({})至監視頁面\n原因：{}"
-                         .format(self.link_page(page, wiki)), wiki, reason)
+                         .format(self.link_page(page, wiki), wiki, reason),
+                         page=page + "|" + wiki
+                         )
 
     def delblack_page(self, page, wiki=None, msgprefix=""):
         if wiki is None:
@@ -1044,7 +1047,6 @@ class Monitor():
                    ).format(self.token,
                             self.chat_id,
                             urllib.parse.quote_plus(message.encode()))
-            self.log(url)
             res = urllib.request.urlopen(url).read().decode("utf8")
             res = json.loads(res)
             if res["ok"]:
