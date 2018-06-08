@@ -1104,6 +1104,12 @@ class Monitor():
                          (message_id))
         return self.cur.fetchall()
 
+    def get_page_from_message_id(self, message_id):
+        self.cur.execute("""SELECT `page` FROM `bot_message`
+                            WHERE `message_id` = %s""",
+                         (message_id))
+        return self.cur.fetchall()
+
     def log(self, log, timestamp=None, logtype=""):
         if timestamp is None:
             timestamp = int(time.time())

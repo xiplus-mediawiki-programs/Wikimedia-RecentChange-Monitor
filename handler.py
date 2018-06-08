@@ -526,15 +526,28 @@ def telegram():
                         M.addblack_page(page, m_date, reason, wiki)
                     return "OK"
 
-                m = re.match(
-                    r"/(?:delpage|dp)(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?",
-                    m_text
-                )
+                m = re.match(r"/(?:delpage|dp)", m_text)
                 if m is not None:
                     if not checkadmin():
                         return "OK"
 
-                    page, wiki = M.parse_page(m.group(1))
+                    m = re.match(
+                        r"/(?:delpage|dp)(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?",
+                        m_text
+                    )
+                    if m is not None:
+                        page, wiki = M.parse_page(m.group(1))
+                    elif "reply_to_message" in data["message"]:
+                        page = M.get_page_from_message_id(
+                            data["message"]["reply_to_message"]["message_id"])
+                        if len(page) == 0:
+                            M.sendmessage("無法從訊息找到所對應的頁面")
+                            return "OK"
+                        else:
+                            page, wiki = M.parse_page(page[0][0])
+                    else:
+                        return "OK"
+
                     M.delblack_page(page, wiki)
                     return "OK"
 
@@ -582,12 +595,24 @@ def telegram():
                         M.sendmessage(user+"@"+wiki+"：查無結果")
                     return "OK"
 
-                m = re.match(
-                    r"/(?:checkpage|cp)(?:@cvn_smart_bot)?\s+(.+)",
-                    m_text
-                )
+                m = re.match(r"/(?:checkpage|cp)", m_text)
                 if m is not None:
-                    page, wiki = M.parse_page(m.group(1))
+                    m = re.match(
+                        r"/(?:checkpage|cp)(?:@cvn_smart_bot)?\s+(.+)",
+                        m_text
+                    )
+                    if m is not None:
+                        page, wiki = M.parse_page(m.group(1))
+                    elif "reply_to_message" in data["message"]:
+                        page = M.get_page_from_message_id(
+                            data["message"]["reply_to_message"]["message_id"])
+                        if len(page) == 0:
+                            M.sendmessage("無法從訊息找到所對應的頁面")
+                            return "OK"
+                        else:
+                            page, wiki = M.parse_page(page[0][0])
+                    else:
+                        return "OK"
 
                     message = ""
                     rows = M.check_page_blacklist(page, wiki)
