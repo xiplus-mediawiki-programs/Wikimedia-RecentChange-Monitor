@@ -6,6 +6,7 @@ M = Monitor()
 M.log("running clear", logtype="clear")
 
 dbs = [
+    'bot_message',
     'error',
     'log',
     'RC_142',
