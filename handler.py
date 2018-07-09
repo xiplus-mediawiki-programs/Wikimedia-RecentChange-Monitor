@@ -570,29 +570,8 @@ def telegram():
                     else:
                         return "OK"
 
-                    message = ""
-                    rows = M.check_user_whitelist(user)
-                    if len(rows) != 0:
-                        message += "\n於白名單："
-                        for record in rows:
-                            message += ("\n" + M.parse_wikicode(record[0]) +
-                                        ', ' + M.formattimediff(record[1]))
-
-                    rows = M.check_user_blacklist(user, wiki, ignorewhite=True)
-                    if len(rows) != 0:
-                        message += "\n於黑名單："
-                        for record in rows:
-                            message += "\n"+M.parse_wikicode(record[0])
-                            if record[2] != "":
-                                message += "("+record[2]+"@"+record[3]+")"
-                            else:
-                                message += "("+record[3]+")"
-                            message += ', '+M.formattimediff(record[1])
-
-                    if message != "":
-                        M.sendmessage(user+"@"+wiki+message)
-                    else:
-                        M.sendmessage(user+"@"+wiki+"：查無結果")
+                    message = M.getblackuser(user, wiki)
+                    M.sendmessage(message)
                     return "OK"
 
                 m = re.match(r"/(?:checkpage|cp)", m_text)

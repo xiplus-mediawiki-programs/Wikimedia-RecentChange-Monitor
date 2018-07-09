@@ -738,12 +738,43 @@ class Monitor():
                                  userobj.val + "|" + wiki
                                  )
 
+    def getblackuser(self, user, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+        user = user.strip()
+        wiki = wiki.strip()
+
+        message = ""
+        rows = self.check_user_whitelist(user)
+        if len(rows) != 0:
+            message += "\n於白名單："
+            for record in rows:
+                message += ("\n" + self.parse_wikicode(record[0]) +
+                            ', ' + self.formattimediff(record[1]))
+
+        rows = self.check_user_blacklist(user, wiki, ignorewhite=True)
+        if len(rows) != 0:
+            message += "\n於黑名單："
+            for record in rows:
+                message += "\n"+self.parse_wikicode(record[0])
+                if record[2] != "":
+                    message += "("+record[2]+"@"+record[3]+")"
+                else:
+                    message += "("+record[3]+")"
+                message += ', '+self.formattimediff(record[1])
+
+        if message != "":
+            return user+"@"+wiki+message
+        else:
+            return user+"@"+wiki+"：查無結果"
+
     def delblack_user(self, user, wiki=None, msgprefix=""):
         if wiki is None:
             wiki = self.wiki
         user = user.strip()
         wiki = wiki.strip()
 
+        blacklist = self.getblackuser(user, wiki)
         userobj = self.user_type(user)
         if isinstance(userobj, User):
             count = self.cur.execute(
@@ -752,10 +783,11 @@ class Monitor():
                 (userobj.user, wiki))
             self.db.commit()
             self.sendmessage(
-                "{}條對於User:{}({})的紀錄從黑名單刪除".format(
+                "{}條對於User:{}({})的紀錄從黑名單刪除\n{}".format(
                     count,
                     self.link_user(userobj.user, wiki),
-                    wiki))
+                    wiki,
+                    blacklist))
             return
         elif isinstance(userobj, IPv4):
             count = self.cur.execute(
@@ -774,31 +806,34 @@ class Monitor():
             return
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
-                self.sendmessage("{}{}條對於IP:{}@{}的紀錄從黑名單刪除"
+                self.sendmessage("{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}"
                                  .format(
                                      msgprefix,
                                      count,
                                      self.link_user(str(userobj.start), wiki),
-                                     wiki
+                                     wiki,
+                                     blacklist
                                  )
                                  )
             elif userobj.type == "CIDR":
-                self.sendmessage("{}{}條對於IP:{}@{}的紀錄從黑名單刪除"
+                self.sendmessage("{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}"
                                  .format(
                                      msgprefix,
                                      count,
                                      self.link_user(userobj.val, wiki),
-                                     wiki
+                                     wiki,
+                                     blacklist
                                  )
                                  )
             elif userobj.type == "range":
-                self.sendmessage("{}{}條對於IP:{}-{}@{}的紀錄從黑名單刪除"
+                self.sendmessage("{}{}條對於IP:{}-{}@{}的紀錄從黑名單刪除\n{}"
                                  .format(
                                      msgprefix,
                                      count,
                                      userobj.start,
                                      userobj.end,
-                                     wiki
+                                     wiki,
+                                     blacklist
                                  )
                                  )
 
