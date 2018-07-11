@@ -3,6 +3,7 @@ import json
 from Monitor import *
 from print_config import followwiki
 
+
 def main(change):
     M = Monitor()
     try:
@@ -143,22 +144,22 @@ def main(change):
 
                 elif log_action == "approve":
                     pass
-                    
+
                 elif log_action == "unapprove":
                     pass
-                    
+
             elif log_type == "import":
                 if log_action == "interwiki":
                     pass
-                    
+
             elif log_type == "tag":
                 if log_action == "update":
                     pass
-                    
+
             elif log_type == "massmessage":
                 if log_action == "send":
                     pass
-                    
+
                 elif log_action == "skipoptout":
                     pass
 

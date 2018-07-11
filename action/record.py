@@ -187,7 +187,7 @@ def main(change):
                 if log_action == "send":
                     # ignore
                     unknowntype = False
-                    
+
                 elif log_action == "skipoptout":
                     # ignore
                     unknowntype = False

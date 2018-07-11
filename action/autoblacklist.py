@@ -1,7 +1,8 @@
 import traceback
 import json
 from Monitor import *
-from autoblacklist_config import followwiki, blockblacklistwiki, blockreasonblacklist
+from autoblacklist_config import (
+    followwiki, blockblacklistwiki, blockreasonblacklist)
 
 
 def main(change):

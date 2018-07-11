@@ -41,8 +41,10 @@ for module_name in module_list:
     try:
         module = importlib.import_module(module_name)
         if not hasattr(module, "main") or not callable(module.main):
-            M.error("modue '{}' does not contain main function".format(module_name))
-            exit("modue '{}' does not contain main function\n".format(module_name))
+            message = ("modue '{}' does not contain main function"
+                       .format(module_name))
+            M.error(message)
+            exit(message)
         modules.append(module.main)
     except ImportError as e:
         M.error(traceback.format_exc())
