@@ -338,8 +338,8 @@ def telegram():
                 if "last_name" in reply_from:
                     from_lastname = reply_from["last_name"]
 
-            if ("text" in data["message"]
-                    and m_chat_id in M.response_chat_id):
+            if "text" in data["message"]:
+
                 M.chat_id = m_chat_id
 
                 m_text = data["message"]["text"]
@@ -358,6 +358,26 @@ def telegram():
                         M.sendmessage("你沒有權限")
                         return None
                     return rows[0][0]
+
+                m = re.match(r"/gettoken(?:@cvn_smart_bot)?",
+                             m_text)
+                if m_chat_id == m_user_id and m is not None:
+                    if not checkadmin():
+                        return "OK"
+                    import random, string
+                    token = ''.join(
+                        random.choice(string.ascii_lowercase + string.digits)
+                        for _ in range(32))
+                    M.cur.execute(
+                        """UPDATE `admin` SET `token` = %s WHERE `user_id` = %s""",
+                        (token, m_user_id)
+                    )
+                    M.db.commit()
+                    M.sendmessage("您的存取權杖是\n" + token + "\n舊的存取權杖已失效", nolog=True)
+                    return "OK"
+
+                if m_chat_id not in M.response_chat_id:
+                    return
 
                 m = re.match(r"/setadmin(?:@cvn_smart_bot)?(?:\s+(.+))?",
                              m_text)
@@ -673,6 +693,9 @@ def api():
     try:
         data = request.form
 
+        if "token" not in data:
+            return json.dumps({"message": "沒有給予存取權杖"})
+
         def checkadmin():
             M.cur.execute(
                 """SELECT `name` FROM `admin` WHERE `token` = %s""",
@@ -684,12 +707,18 @@ def api():
             return rows[0][0]
 
         if "action" not in data:
-            return json.dumps({"result": "沒有給予操作類型"})
+            return json.dumps({"message": "沒有給予操作類型"})
+
+        if data["action"] == "authorize":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"result": "fail"})
+            return json.dumps({"result": "success", "user": name})
 
         if data["action"] == "addpage":
             name = checkadmin()
             if name is None:
-                return json.dumps({"result": "你沒有權限"})
+                return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             page, wiki = M.parse_page(data["page"])
             reason = name+"加入："+M.parse_reason(data["reason"])
@@ -699,21 +728,21 @@ def api():
                 reason,
                 wiki,
                 msgprefix=name+"透過API")
-            return json.dumps({"result": message})
+            return json.dumps({"message": message})
 
         if data["action"] == "delpage":
             name = checkadmin()
             if name is None:
-                return json.dumps({"result": "你沒有權限"})
+                return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             page, wiki = M.parse_page(data["page"])
             message = M.delblack_page(page, wiki, msgprefix=name+"透過API將")
-            return json.dumps({"result": message})
+            return json.dumps({"message": message})
 
         if data["action"] == "adduser":
             name = checkadmin()
             if name is None:
-                return json.dumps({"result": "你沒有權限"})
+                return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             user, wiki = M.parse_user(data["user"])
             reason = name+"加入："+M.parse_reason(data["reason"])
@@ -723,25 +752,25 @@ def api():
                 reason,
                 wiki,
                 msgprefix=name+"透過API")
-            return json.dumps({"result": message})
+            return json.dumps({"message": message})
 
         if data["action"] == "deluser":
             name = checkadmin()
             if name is None:
-                return json.dumps({"result": "你沒有權限"})
+                return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             user, wiki = M.parse_user(data["user"])
             message = M.delblack_user(user, wiki, msgprefix=name+"透過API將")
-            return json.dumps({"result": message})
+            return json.dumps({"message": message})
 
         data["token"] = ""
         M.log(json.dumps(data, ensure_ascii=False))
-        return json.dumps({"result": "伺服器沒有進行任何動作"})
+        return json.dumps({"message": "伺服器沒有進行任何動作"})
 
     except Exception as e:
         traceback.print_exc()
         M.error(traceback.format_exc())
-        return json.dumps({"result": traceback.format_exc()})
+        return json.dumps({"message": traceback.format_exc()})
 
 
 @app.route("/gadget.js", methods=['GET'])

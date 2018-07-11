@@ -1077,9 +1077,10 @@ class Monitor():
         return ('<a href="https://{}/wiki/Special:Abuselog/{}">詳情</a>'
                 .format(self.domain, id))
 
-    def sendmessage(self, message, user=None, page=None):
+    def sendmessage(self, message, user=None, page=None, nolog=False):
         try:
-            self.log(message, logtype="response")
+            if not nolog:
+                self.log(message, logtype="response")
             url = ("https://api.telegram.org/bot{}/sendMessage" +
                    "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1" +
                    "&text={}"
@@ -1089,7 +1090,7 @@ class Monitor():
             res = urllib.request.urlopen(url).read().decode("utf8")
             res = json.loads(res)
             if res["ok"]:
-                if user is not None or page is not None:
+                if not nolog and (user is not None or page is not None):
                     self.bot_message(
                         res["result"]["message_id"], user, page, message)
             else:
