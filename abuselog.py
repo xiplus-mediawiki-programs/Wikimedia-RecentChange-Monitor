@@ -106,12 +106,14 @@ try:
             message += "|" + M.link_diff(log["revid"])
         message += '）'
 
+        blackuser = log["user"] + "|" + M.wiki,
         rows = M.check_user_blacklist(log["user"])
         if len(rows) != 0:
             message += (
                 "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
             if rows[0][2] != "" and rows[0][2] != log["user"]:
                 message += "，\u200b" + rows[0][2] + "\u200b"
+                blackuser = rows[0][2] + "|" + rows[0][3]
             message += '，'+M.formattimediff(rows[0][1])+"）"
 
         if (len(rows) != 0

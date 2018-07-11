@@ -64,9 +64,8 @@ for event in EventSource(url):
                     "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
                 if rows[0][2] != "" and rows[0][2] != user:
                     message_append += "，\u200b"+rows[0][2]+"\u200b"
-                    blackuser = rows[0][2]
+                    blackuser = rows[0][2]+"|"+rows[0][3]
                 message_append += '，'+M.formattimediff(rows[0][1])+"）"
-                blackuser += "|"+rows[0][3]
 
             rows = M.check_page_blacklist(title, wiki)
             if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
