@@ -1010,10 +1010,12 @@ class Monitor():
                VALUES (%s, %s, %s, %s)""",
             (wiki, page, timestamp, reason))
         self.db.commit()
-        self.sendmessage("加入{}({})至監視頁面\n原因：{}"
-                         .format(self.link_page(page, wiki), wiki, reason),
-                         page=page + "|" + wiki
-                         )
+        message = "{}加入{}({})至監視頁面\n原因：{}".format(
+                        msgprefix,
+                        self.link_page(page, wiki), wiki, reason
+                    )
+        self.sendmessage(message, page=page + "|" + wiki)
+        return message
 
     def delblack_page(self, page, wiki=None, msgprefix=""):
         if wiki is None:
@@ -1025,8 +1027,14 @@ class Monitor():
             """DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
             (page, wiki))
         self.db.commit()
-        self.sendmessage(str(count) + "條對於" + self.link_page(page, wiki) +
-                         "(" + wiki + ")從監視頁面刪除")
+        message = "{}{}條對於{}({})從監視頁面刪除".format(
+                        msgprefix,
+                        count,
+                        self.link_page(page, wiki),
+                        wiki
+                    )
+        self.sendmessage(message, page=page + "|" + wiki)
+        return message
 
     def check_page_blacklist(self, page, wiki=None):
         if wiki is None:

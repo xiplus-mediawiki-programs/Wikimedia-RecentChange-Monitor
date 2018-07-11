@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import json
-from flask import Flask, request, abort
+from flask import Flask, request, abort, send_file
+from flask_cors import CORS
 import re
 import os
 import cgi
 import pymysql
 import traceback
+import time
 from Monitor import Monitor
 
 os.environ['TZ'] = 'UTC'
@@ -13,6 +15,7 @@ os.environ['TZ'] = 'UTC'
 M = Monitor()
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
@@ -663,6 +666,62 @@ def telegram():
         traceback.print_exc()
         M.error(traceback.format_exc())
         return "OK"
+
+
+@app.route("/api", methods=['POST'])
+def api():
+    try:
+        data = request.form
+
+        def checkadmin():
+            M.cur.execute(
+                """SELECT `name` FROM `admin` WHERE `token` = %s""",
+                (data["token"])
+            )
+            rows = M.cur.fetchall()
+            if len(rows) == 0:
+                return None
+            return rows[0][0]
+
+        if "action" not in data:
+            return json.dumps({"result": "沒有給予操作類型"})
+
+        if data["action"] == "addpage":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"result": "你沒有權限"})
+
+            page, wiki = M.parse_page(data["page"])
+            reason = name+"加入："+M.parse_reason(data["reason"])
+            message = M.addblack_page(
+                page,
+                int(time.time()),
+                reason,
+                wiki,
+                msgprefix="透過API")
+            return json.dumps({"result": message})
+
+        if data["action"] == "delpage":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"result": "你沒有權限"})
+
+            page, wiki = M.parse_page(data["page"])
+            message = M.delblack_page(page, wiki, msgprefix="透過API將")
+            return json.dumps({"result": message})
+
+        return json.dumps({"result": "伺服器沒有進行任何動作"})
+
+    except Exception as e:
+        traceback.print_exc()
+        M.error(traceback.format_exc())
+        return json.dumps({"result": traceback.format_exc()})
+
+
+@app.route("/gadget.js", methods=['GET'])
+def gadget():
+    filename = os.path.dirname(os.path.realpath(__file__))+"/gadget.js"
+    return send_file(filename)
 
 
 if __name__ == "__main__":
