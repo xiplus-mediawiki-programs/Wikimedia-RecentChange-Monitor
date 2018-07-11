@@ -173,7 +173,7 @@ function showbutton(){
 	window.cvn_smart_button = true;
 }
 
-function unauthorize() {
+function unauthorize(first=false) {
 	if (window.cvn_smart_authorize_button === undefined) {
 		var authorizebtn = mw.util.addPortletLink(
 			'p-cactions',
@@ -187,14 +187,20 @@ function unauthorize() {
 	}
 	$.cookie("cvn_smart_authorized", "0", {path: "/"});
 	$.cookie("cvn_smart_token", "", {path: "/"});
+	if (first && $.cookie("cvn_smart_firstnotice")) {
+		return;
+	}
 	mw.notify(["cvn-smart: 您尚未進行認證，或是存取權杖已過期"]);
+	var date = new Date();
+	date.setTime(date.getTime() + 1000 * 86400);
+	$.cookie("cvn_smart_firstnotice", "1", {path: "/", expiry: date});
 }
 
 
 if ($.cookie("cvn_smart_authorized") === "1") {
 	showbutton();
 } else {
-	unauthorize();
+	unauthorize(true);
 }
 
 });
