@@ -165,6 +165,7 @@ def log():
     try:
         html = ""
         dbs = [
+            'bot_message',
             'error',
             'log',
             'RC_142',
@@ -193,7 +194,7 @@ def log():
         html += '<form>'
         for db in dbs:
             html += ('<button type="submit" name="type" value="{0}">' +
-                     '{0}</button>').format(db)
+                     '{0}</button> ').format(db)
         html += '</form>'
         if "type" in request.args:
             logtype = request.args["type"]
