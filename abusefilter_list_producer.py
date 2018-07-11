@@ -6,7 +6,9 @@ import csv
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-url = "https://zh.wikipedia.org/w/api.php?action=query&list=abusefilters&abfprop=id%7Cdescription&abflimit=max&format=json"
+url = ("https://zh.wikipedia.org/w/api.php"
+       + "?action=query&list=abusefilters&abfprop=id%7Cdescription"
+       + "&abflimit=max&format=json")
 res = urllib.request.urlopen(url).read().decode("utf8")
 res = json.loads(res)
 with open("abusefilter_list.csv", "w") as f:
