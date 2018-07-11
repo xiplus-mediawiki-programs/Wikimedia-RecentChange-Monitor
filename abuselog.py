@@ -12,6 +12,7 @@ import traceback
 import csv
 from http.cookiejar import CookieJar
 from Monitor import Monitor
+from abuselog_config import afwatchlist, afblacklist
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -88,10 +89,10 @@ res = session.get(M.wp_api, params=params).json()
 
 try:
     afwatchlistname = []
-    for id in M.afwatchlist:
+    for id in afwatchlist:
         afwatchlistname.append(abusefilter_list[id])
     afblacklistname = []
-    for id in M.afblacklist:
+    for id in afblacklist:
         afblacklistname.append(abusefilter_list[id])
 
     for log in res["query"]["abuselog"]:
