@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 from Monitor import Monitor
+from clear_config import recordkept
 
 M = Monitor()
 M.log("running clear", logtype="clear")
@@ -33,7 +34,7 @@ dbs = [
     'RC_new'
     ]
 
-timestamp = str(int(time.time()-M.recordkept))
+timestamp = str(int(time.time()-recordkept))
 
 for db in dbs:
     rows = M.cur.execute(f"""DELETE FROM {db} WHERE `timestamp` < %s""",
