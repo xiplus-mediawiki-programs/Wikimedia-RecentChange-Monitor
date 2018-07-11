@@ -666,19 +666,19 @@ class Monitor():
                 (wiki, userobj.user, str(timestamp), reason)
             )
             self.db.commit()
-            self.sendmessage("{}加入User:{}@{}至黑名單\n原因：{}"
-                             .format(
-                                 msgprefix,
-                                 self.link_user(userobj.user, wiki),
-                                 wiki,
-                                 self.parse_wikicode(reason)
-                             ),
-                             userobj.user + "|" + wiki)
-            return
+            message = "{}加入User:{}@{}至黑名單\n原因：{}".format(
+                    msgprefix,
+                    self.link_user(userobj.user, wiki),
+                    wiki,
+                    self.parse_wikicode(reason)
+                )
+            self.sendmessage(message, userobj.user + "|" + wiki)
+            return message
         elif isinstance(userobj, IPv4):
             if int(userobj.end) - int(userobj.start) > self.ipv4limit:
-                self.sendmessage("IP數量超過上限")
-                return
+                message = "IP數量超過上限"
+                self.sendmessage(message)
+                return message
             self.cur.execute(
                 """INSERT INTO `black_ipv4`
                    (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`)
@@ -689,8 +689,9 @@ class Monitor():
             self.db.commit()
         elif isinstance(userobj, IPv6):
             if int(userobj.end) - int(userobj.start) > self.ipv6limit:
-                self.sendmessage("IP數量超過上限")
-                return
+                message = "IP數量超過上限"
+                self.sendmessage(message)
+                return message
             self.cur.execute(
                 """INSERT INTO `black_ipv6`
                    (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`)
@@ -700,40 +701,38 @@ class Monitor():
             )
             self.db.commit()
         else:
-            self.error("cannot detect user type: " + user)
-            return
+            message = "cannot detect user type: " + user
+            self.error(message)
+            return message
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
-                self.sendmessage("{}加入IP:{}@{}至黑名單\n原因：{}"
-                                 .format(
-                                     msgprefix,
-                                     self.link_user(str(userobj.start), wiki),
-                                     wiki,
-                                     self.parse_wikicode(reason)
-                                 ),
-                                 userobj.val + "|" + wiki
-                                 )
+                message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
+                        msgprefix,
+                        self.link_user(str(userobj.start), wiki),
+                        wiki,
+                        self.parse_wikicode(reason)
+                    )
+                self.sendmessage(message, userobj.val + "|" + wiki)
+                return message
             elif userobj.type == "CIDR":
-                self.sendmessage("{}加入IP:{}@{}至黑名單\n原因：{}"
-                                 .format(
-                                     msgprefix,
-                                     self.link_user(userobj.val, wiki),
-                                     wiki,
-                                     self.parse_wikicode(reason)
-                                 ),
-                                 userobj.val + "|" + wiki
-                                 )
+                message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
+                        msgprefix,
+                        self.link_user(userobj.val, wiki),
+                        wiki,
+                        self.parse_wikicode(reason)
+                    )
+                self.sendmessage(message, userobj.val + "|" + wiki)
+                return message
             elif userobj.type == "range":
-                self.sendmessage("{}加入IP:{}-{}@{}至黑名單\n原因：{}"
-                                 .format(
-                                     msgprefix,
-                                     userobj.start,
-                                     userobj.end,
-                                     wiki,
-                                     self.parse_wikicode(reason)
-                                 ),
-                                 userobj.val + "|" + wiki
-                                 )
+                message = "{}加入IP:{}-{}@{}至黑名單\n原因：{}".format(
+                        msgprefix,
+                        userobj.start,
+                        userobj.end,
+                        wiki,
+                        self.parse_wikicode(reason)
+                    )
+                self.sendmessage(message, userobj.val + "|" + wiki)
+                return message
 
     def getblackuser(self, user, wiki=None):
         if wiki is None:
@@ -779,13 +778,14 @@ class Monitor():
                    WHERE `user` = %s AND `wiki` = %s""",
                 (userobj.user, wiki))
             self.db.commit()
-            self.sendmessage(
-                "{}條對於User:{}({})的紀錄從黑名單刪除\n{}".format(
+            message = "{}{}條對於User:{}({})的紀錄從黑名單刪除\n{}".format(
+                    msgprefix,
                     count,
                     self.link_user(userobj.user, wiki),
                     wiki,
-                    blacklist))
-            return
+                    blacklist)
+            self.sendmessage(message)
+            return message
         elif isinstance(userobj, IPv4):
             count = self.cur.execute(
                 """DELETE FROM `black_ipv4`
@@ -799,40 +799,39 @@ class Monitor():
                 (int(userobj.start), int(userobj.end), wiki))
             self.db.commit()
         else:
-            self.error("cannot detect user type: " + user)
-            return
+            message = "cannot detect user type: " + user
+            self.error(message)
+            return message
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
-                self.sendmessage("{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}"
-                                 .format(
-                                     msgprefix,
-                                     count,
-                                     self.link_user(str(userobj.start), wiki),
-                                     wiki,
-                                     blacklist
-                                 )
-                                 )
+                message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
+                      msgprefix,
+                      count,
+                      self.link_user(str(userobj.start), wiki),
+                      wiki,
+                      blacklist
+                  )
+                self.sendmessage(message)
             elif userobj.type == "CIDR":
-                self.sendmessage("{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}"
-                                 .format(
-                                     msgprefix,
-                                     count,
-                                     self.link_user(userobj.val, wiki),
-                                     wiki,
-                                     blacklist
-                                 )
-                                 )
+                message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
+                       msgprefix,
+                       count,
+                       self.link_user(userobj.val, wiki),
+                       wiki,
+                       blacklist
+                   )
+                self.sendmessage(message)
             elif userobj.type == "range":
-                self.sendmessage("{}{}條對於IP:{}-{}@{}的紀錄從黑名單刪除\n{}"
-                                 .format(
-                                     msgprefix,
-                                     count,
-                                     userobj.start,
-                                     userobj.end,
-                                     wiki,
-                                     blacklist
-                                 )
-                                 )
+                message = "{}{}條對於IP:{}-{}@{}的紀錄從黑名單刪除\n{}".format(
+                    msgprefix,
+                    count,
+                    userobj.start,
+                    userobj.end,
+                    wiki,
+                    blacklist
+                )
+                self.sendmessage(message)
+            return message
 
     def setwikiblack_user(self, user, wiki=None):
         if wiki is None:

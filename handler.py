@@ -698,7 +698,7 @@ def api():
                 int(time.time()),
                 reason,
                 wiki,
-                msgprefix="透過API")
+                msgprefix=name+"透過API")
             return json.dumps({"result": message})
 
         if data["action"] == "delpage":
@@ -707,9 +707,35 @@ def api():
                 return json.dumps({"result": "你沒有權限"})
 
             page, wiki = M.parse_page(data["page"])
-            message = M.delblack_page(page, wiki, msgprefix="透過API將")
+            message = M.delblack_page(page, wiki, msgprefix=name+"透過API將")
             return json.dumps({"result": message})
 
+        if data["action"] == "adduser":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"result": "你沒有權限"})
+
+            user, wiki = M.parse_user(data["user"])
+            reason = name+"加入："+M.parse_reason(data["reason"])
+            message = M.addblack_user(
+                user,
+                int(time.time()),
+                reason,
+                wiki,
+                msgprefix=name+"透過API")
+            return json.dumps({"result": message})
+
+        if data["action"] == "deluser":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"result": "你沒有權限"})
+
+            user, wiki = M.parse_user(data["user"])
+            message = M.delblack_user(user, wiki, msgprefix=name+"透過API將")
+            return json.dumps({"result": message})
+
+        data["token"] = ""
+        M.log(json.dumps(data, ensure_ascii=False))
         return json.dumps({"result": "伺服器沒有進行任何動作"})
 
     except Exception as e:
