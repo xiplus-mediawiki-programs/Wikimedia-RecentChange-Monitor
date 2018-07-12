@@ -364,20 +364,25 @@ def telegram():
                 if m_chat_id == m_user_id and m is not None:
                     if not checkadmin():
                         return "OK"
-                    import random, string
+
+                    import random
+                    import string
+
                     token = ''.join(
                         random.choice(string.ascii_lowercase + string.digits)
                         for _ in range(32))
                     M.cur.execute(
-                        """UPDATE `admin` SET `token` = %s WHERE `user_id` = %s""",
+                        """UPDATE `admin` SET `token` = %s
+                        WHERE `user_id` = %s""",
                         (token, m_user_id)
                     )
                     M.db.commit()
-                    M.sendmessage("您的存取權杖是\n" + token + "\n舊的存取權杖已失效", nolog=True)
+                    M.sendmessage("您的存取權杖是\n" + token + "\n舊的存取權杖已失效",
+                                  nolog=True)
                     return "OK"
 
                 if m_chat_id not in M.response_chat_id:
-                    return
+                    return "OK"
 
                 m = re.match(r"/setadmin(?:@cvn_smart_bot)?(?:\s+(.+))?",
                              m_text)
