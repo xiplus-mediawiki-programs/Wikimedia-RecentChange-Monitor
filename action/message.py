@@ -92,9 +92,13 @@ def main(change):
                 message = (
                     M.link_user(user) + protectname[log_action] +
                     M.link_page(title) + '（' +
-                    M.parse_wikicode(comment) + '）（' +
-                    M.parse_wikicode(change["log_params"]
-                                           ["description"]) + '）')
+                    M.parse_wikicode(comment) + '）')
+                if log_action == "protect" or log_action == "modify":
+                    message += (
+                        '（'
+                        + M.parse_wikicode(change["log_params"]["description"])
+                        + '）')
+
                 issend and M.sendmessage(
                     message + message_append,
                     page=title + "|" + M.wiki)
