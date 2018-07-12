@@ -7,6 +7,9 @@ from message_config import followwiki, affollowwiki
 def main(change):
     M = Monitor()
     try:
+        if change["bot"]:
+            return
+
         M.change_wiki_and_domain(change['wiki'], change["meta"]["domain"])
 
         wiki = change["wiki"]
@@ -40,34 +43,23 @@ def main(change):
                 "\n（監視：" + M.parse_wikicode(rows[0][0]) +
                 ', ' + M.formattimediff(rows[0][1]) + "）")
 
-        if ctype == "block":
-            blockuser = title[5:]
-            if len(M.check_user_blacklist(blockuser)) != 0:
-                issend = True
-
-        if ctype == "abusefilter":
-            if wiki in affollowwiki:
-                issend = True
-
-        if change["bot"]:
-            return
-
-        if not issend:
+        if wiki not in followwiki:
             return
 
         if ctype == "edit":
             message = (
                 M.link_user(user) + '編輯' + M.link_page(title) + '（' +
                 M.link_diff(change["revision"]["new"]) + '）')
-            M.sendmessage(
+            issend and M.sendmessage(
                 message + message_append, blackuser, title + "|" + M.wiki)
         elif ctype == "new":
             message = M.link_user(user)+'建立'+M.link_page(title)
-            M.sendmessage(
+            issend and M.sendmessage(
                 message + message_append, blackuser, title + "|" + M.wiki)
         elif ctype == "log":
             log_type = change["log_type"]
             log_action = change["log_action"]
+
             if log_type == "block":
                 blockuser = title[5:]
 
@@ -103,7 +95,7 @@ def main(change):
                     M.parse_wikicode(comment) + '）（' +
                     M.parse_wikicode(change["log_params"]
                                            ["description"]) + '）')
-                M.sendmessage(
+                issend and M.sendmessage(
                     message + message_append,
                     page=title + "|" + M.wiki)
 
@@ -126,7 +118,8 @@ def main(change):
                             '差異') +
                         '）')
 
-                    M.sendmessage(message+message_append)
+                    if wiki in affollowwiki:
+                        M.sendmessage(message)
 
             elif log_type == "globalauth":
                 if log_action == "setstatus":
@@ -135,7 +128,7 @@ def main(change):
                         M.link_user(title[5:-7]) + '（' +
                         M.parse_wikicode(change["log_action_comment"]) +
                         '）')
-                    M.sendmessage(message+message_append)
+                    issend and M.sendmessage(message+message_append)
 
             elif log_type == "gblblock":
                 if log_action == "gblock2" or log_action == "modify":
@@ -144,7 +137,7 @@ def main(change):
                         M.link_user(title[5:-7]) + '（' +
                         M.parse_wikicode(change["log_action_comment"]) +
                         '）')
-                    M.sendmessage(message+message_append)
+                    issend and M.sendmessage(message+message_append)
 
     except Exception as e:
         traceback.print_exc()
