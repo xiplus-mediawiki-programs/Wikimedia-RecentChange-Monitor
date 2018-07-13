@@ -734,23 +734,17 @@ class Monitor():
                 self.sendmessage(message, userobj.val + "|" + wiki)
                 return message
 
-    def getblackuser(self, user, wiki=None):
+    def getblackuser(self, user, wiki=None, prefix=True):
         if wiki is None:
             wiki = self.wiki
         user = user.strip()
         wiki = wiki.strip()
 
         message = ""
-        rows = self.check_user_whitelist(user)
-        if len(rows) != 0:
-            message += "\n於白名單："
-            for record in rows:
-                message += ("\n" + self.parse_wikicode(record[0]) +
-                            ', ' + self.formattimediff(record[1]))
-
         rows = self.check_user_blacklist(user, wiki, ignorewhite=True)
         if len(rows) != 0:
-            message += "\n於黑名單："
+            if prefix:
+                message += "於黑名單："
             for record in rows:
                 message += "\n"+self.parse_wikicode(record[0])
                 if record[2] != "":
@@ -759,8 +753,36 @@ class Monitor():
                     message += "("+record[3]+")"
                 message += ', '+self.formattimediff(record[1])
 
+        return message.strip()
+
+    def getwhiteuser(self, user, wiki=None, prefix=True):
+        if wiki is None:
+            wiki = self.wiki
+        user = user.strip()
+        wiki = wiki.strip()
+
+        message = ""
+        rows = self.check_user_whitelist(user)
+        if len(rows) != 0:
+            if prefix:
+                message += "於白名單："
+            for record in rows:
+                message += ("\n" + self.parse_wikicode(record[0]) +
+                            ', ' + self.formattimediff(record[1]))
+
+        return message.strip()
+
+    def checkuser(self, user, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+        user = user.strip()
+        wiki = wiki.strip()
+
+        message = (self.getblackuser(user, wiki) + "\n"
+                   + self.getwhiteuser(user, wiki)).strip()
+
         if message != "":
-            return user+"@"+wiki+message
+            return user+"@"+wiki+"\n"+message
         else:
             return user+"@"+wiki+"：查無結果"
 
@@ -770,7 +792,7 @@ class Monitor():
         user = user.strip()
         wiki = wiki.strip()
 
-        blacklist = self.getblackuser(user, wiki)
+        blacklist = self.getblackuser(user, wiki, prefix=False)
         userobj = self.user_type(user)
         if isinstance(userobj, User):
             count = self.cur.execute(

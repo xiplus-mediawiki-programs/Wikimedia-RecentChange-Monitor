@@ -599,7 +599,7 @@ def telegram():
                     else:
                         return "OK"
 
-                    message = M.getblackuser(user, wiki)
+                    message = M.checkuser(user, wiki)
                     M.sendmessage(message)
                     return "OK"
 
