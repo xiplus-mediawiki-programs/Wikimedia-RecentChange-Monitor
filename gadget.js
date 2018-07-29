@@ -4,11 +4,11 @@ javascript:
 mw.loader.using(['mediawiki.util']).done(function(){
 
 function gettoken() {
-	if ($.cookie("cvn_smart_authorized") !== "1") {
+	if (localStorage.getItem("cvn_smart_authorized") !== "1") {
 		unauthorize();
 		return null;
 	}
-	return $.cookie("cvn_smart_token");
+	return localStorage.getItem("cvn_smart_token");
 }
 
 function requestpage(type, askreason=true) {
@@ -88,7 +88,7 @@ function requestuser(type, askreason=true) {
 }
 
 function authorize() {
-	if ($.cookie("cvn_smart_authorized") === "1") {
+	if (localStorage.getItem("cvn_smart_authorized") === "1") {
 		mw.notify(["您已經認證過了"]);
 		return;
 	}
@@ -105,8 +105,8 @@ function authorize() {
 				data = JSON.parse(data);
 				if (data.result === "success") {
 					mw.notify(["已成功認證，您是 "+data.user]);
-					$.cookie("cvn_smart_authorized", "1", {path: "/"});
-					$.cookie("cvn_smart_token", token, {path: "/"});
+					localStorage.setItem("cvn_smart_authorized", "1");
+					localStorage.setItem("cvn_smart_token", token);
 					showbutton();
 				} else {
 					mw.notify(["認證失敗，存取權杖錯誤或過期，請向機器人私訊 /gettoken 以獲得新權杖"]);
@@ -185,19 +185,19 @@ function unauthorize(first=false) {
 		});
 		window.cvn_smart_authorize_button = true;
 	}
-	$.cookie("cvn_smart_authorized", "0", {path: "/"});
-	$.cookie("cvn_smart_token", "", {path: "/"});
-	if (first && $.cookie("cvn_smart_firstnotice")) {
+	localStorage.setItem("cvn_smart_authorized", "0");
+	localStorage.setItem("cvn_smart_token", "");
+	if (first && localStorage.getItem("cvn_smart_firstnotice")) {
 		return;
 	}
 	mw.notify(["cvn-smart: 您尚未進行認證，或是存取權杖已過期"]);
 	var date = new Date();
 	date.setTime(date.getTime() + 1000 * 86400);
-	$.cookie("cvn_smart_firstnotice", "1", {path: "/", expiry: date});
+	localStorage.setItem("cvn_smart_firstnotice", "1");
 }
 
 
-if ($.cookie("cvn_smart_authorized") === "1") {
+if (localStorage.getItem("cvn_smart_authorized") === "1") {
 	showbutton();
 } else {
 	unauthorize(true);
