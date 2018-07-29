@@ -2,7 +2,7 @@ import traceback
 import json
 from Monitor import *
 from autoblacklist_config import (
-    followwiki, blockblacklistwiki, blockreasonblacklist)
+    followwiki, blockblacklistwiki, blockreasonblacklist, warnblacklist)
 
 
 def main(change):
@@ -23,7 +23,8 @@ def main(change):
         if (ctype in ["edit", "new"]
                 and change["namespace"] == 3
                 and re.match(r"^User talk:", title)
-                and re.match(r"^(層級|层级)[234]", comment)):
+                and re.match(r"^(層級|层级)[234]", comment)
+                and user not in warnblacklist):
             reason = "被"+user+"警告："+comment
             M.addblack_user(
                 title[10:], change["timestamp"], reason, msgprefix="自動")
