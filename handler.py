@@ -273,6 +273,7 @@ def status():
         </tr>
         """
         dbs = [
+            'bot_message',
             'error',
             'log',
             'RC_142',
