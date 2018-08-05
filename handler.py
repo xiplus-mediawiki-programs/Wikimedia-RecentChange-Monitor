@@ -366,6 +366,29 @@ def telegram():
                     if not checkadmin():
                         return "OK"
 
+                    M.cur.execute(
+                        """SELECT `token` FROM `admin` WHERE `user_id` = %s""",
+                        (str(m_user_id))
+                    )
+                    rows = M.cur.fetchall()
+                    if len(rows) > 0:
+                        M.sendmessage(
+                            "您的存取權杖是\ncvn_smart(" + rows[0][0]
+                            + ")\n使用 /newtoken 取得新的",
+                            nolog=True)
+                    else:
+                        M.sendmessage(
+                            "查詢存取權杖失敗，使用 /newtoken 取得新的",
+                            nolog=True)
+
+                    return "OK"
+
+                m = re.match(r"/newtoken(?:@cvn_smart_bot)?",
+                             m_text)
+                if m_chat_id == m_user_id and m is not None:
+                    if not checkadmin():
+                        return "OK"
+
                     import random
                     import string
 
@@ -378,8 +401,10 @@ def telegram():
                         (token, m_user_id)
                     )
                     M.db.commit()
-                    M.sendmessage("您的存取權杖是\n" + token + "\n舊的存取權杖已失效",
-                                  nolog=True)
+                    M.sendmessage(
+                        "您的存取權杖是\ncvn_smart(" + token
+                        + ")\n舊的存取權杖已失效",
+                        nolog=True)
                     return "OK"
 
                 if m_chat_id not in M.response_chat_id:
@@ -697,10 +722,14 @@ def telegram():
 @app.route("/api", methods=['POST'])
 def api():
     try:
-        data = request.form
+        data = request.form.to_dict()
 
         if "token" not in data:
             return json.dumps({"message": "沒有給予存取權杖"})
+
+        m = re.search(r"cvn_smart\(([a-z0-9]{32})\)", data["token"])
+        if m is not None:
+            data["token"] = m.group(1)
 
         def checkadmin():
             M.cur.execute(

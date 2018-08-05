@@ -109,7 +109,7 @@ function authorize() {
 					localStorage.setItem("cvn_smart_token", token);
 					showbutton();
 				} else {
-					mw.notify(["認證失敗，存取權杖錯誤或過期，請向機器人私訊 /gettoken 以獲得新權杖"]);
+					mw.notify(["認證失敗，存取權杖錯誤或過期，請向機器人私訊 /newtoken 以獲得新權杖"]);
 				}
 			},
 			error: function error(e) {
