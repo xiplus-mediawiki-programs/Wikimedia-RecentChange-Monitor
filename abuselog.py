@@ -116,7 +116,7 @@ try:
             if rows[0][2] != "" and rows[0][2] != log["user"]:
                 message += "，\u200b" + rows[0][2] + "\u200b"
                 blackuser = rows[0][2] + "|" + rows[0][3]
-            message += '，'+M.formattimediff(rows[0][1])+"）"
+            message += '，'+M.formattimediff(rows[0][1])+"，" + str(rows[0][4]) + "p）"
 
         if (len(rows) != 0
                 or log["filter"] in afwatchlistname
@@ -138,6 +138,7 @@ try:
                     reason,
                     msgprefix="自動"
                 )
+            M.adduser_score(M.user_type(log["user"]), 10)
         M.addRC_log_abuselog(log)
 
 except Exception as e:

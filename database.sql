@@ -17,6 +17,7 @@ CREATE TABLE `admin` (
 CREATE TABLE `black_ipv4` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `val` varchar(255) NOT NULL,
+  `userhash` bigint(20) NOT NULL,
   `start` decimal(10,0) NOT NULL,
   `end` decimal(10,0) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -26,6 +27,7 @@ CREATE TABLE `black_ipv4` (
 CREATE TABLE `black_ipv6` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `val` varchar(255) NOT NULL,
+  `userhash` bigint(20) NOT NULL,
   `start` decimal(39,0) NOT NULL,
   `end` decimal(39,0) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -42,6 +44,7 @@ CREATE TABLE `black_page` (
 CREATE TABLE `black_user` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `userhash` bigint(20) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -50,6 +53,7 @@ CREATE TABLE `bot_message` (
   `timestamp` int(11) NOT NULL,
   `message_id` int(11) NOT NULL,
   `user` varchar(255) COLLATE utf8_bin NOT NULL,
+  `page` varchar(255) COLLATE utf8_bin NOT NULL,
   `message` text COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -462,8 +466,15 @@ CREATE TABLE `RC_new` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `user_score` (
+  `userhash` bigint(20) NOT NULL,
+  `point` int(11) NOT NULL DEFAULT '0',
+  `timestamp` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `white_user` (
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `userhash` bigint(20) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -471,6 +482,9 @@ CREATE TABLE `white_user` (
 
 ALTER TABLE `admin`
   ADD UNIQUE KEY `user_id` (`user_id`);
+
+ALTER TABLE `user_score`
+  ADD UNIQUE KEY `user` (`userhash`) USING BTREE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

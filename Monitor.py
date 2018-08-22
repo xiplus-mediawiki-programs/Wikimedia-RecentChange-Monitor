@@ -11,6 +11,7 @@ import json
 import cgi
 import ipaddress
 import re
+import hashlib
 
 
 class Monitor():
@@ -651,6 +652,37 @@ class Monitor():
              change["user"], change["wiki"]))
         self.db.commit()
 
+    def getuser_score(self, userobj):
+        userhash = userobj.userhash
+        self.cur.execute(
+            """SELECT `point` FROM `user_score`
+               WHERE `userhash` = %s""",
+            (userhash)
+        )
+        rows = self.cur.fetchall()
+        if len(rows) == 0:
+            return 0
+        return rows[0][0]
+
+    def adduser_score(self, userobj, point):
+        if point == 0:
+            return
+        self.log("{} add score {}".format(userobj.val, point))
+        oldpoint = self.getuser_score(userobj)
+        timestamp = int(time.time())
+        userhash = userobj.userhash
+        self.cur.execute(
+            """INSERT INTO `user_score`
+            (`userhash`, `point`, `timestamp`) VALUES (%s, %s, %s)
+            ON DUPLICATE KEY
+            UPDATE `point` = `point` + %s, `timestamp` = %s""",
+            (userhash, point, timestamp, point, timestamp)
+        )
+        self.db.commit()
+        newpoint = self.getuser_score(userobj)
+        if oldpoint > 0 and newpoint <= 0:
+            self.sendmessage("{}的分數小於等於0，已停止監視".format(self.link_user(userobj.val)))
+
     def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
         if wiki is None:
             wiki = self.wiki
@@ -661,9 +693,9 @@ class Monitor():
         if isinstance(userobj, User):
             self.cur.execute(
                 """INSERT INTO `black_user`
-                   (`wiki`, `user`, `timestamp`, `reason`)
-                   VALUES (%s, %s, %s, %s)""",
-                (wiki, userobj.user, str(timestamp), reason)
+                   (`wiki`, `user`, `timestamp`, `reason`, `userhash`)
+                   VALUES (%s, %s, %s, %s, %s)""",
+                (wiki, userobj.user, str(timestamp), reason, userobj.userhash)
             )
             self.db.commit()
             message = "{}加入User:{}@{}至黑名單\n原因：{}".format(
@@ -681,10 +713,10 @@ class Monitor():
                 return message
             self.cur.execute(
                 """INSERT INTO `black_ipv4`
-                   (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                   (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`, `userhash`)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (wiki, userobj.val, int(userobj.start), int(userobj.end),
-                    str(timestamp), reason)
+                    str(timestamp), reason, userobj.userhash)
             )
             self.db.commit()
         elif isinstance(userobj, IPv6):
@@ -694,10 +726,10 @@ class Monitor():
                 return message
             self.cur.execute(
                 """INSERT INTO `black_ipv6`
-                   (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                   (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`, `userhash`)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (wiki, userobj.val, int(userobj.start), int(userobj.end),
-                    str(timestamp), reason)
+                    str(timestamp), reason, userobj.userhash)
             )
             self.db.commit()
         else:
@@ -931,34 +963,46 @@ class Monitor():
         user = user.strip()
         wiki = wiki.strip()
 
-        if not ignorewhite:
-            rows = self.check_user_whitelist(user, wiki)
-            if len(rows) != 0:
-                return []
+        # if not ignorewhite:
+        #     rows = self.check_user_whitelist(user, wiki)
+        #     if len(rows) != 0:
+        #         return []
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):
             self.cur.execute(
-                """SELECT `reason`, `timestamp`, '' AS `val`, `wiki`
-                   FROM `black_user` WHERE `user` = %s
+                """SELECT `reason`, `black_user`.`timestamp`, '' AS `val`, `wiki`, `point`
+                   FROM `black_user`
+                   LEFT JOIN `user_score`
+                   ON `black_user`.`userhash` = `user_score`.`userhash`
+                   WHERE `user` = %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `timestamp` DESC""",
+                   AND `point` > 0
+                   ORDER BY `black_user`.`timestamp` DESC""",
                 (user, wiki))
             return self.cur.fetchall()
         elif isinstance(userobj, IPv4):
             self.cur.execute(
-                """SELECT `reason`, `timestamp`, `val`, `wiki`
-                   FROM `black_ipv4` WHERE `start` <= %s AND `end` >= %s
+                """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `wiki`, `point`
+                   FROM `black_ipv4`
+                   LEFT JOIN `user_score`
+                   ON `black_ipv4`.`userhash` = `user_score`.`userhash`
+                   WHERE `start` <= %s AND `end` >= %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `timestamp` DESC""",
+                   AND `point` > 0
+                   ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
             return self.cur.fetchall()
         elif isinstance(userobj, IPv6):
             self.cur.execute(
-                """SELECT `reason`, `timestamp`, `val`, `wiki`
-                   FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s
+                """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `wiki`, `point`
+                   FROM `black_ipv6`
+                   LEFT JOIN `user_score`
+                   ON `black_ipv6`.`userhash` = `user_score`.`userhash`
+                   WHERE `start` <= %s AND  `end` >= %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `timestamp` DESC""",
+                   AND `point` > 0
+                   ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
             return self.cur.fetchall()
         else:
@@ -971,34 +1015,46 @@ class Monitor():
             wiki = self.wiki
         user = user.strip()
 
-        if not ignorewhite:
-            rows = self.check_user_whitelist(user, wiki)
-            if len(rows) != 0:
-                return []
+        # if not ignorewhite:
+        #     rows = self.check_user_whitelist(user, wiki)
+        #     if len(rows) != 0:
+        #         return []
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):
             self.cur.execute(
-                """SELECT `reason`, `timestamp`, `user` FROM `black_user`
-                WHERE `user` = %s AND `reason` = %s
-                AND (`wiki` = %s OR `wiki` = 'global')
-                ORDER BY `timestamp` DESC""",
+                """SELECT `reason`, `black_user`.`timestamp`, `user`, `point`
+                   FROM `black_user`
+                   LEFT JOIN `user_score`
+                   ON `black_user`.`userhash` = `user_score`.`userhash`
+                   WHERE `user` = %s AND `reason` = %s
+                   AND (`wiki` = %s OR `wiki` = 'global')
+                   AND `point` > 0
+                   ORDER BY `black_user`.`timestamp` DESC""",
                 (user, reason, wiki))
             return self.cur.fetchall()
         elif isinstance(userobj, IPv4):
             self.cur.execute(
-                """SELECT `reason`, `timestamp`, `val`
-                   FROM `black_ipv4` WHERE `start` <= %s AND  `end` >= %s
+                """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `point`
+                   FROM `black_ipv4`
+                   LEFT JOIN `user_score`
+                   ON `black_ipv4`.`userhash` = `user_score`.`userhash`
+                   WHERE `start` <= %s AND  `end` >= %s
                    AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `timestamp` DESC""",
+                   AND `point` > 0
+                   ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
             return self.cur.fetchall()
         elif isinstance(userobj, IPv6):
             self.cur.execute(
-                """SELECT `reason`, `timestamp`, `val`
-                   FROM `black_ipv6` WHERE `start` <= %s AND  `end` >= %s
+                """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `point`
+                   FROM `black_ipv6`
+                   LEFT JOIN `user_score`
+                   ON `black_ipv6`.`userhash` = `user_score`.`userhash`
+                   WHERE `start` <= %s AND  `end` >= %s
                    AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `timestamp` DESC""",
+                   AND `point` > 0
+                   ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
             return self.cur.fetchall()
         else:
@@ -1294,6 +1350,8 @@ class Monitor():
 class User():
     def __init__(self, user):
         self.user = user
+        self.val = user
+        self.userhash = int(hashlib.sha1(user.encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
 
 
 class IPv4():
@@ -1302,6 +1360,7 @@ class IPv4():
         self.end = end
         self.type = type
         self.val = str(val)
+        self.userhash = int(hashlib.sha1(str(val).encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
 
 
 class IPv6():
@@ -1310,3 +1369,4 @@ class IPv6():
         self.end = end
         self.type = type
         self.val = str(val).upper()
+        self.userhash = int(hashlib.sha1(str(val).encode("utf8")).hexdigest(), 16) % (2**64) - 2**63

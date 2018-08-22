@@ -34,14 +34,19 @@ def hello():
         """
     if "type" in request.args:
         if request.args["type"] == "blackipv4":
-            M.cur.execute("""SELECT `wiki`, `val`, `reason`, `timestamp`
-                             FROM `black_ipv4` ORDER BY `timestamp` DESC""")
+            M.cur.execute(
+                """SELECT `wiki`, `val`, `point`, `reason`, `black_ipv4`.`timestamp`
+                   FROM `black_ipv4` 
+                   LEFT JOIN `user_score`
+                   ON `black_ipv4`.`userhash` = `user_score`.`userhash`
+                   ORDER BY `black_ipv4`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """
                 <table>
                 <tr>
                     <th>wiki</th>
                     <th>ip</th>
+                    <th>point</th>
                     <th>reason</th>
                     <th>timestamp</th>
                 </tr>
@@ -53,21 +58,28 @@ def hello():
                         <td>{}</td>
                         <td>{}</td>
                         <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
-                               M.parse_wikicode(row[2]),
-                               M.formattimediff(row[3]))
+                               row[2],
+                               M.parse_wikicode(row[3]),
+                               M.formattimediff(row[4]))
             html += """</table>"""
         elif request.args["type"] == "blackipv6":
-            M.cur.execute("""SELECT `wiki`, `val`, `reason`, `timestamp`
-                             FROM `black_ipv6` ORDER BY `timestamp` DESC""")
+            M.cur.execute(
+                """SELECT `wiki`, `val`, `point`, `reason`, `black_ipv6`.`timestamp`
+                   FROM `black_ipv6`
+                   LEFT JOIN `user_score`
+                   ON `black_ipv6`.`userhash` = `user_score`.`userhash`
+                   ORDER BY `black_ipv6`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """<table>"""
             html += """
                 <tr>
                     <th>wiki</th>
                     <th>ip</th>
+                    <th>point</th>
                     <th>reason</th>
                     <th>timestamp</th>
                 </tr>
@@ -79,21 +91,60 @@ def hello():
                         <td>{}</td>
                         <td>{}</td>
                         <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
-                               M.parse_wikicode(row[2]),
-                               M.formattimediff(row[3]))
+                               row[2],
+                               M.parse_wikicode(row[3]),
+                               M.formattimediff(row[4]))
             html += """</table>"""
         elif request.args["type"] == "blackuser":
-            M.cur.execute("""SELECT `wiki`, `user`, `reason`, `timestamp`
-                             FROM `black_user` ORDER BY `timestamp` DESC""")
+            M.cur.execute(
+                """SELECT `wiki`, `user`, `point`, `reason`, `black_user`.`timestamp`
+                   FROM `black_user`
+                   LEFT JOIN `user_score`
+                   ON `black_user`.`userhash` = `user_score`.`userhash`
+                   ORDER BY `black_user`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """<table>"""
             html += """
                 <tr>
                     <th>wiki</th>
                     <th>user</th>
+                    <th>point</th>
+                    <th>reason</th>
+                    <th>timestamp</th>
+                </tr>
+                """
+            for row in rows:
+                html += """
+                    <tr>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                        <td>{}</td>
+                    </tr>
+                    """.format(row[0],
+                               row[1],
+                               row[2],
+                               M.parse_wikicode(row[3]),
+                               M.formattimediff(row[4]))
+            html += """</table>"""
+        elif request.args["type"] == "whiteuser":
+            M.cur.execute(
+                """SELECT `user`, `point`, `reason`, `white_user`.`timestamp`
+                   FROM `white_user`
+                   LEFT JOIN `user_score`
+                   ON `white_user`.`userhash` = `user_score`.`userhash`
+                   ORDER BY `white_user`.`timestamp` DESC""")
+            rows = M.cur.fetchall()
+            html += """<table>"""
+            html += """
+                <tr>
+                    <th>user</th>
+                    <th>point</th>
                     <th>reason</th>
                     <th>timestamp</th>
                 </tr>
@@ -110,29 +161,6 @@ def hello():
                                row[1],
                                M.parse_wikicode(row[2]),
                                M.formattimediff(row[3]))
-            html += """</table>"""
-        elif request.args["type"] == "whiteuser":
-            M.cur.execute("""SELECT `user`, `reason`, `timestamp`
-                             FROM `white_user` ORDER BY `timestamp` DESC""")
-            rows = M.cur.fetchall()
-            html += """<table>"""
-            html += """
-                <tr>
-                    <th>user</th>
-                    <th>reason</th>
-                    <th>timestamp</th>
-                </tr>
-                """
-            for row in rows:
-                html += """
-                    <tr>
-                        <td>{}</td>
-                        <td>{}</td>
-                        <td>{}</td>
-                    </tr>
-                    """.format(row[0],
-                               M.parse_wikicode(row[1]),
-                               M.formattimediff(row[2]))
             html += """</table>"""
         elif request.args["type"] == "blackpage":
             M.cur.execute("""SELECT `wiki`, `page`, `reason`, `timestamp`
@@ -477,6 +505,25 @@ def telegram():
                     user, wiki = M.parse_user(m.group(1))
                     reason = name + "加入：" + M.parse_reason(m.group(2))
                     M.addblack_user(user, m_date, reason, wiki)
+                    M.adduser_score(M.user_type(user), 10)
+                    return "OK"
+
+                m = re.match(
+                    r"/(?:userscore)(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?",
+                    m_text
+                )
+                if m is not None:
+                    name = checkadmin()
+                    if name is None:
+                        return "OK"
+
+                    user, wiki = M.parse_user(m.group(1))
+                    point = 10
+                    if m.group(2) is not None:
+                        point = int(m.group(2))
+                    userobj = M.user_type(user)
+                    M.adduser_score(userobj, point)
+                    M.sendmessage("userscore {} {}".format(userobj.val, point))
                     return "OK"
 
                 m = re.match(
@@ -787,6 +834,7 @@ def api():
                 reason,
                 wiki,
                 msgprefix=name+"透過API")
+            M.adduser_score(M.user_type(user), 10)
             return json.dumps({"message": message})
 
         if data["action"] == "deluser":
