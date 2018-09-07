@@ -20,6 +20,7 @@ def main(change):
         comment = change["comment"]
 
         issend = False
+        isblackuser = False
         message_append = ""
 
         if wiki != M.defaultwiki:
@@ -28,6 +29,7 @@ def main(change):
         rows = M.check_user_blacklist(user)
         if len(rows) != 0:
             issend = True
+            isblackuser = True
             blackuser = user + "|" + rows[0][3]
             message_append += (
                 "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
@@ -35,7 +37,7 @@ def main(change):
                 message_append += "，\u200b" + rows[0][2] + "\u200b"
                 blackuser = rows[0][2] + "|" + rows[0][3]
             message_append += "，" + M.formattimediff(rows[0][1]) + "，" + str(rows[0][4]) + "p）"
-            M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1)
+            M.log(json.dumps(change), logtype="message/checklist/userscore")
 
         rows = M.check_page_blacklist(title, wiki)
         if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
@@ -53,10 +55,14 @@ def main(change):
                 M.link_diff(change["revision"]["new"]) + '）')
             issend and M.sendmessage(
                 message + message_append, blackuser, title + "|" + M.wiki)
+            isblackuser and M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
+
         elif ctype == "new":
             message = M.link_user(user)+'建立'+M.link_page(title)
             issend and M.sendmessage(
                 message + message_append, blackuser, title + "|" + M.wiki)
+            isblackuser and M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
+
         elif ctype == "log":
             log_type = change["log_type"]
             log_action = change["log_action"]
