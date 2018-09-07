@@ -846,6 +846,19 @@ def api():
             message = M.delblack_user(user, wiki, msgprefix=name+"透過API將")
             return json.dumps({"message": message})
 
+        if data["action"] == "userscore":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"message": "你沒有權限", "nopermission": True})
+
+            user, wiki = M.parse_user(data["user"])
+            point = int(data["point"])
+            userobj = M.user_type(user)
+            M.adduser_score(userobj, point, "handler/api/userscore")
+            point2 = M.getuser_score(userobj)
+            message = "為 {0} 調整分數 {1:+d} 為 {2}".format(user, point, point2)
+            return json.dumps({"message": message})
+
         data["token"] = ""
         M.log(json.dumps(data, ensure_ascii=False))
         return json.dumps({"message": "伺服器沒有進行任何動作"})

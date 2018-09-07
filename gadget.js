@@ -58,18 +58,26 @@ function requestuser(type, askreason=true) {
 			if (reason === null) {
 				return;
 			}
-		} else if (!confirm("確定移除黑名單？")) {
+		} else if (type == "deluser" && !confirm("確定移除黑名單？")) {
 			return;
+		}
+		var datobj = {
+			'action': type,
+			'user': mw.config.get('wgRelevantUserName')+"|"+mw.config.get('wgDBname'),
+			'reason': reason,
+			'token': token
+		};
+		if (type == "userscore") {
+			point = prompt("分數：");
+			if (point === null) {
+				return;
+			}
+			datobj["point"] = point;
 		}
 		$.ajax({
 			type: 'POST',
 			url: 'https://xiplus.ddns.net/wikipedia_rc/api',
-			data: {
-				'action': type,
-				'user': mw.config.get('wgRelevantUserName')+"|"+mw.config.get('wgDBname'),
-				'reason': reason,
-				'token': token
-			},
+			data: datobj,
 			success: function success(data) {
 				data = JSON.parse(data);
 				console.log(data);
@@ -167,6 +175,15 @@ function showbutton(){
 		);
 		$(deluser).on('click', function(){
 			requestuser("deluser", false);
+		});
+
+		var userscore = mw.util.addPortletLink(
+			'p-cactions',
+			'#',
+			'cvn-smart: userscore'
+		);
+		$(userscore).on('click', function(){
+			requestuser("userscore", false);
 		});
 	}
 
