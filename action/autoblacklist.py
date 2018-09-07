@@ -4,6 +4,7 @@ from Monitor import *
 from autoblacklist_config import *
 from strtotime import strtotime
 from time import time
+import re
 
 
 def main(change):
@@ -28,8 +29,9 @@ def main(change):
                 and not re.search(warnreasonblacklist, comment)
                 and user not in warnuserblacklist):
             reason = "被"+user+"警告："+comment
+            target = re.sub(r"^[^:]+:(.+)$", "\\1", title)
             M.addblack_user(
-                title[10:], change["timestamp"], reason, msgprefix="自動")
+                target, change["timestamp"], reason, msgprefix="自動")
             point = 5
             if re.match(r"^(層級|层级)2", comment):
                 point = 10
@@ -37,14 +39,14 @@ def main(change):
                 point = 15
             elif re.match(r"^(層級|层级)4", comment):
                 point = 20
-            M.adduser_score(M.user_type(title[10:]), point)
+            M.adduser_score(M.user_type(target), point, "autoblacklist/warn")
 
         if ctype == "log":
             log_type = change["log_type"]
             log_action = change["log_action"]
 
             if log_type == "block":
-                blockuser = title[5:]
+                blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
                 user_type = M.user_type(blockuser)
                 if (type(user_type) != User
