@@ -1249,7 +1249,7 @@ class Monitor():
     def formattimediff(self, timestamp, basetime=None):
         if basetime is None:
             basetime = int(time.time())
-        diff = abs(int(timestamp) - basetime)
+        diff = basetime - int(timestamp)
         if diff < 60:
             return str(diff) + "秒"
         if diff < 60 * 60:
