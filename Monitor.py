@@ -661,8 +661,10 @@ class Monitor():
         )
         rows = self.cur.fetchall()
         if len(rows) == 0:
-            return 0
-        return rows[0][0]
+            res = 0
+        else:
+            res = rows[0][0]
+        return res
 
     def adduser_score(self, userobj, point):
         if point == 0:
