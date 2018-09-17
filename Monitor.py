@@ -666,10 +666,10 @@ class Monitor():
             res = rows[0][0]
         return res
 
-    def adduser_score(self, userobj, point):
+    def adduser_score(self, userobj, point, source=""):
         if point == 0:
             return
-        self.log("{} add score {}".format(userobj.val, point))
+        self.log("{} add score {} from {}".format(userobj.val, point, source), logtype="userscore")
         oldpoint = self.getuser_score(userobj)
         timestamp = int(time.time())
         userhash = userobj.userhash

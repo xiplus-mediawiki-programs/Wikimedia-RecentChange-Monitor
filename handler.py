@@ -505,7 +505,7 @@ def telegram():
                     user, wiki = M.parse_user(m.group(1))
                     reason = name + "加入：" + M.parse_reason(m.group(2))
                     M.addblack_user(user, m_date, reason, wiki)
-                    M.adduser_score(M.user_type(user), 10)
+                    M.adduser_score(M.user_type(user), 10, "handler/cmd/adduser")
                     return "OK"
 
                 m = re.match(
@@ -522,7 +522,7 @@ def telegram():
                     if m.group(2) is not None:
                         point = int(m.group(2))
                     userobj = M.user_type(user)
-                    M.adduser_score(userobj, point)
+                    M.adduser_score(userobj, point, "handler/cmd/userscore")
                     M.sendmessage("userscore {} {}".format(userobj.val, point))
                     return "OK"
 
@@ -834,7 +834,7 @@ def api():
                 reason,
                 wiki,
                 msgprefix=name+"透過API")
-            M.adduser_score(M.user_type(user), 10)
+            M.adduser_score(M.user_type(user), 10, "handler/api/adduser")
             return json.dumps({"message": message})
 
         if data["action"] == "deluser":

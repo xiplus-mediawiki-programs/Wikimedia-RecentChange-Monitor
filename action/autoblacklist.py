@@ -81,7 +81,7 @@ def main(change):
                                 traceback.print_exc()
                                 M.error(traceback.format_exc())
                                 point = 30
-                        M.adduser_score(M.user_type(blockuser), point)
+                        M.adduser_score(M.user_type(blockuser), point, "autoblacklist/block")
 
     except Exception as e:
         traceback.print_exc()

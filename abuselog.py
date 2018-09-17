@@ -138,7 +138,7 @@ try:
                     reason,
                     msgprefix="自動"
                 )
-            M.adduser_score(M.user_type(log["user"]), 10)
+            M.adduser_score(M.user_type(log["user"]), 10, "abuselog")
         M.addRC_log_abuselog(log)
 
 except Exception as e:
