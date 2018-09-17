@@ -42,6 +42,7 @@ def hello():
                    FROM `black_ipv4` 
                    LEFT JOIN `user_score`
                    ON `black_ipv4`.`userhash` = `user_score`.`userhash`
+                   WHERE `point` != 0
                    ORDER BY `black_ipv4`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """
@@ -75,6 +76,7 @@ def hello():
                    FROM `black_ipv6`
                    LEFT JOIN `user_score`
                    ON `black_ipv6`.`userhash` = `user_score`.`userhash`
+                   WHERE `point` != 0
                    ORDER BY `black_ipv6`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """<table>"""
@@ -108,6 +110,7 @@ def hello():
                    FROM `black_user`
                    LEFT JOIN `user_score`
                    ON `black_user`.`userhash` = `user_score`.`userhash`
+                   WHERE `point` != 0
                    ORDER BY `black_user`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """<table>"""
@@ -141,6 +144,7 @@ def hello():
                    FROM `white_user`
                    LEFT JOIN `user_score`
                    ON `white_user`.`userhash` = `user_score`.`userhash`
+                   WHERE `point` != 0
                    ORDER BY `white_user`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """<table>"""
