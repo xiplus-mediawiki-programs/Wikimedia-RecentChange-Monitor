@@ -21,6 +21,9 @@ CORS(app)
 @app.route("/")
 def hello():
     html = """
+        <a href="./status">status</a>
+        <a href="./log?type=log">log</a>
+        blacklist
         <form>
             <button type="submit" name="type" value="blackipv4">
                 blackipv4</button>
@@ -194,7 +197,12 @@ def hello():
 @app.route("/log")
 def log():
     try:
-        html = ""
+        html = """
+            <a href="./status">status</a>
+            log
+            <a href="./">blacklist</a>
+            <form>
+            """
         dbs = [
             'bot_message',
             'error',
@@ -222,7 +230,6 @@ def log():
             'RC_log_upload',
             'RC_new'
             ]
-        html += '<form>'
         for db in dbs:
             html += ('<button type="submit" name="type" value="{0}">' +
                      '{0}</button> ').format(db)
@@ -294,6 +301,9 @@ def status():
                 border: 1px solid black;
             }
         </style>
+        status
+        <a href="./log?type=log">log</a>
+        <a href="./">blacklist</a>
         <table>
         <tr>
             <th>database</th>
