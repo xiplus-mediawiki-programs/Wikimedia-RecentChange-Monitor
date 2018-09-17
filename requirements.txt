@@ -1,7 +1,7 @@
-Flask==0.12.2
-pycodestyle==2.4.0
-PyMySQL==0.7.11
+requests==2.18.1
 pytz==2018.3
-requests==2.18.4
 sseclient==0.0.18
-urllib3==1.22
+Flask_Cors==3.0.6
+PyMySQL==0.7.11
+Flask==1.0.2
+python_dateutil==2.7.3
