@@ -1,4 +1,3 @@
-javascript:
 (function(){
 
 mw.loader.using(['mediawiki.util']).done(function(){
@@ -72,7 +71,7 @@ function requestuser(type, askreason=true) {
 			if (point === null) {
 				return;
 			}
-			datobj["point"] = point;
+			datobj.point = point;
 		}
 		$.ajax({
 			type: 'POST',
