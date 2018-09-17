@@ -72,11 +72,11 @@ def main(change):
                                 duration = endtime-time()
                                 point = max(int(duration/86400)*2, 14)+10
                                 if log_action == "reblock":
-                                	oldpoint = M.getuser_score(M.user_type(blockuser))
-                                	if point < oldpoint:
-                                		point = 0
-                                	else:
-                                		point -= oldpoint
+                                    oldpoint = M.getuser_score(M.user_type(blockuser))
+                                    if point < oldpoint:
+                                        point = 0
+                                    else:
+                                        point -= oldpoint
                             except Exception as e:
                                 traceback.print_exc()
                                 M.error(traceback.format_exc())
