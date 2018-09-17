@@ -70,7 +70,7 @@ def main(change):
                             try:
                                 endtime = strtotime(change["log_params"]["duration"])
                                 duration = endtime-time()
-                                point = int(duration/86400)+30
+                                point = max(int(duration/86400)*2, 14)+10
                                 if log_action == "reblock":
                                 	oldpoint = M.getuser_score(M.user_type(blockuser))
                                 	if point < oldpoint:
