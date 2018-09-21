@@ -537,7 +537,9 @@ def telegram():
                         point = int(m.group(2))
                     userobj = M.user_type(user)
                     M.adduser_score(userobj, point, "handler/cmd/userscore")
-                    M.sendmessage("userscore {} {}".format(userobj.val, point))
+                    point2 = M.getuser_score(userobj)
+                    message = "為 {0} 調整分數 {1:+d} 為 {2}".format(user, point, point2)
+                    M.sendmessage(message)
                     return "OK"
 
                 m = re.match(
