@@ -815,10 +815,12 @@ class Monitor():
         message = (self.getblackuser(user, wiki) + "\n"
                    + self.getwhiteuser(user, wiki)).strip()
 
+        userobj = self.user_type(user)
+        point = self.getuser_score(userobj)
         if message != "":
-            return user+"@"+wiki+"\n"+message
+            return "{}@{}，{}p\n{}".format(user, wiki, point, message)
         else:
-            return user+"@"+wiki+"：查無結果"
+            return "{}@{}：查無結果".format(user, wiki)
 
     def delblack_user(self, user, wiki=None, msgprefix=""):
         if wiki is None:
