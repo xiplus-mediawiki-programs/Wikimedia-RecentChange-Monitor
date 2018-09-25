@@ -2,6 +2,7 @@ import traceback
 import json
 from Monitor import *
 from message_config import *
+import re
 
 
 def main(change):
@@ -75,7 +76,7 @@ def main(change):
             log_action = change["log_action"]
 
             if log_type == "block":
-                blockuser = title[5:]
+                blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
                 user_type = M.user_type(blockuser)
                 if (type(user_type) != User
