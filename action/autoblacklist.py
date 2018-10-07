@@ -30,8 +30,6 @@ def main(change):
                 and user not in warnuserblacklist):
             reason = "被"+user+"警告："+comment
             target = re.sub(r"^[^:]+:(.+)$", "\\1", title)
-            M.addblack_user(
-                target, change["timestamp"], reason, msgprefix="自動")
             point = 0
             if re.match(r"^(層級|层级)1", comment):
                 point = 5
@@ -44,6 +42,8 @@ def main(change):
             elif re.match(r"^(單層級通知|单层级通知)：(回退個人的測試|回退个人的测试)", comment):
                 point = 10
             if point > 0:
+                M.addblack_user(
+                    target, change["timestamp"], reason, msgprefix="自動")
                 M.adduser_score(M.user_type(target), point, "autoblacklist/warn")
 
         if ctype == "log":
