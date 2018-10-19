@@ -868,7 +868,10 @@ def api():
                 return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             user, wiki = M.parse_user(data["user"])
-            point = int(data["point"])
+            try:
+            	point = int(data["point"])
+            except ValueError:
+            	point = 10
             userobj = M.user_type(user)
             M.adduser_score(userobj, point, "handler/api/userscore")
             point2 = M.getuser_score(userobj)
