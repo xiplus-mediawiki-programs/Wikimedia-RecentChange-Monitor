@@ -60,9 +60,13 @@ function requestuser(type, askreason=true) {
 		} else if (type == "deluser" && !confirm("確定移除黑名單？")) {
 			return;
 		}
+		var site = prompt("站點：", mw.config.get('wgDBname'));
+		if (site === null) {
+			return;
+		}
 		var datobj = {
 			'action': type,
-			'user': mw.config.get('wgRelevantUserName')+"|"+mw.config.get('wgDBname'),
+			'user': mw.config.get('wgRelevantUserName')+"|"+site,
 			'reason': reason,
 			'token': token
 		};
