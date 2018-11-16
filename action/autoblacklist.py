@@ -25,7 +25,7 @@ def main(change):
         if (ctype in ["edit", "new"]
                 and change["namespace"] == 3
                 and re.match(r"^User talk:", title)
-                and re.match(r"^((層級|层级)[1234]|單層級通知|单层级通知)", comment)
+                and re.match(r"^((層級|层级)[1234]|(單層級|单层级)(通知|警告))", comment)
                 and not re.search(warnreasonblacklist, comment)
                 and user not in warnuserblacklist):
             reason = "被"+user+"警告："+comment
@@ -40,6 +40,8 @@ def main(change):
             elif re.match(r"^(層級|层级)4", comment):
                 point = 20
             elif re.match(r"^(單層級通知|单层级通知)：(回退個人的測試|回退个人的测试)", comment):
+                point = 10
+            elif re.match(r"^(單層級警告|单层级警告)", comment):
                 point = 10
             if point > 0:
                 M.addblack_user(
