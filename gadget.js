@@ -51,27 +51,30 @@ function requestpage(type, askreason=true) {
 function requestuser(type, askreason=true) {
 	var token = gettoken();
 	if (token) {
-		var reason = "";
-		if (askreason) {
-			reason = prompt("原因：");
+		var datobj = {
+			'action': type,
+			'token': token
+		};
+		if (type == "adduser") {
+			var reason = prompt("原因：");
 			if (reason === null) {
 				return;
 			}
-		} else if (type == "deluser" && !confirm("確定移除黑名單？")) {
+			datobj.reason = reason;
+		}
+		if (type == "deluser" && !confirm("確定移除黑名單？")) {
 			return;
 		}
-		var site = prompt("站點：", mw.config.get('wgDBname'));
-		if (site === null) {
-			return;
+		var site = mw.config.get('wgDBname');
+		if (type == "adduser" || type == "deluser") {
+			site = prompt("站點：", site);
+			if (site === null) {
+				return;
+			}
 		}
-		var datobj = {
-			'action': type,
-			'user': mw.config.get('wgRelevantUserName')+"|"+site,
-			'reason': reason,
-			'token': token
-		};
-		if (type == "userscore") {
-			point = prompt("分數：");
+		datobj.user = mw.config.get('wgRelevantUserName') + "|" + site;
+		if (type == "adduser" || type == "userscore") {
+			point = prompt("分數：", "10");
 			if (point === null) {
 				return;
 			}
@@ -177,7 +180,7 @@ function showbutton(){
 			'cvn-smart: deluser'
 		);
 		$(deluser).on('click', function(){
-			requestuser("deluser", false);
+			requestuser("deluser");
 		});
 
 		var userscore = mw.util.addPortletLink(
@@ -186,7 +189,7 @@ function showbutton(){
 			'cvn-smart: userscore'
 		);
 		$(userscore).on('click', function(){
-			requestuser("userscore", false);
+			requestuser("userscore");
 		});
 	}
 

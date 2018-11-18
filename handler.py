@@ -850,7 +850,11 @@ def api():
                 reason,
                 wiki,
                 msgprefix=name+"透過API")
-            M.adduser_score(M.user_type(user), 10, "handler/api/adduser")
+            try:
+                point = int(data["point"])
+            except ValueError:
+                point = 10
+            M.adduser_score(M.user_type(user), point, "handler/api/adduser")
             return json.dumps({"message": message})
 
         if data["action"] == "deluser":
