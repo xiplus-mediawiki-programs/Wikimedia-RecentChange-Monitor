@@ -19,7 +19,12 @@ CORS(app)
 
 
 @app.route("/")
-def hello():
+def index():
+    return status()
+
+
+@app.route("/blacklist")
+def blacklist():
     html = """
         <a href="./status">status</a>
         <a href="./log?type=log">log</a>
@@ -204,7 +209,7 @@ def log():
         html = """
             <a href="./status">status</a>
             log
-            <a href="./">blacklist</a>
+            <a href="./blacklist">blacklist</a>
             <form>
             """
         dbs = [
@@ -309,7 +314,7 @@ def status():
         </style>
         status
         <a href="./log?type=log">log</a>
-        <a href="./">blacklist</a>
+        <a href="./blacklist">blacklist</a>
         <table>
         <tr>
             <th>database</th>
