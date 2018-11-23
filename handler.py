@@ -282,6 +282,8 @@ def log():
                                 html += ('<td>' +
                                          cgi.escape(row[col], quote=False) +
                                          '</pre>')
+                            elif col == "timestamp":
+                                html += '<td>{} ({}前)</td>'.format(str(row[col]), M.formattimediff(row[col]))
                             else:
                                 html += '<td>'+str(row[col])+'</td>'
                         html += '</tr>'
@@ -355,7 +357,7 @@ def status():
                 html += """
                     <tr>
                         <td><a href="{0}log?type={1}" target="_blank">{1}</td>
-                        <td>{2}</td>
+                        <td>{2}前</td>
                     </tr>
                     """.format(M.siteurl, db, M.formattimediff(rows[0][0]))
         html += '</table>'
