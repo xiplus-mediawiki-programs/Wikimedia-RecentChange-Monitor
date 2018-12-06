@@ -27,6 +27,18 @@ def index():
 def blacklist():
     islogin = False
     loginname = ""
+    if not islogin:
+        logintoken = request.cookies.get("cvn_smart_token")
+        if logintoken is not None:
+            M.cur.execute(
+                """SELECT `name` FROM `admin` WHERE `token` = %s""",
+                (logintoken)
+            )
+            rows = M.cur.fetchall()
+            if len(rows) != 0:
+                islogin = True
+                loginname = rows[0][0]
+
     setcookie = {}
     html = ""
     if "type" in request.args:
@@ -50,17 +62,6 @@ def blacklist():
                     setcookie["cvn_smart_token"] = logintoken
             else:
                 html = "您沒有提供存取權杖"
-        if not islogin:
-            logintoken = request.cookies.get("cvn_smart_token")
-            if logintoken is not None:
-                M.cur.execute(
-                    """SELECT `name` FROM `admin` WHERE `token` = %s""",
-                    (logintoken)
-                )
-                rows = M.cur.fetchall()
-                if len(rows) != 0:
-                    islogin = True
-                    loginname = rows[0][0]
         if request.args["type"] == "blackipv4":
             M.cur.execute(
                 """SELECT `wiki`, `val`, `point`, `reason`, `black_ipv4`.`timestamp`
