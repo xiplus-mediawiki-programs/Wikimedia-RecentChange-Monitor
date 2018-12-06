@@ -45,6 +45,7 @@ def blacklist():
                     html = "登入失敗"
                 else:
                     islogin = True
+                    loginname = rows[0][0]
                     html = "登入成功"
                     setcookie["cvn_smart_token"] = logintoken
             else:
@@ -195,8 +196,12 @@ def blacklist():
             html += """</table>"""
         elif request.args["type"] == "blackpage":
             if "delpage" in request.form:
-                page, wiki = M.parse_page(request.form["delpage"])
-                M.delblack_page(page, wiki, msgprefix=loginname+"透過網頁將")
+                if islogin:
+                    page, wiki = M.parse_page(request.form["delpage"])
+                    M.delblack_page(page, wiki, msgprefix=loginname+"透過網頁將")
+                    html += "成功取消監視 {}({})".format(page, wiki)
+                else:
+                    html += "你沒有權限取消監視頁面"
                 
             M.cur.execute("""SELECT `wiki`, `page`, `reason`, `timestamp`
                              FROM `black_page` ORDER BY `timestamp` DESC""")
@@ -207,21 +212,28 @@ def blacklist():
                 <tr>
                     <th>wiki</th>
                     <th>page</th>
-                    <th>unwatch</th>
+                """
+            if islogin:
+                html += "<th>unwatch</th>"
+            html += """
                     <th>reason</th>
                     <th>timestamp</th>
                 </tr>
                 """
             for row in rows:
-                html += """
+                temp = """
                     <tr>
                         <td>{0}</td>
                         <td>{1}</td>
-                        <td><button type="submit" name="delpage" value="{1}|{0}">unwatch</button></td>
+                    """
+                if islogin:
+                    temp += """<td><button type="submit" name="delpage" value="{1}|{0}">unwatch</button></td>"""
+                temp += """
                         <td>{2}</td>
                         <td>{3}</td>
                     </tr>
-                    """.format(row[0],
+                    """
+                html += temp.format(row[0],
                                row[1],
                                M.parse_wikicode(row[2]),
                                M.formattimediff(row[3]))
