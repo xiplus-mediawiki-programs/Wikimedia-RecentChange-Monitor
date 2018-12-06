@@ -7,31 +7,25 @@
 <a href="./status">status</a>
 	<a href="./log?type=log">log</a>
 	blacklist
-	<form id="mainform">
-		<button type="submit" name="type" value="blackipv4">
-			blackipv4</button>
-		<button type="submit" name="type" value="blackipv6">
-			blackipv6</button>
-		<button type="submit" name="type" value="blackuser">
-			blackuser</button>
-		<button type="submit" name="type" value="blackpage">
-			blackpage</button>
-		{% if not hidelogin %}
-		<input type="hidden" name="logintoken" id="logintoken">
-		<button type="submit" name="type" value="login" onclick="return login();">
-			login</button>
-		{% else %}
+	<br>
+	<a href="?type=blackipv4">blackipv4</a>
+	<a href="?type=blackipv6">blackipv6</a>
+	<a href="?type=blackuser">blackuser</a>
+	<a href="?type=blackpage">blackpage</a>
+	{% if not hidelogin %}
+		<form action="?type=login" method="post">
+			<input type="hidden" name="logintoken" id="logintoken">
+			<button type="submit" name="type" value="login" onclick="return login();">login</button>
+		</form>
+	{% else %}
 		Login as {{ loginname }}
-		{% endif %}
-	</form>
+	{% endif %}
 	<script type="text/javascript">
 		function login() {
 			var token = prompt("存取權杖");
 			if (token == null) {
 				return false;
 			}
-			mainform.action = "?type=login";
-			mainform.method = "POST";
 			logintoken.value = token;
 		}
 	</script>
