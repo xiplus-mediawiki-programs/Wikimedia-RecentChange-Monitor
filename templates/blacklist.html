@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>cvn-smart/blacklist</title>
+</head>
+<body>
+<a href="./status">status</a>
+	<a href="./log?type=log">log</a>
+	blacklist
+	<form id="mainform">
+		<button type="submit" name="type" value="blackipv4">
+			blackipv4</button>
+		<button type="submit" name="type" value="blackipv6">
+			blackipv6</button>
+		<button type="submit" name="type" value="blackuser">
+			blackuser</button>
+		<button type="submit" name="type" value="blackpage">
+			blackpage</button>
+		{% if not hidelogin %}
+		<input type="hidden" name="logintoken" id="logintoken">
+		<button type="submit" name="type" value="login" onclick="return login();">
+			login</button>
+		{% else %}
+		Login as {{ loginname }}
+		{% endif %}
+	</form>
+	<script type="text/javascript">
+		function login() {
+			var token = prompt("存取權杖");
+			if (token == null) {
+				return false;
+			}
+			mainform.action = "?type=login";
+			mainform.method = "POST";
+			logintoken.value = token;
+		}
+	</script>
+	{{ maincontent|safe }}
+</body>
+</html>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-from flask import Flask, request, abort, send_file
+from flask import Flask, request, abort, send_file, make_response, render_template
 from flask_cors import CORS
 import re
 import os
@@ -23,24 +23,43 @@ def index():
     return status()
 
 
-@app.route("/blacklist")
+@app.route("/blacklist", methods=['GET', 'POST'])
 def blacklist():
-    html = """
-        <a href="./status">status</a>
-        <a href="./log?type=log">log</a>
-        blacklist
-        <form>
-            <button type="submit" name="type" value="blackipv4">
-                blackipv4</button>
-            <button type="submit" name="type" value="blackipv6">
-                blackipv6</button>
-            <button type="submit" name="type" value="blackuser">
-                blackuser</button>
-            <button type="submit" name="type" value="blackpage">
-                blackpage</button>
-        </form>
-        """
+    islogin = False
+    loginname = ""
+    setcookie = {}
+    html = ""
     if "type" in request.args:
+        if request.args["type"] == "login":
+            if "logintoken" in request.form:
+                logintoken = request.form["logintoken"]
+                m = re.search(r"cvn_smart\(([a-z0-9]{32})\)", logintoken)
+                if m is not None:
+                    logintoken = m.group(1)
+                M.cur.execute(
+                    """SELECT `name` FROM `admin` WHERE `token` = %s""",
+                    (logintoken)
+                )
+                rows = M.cur.fetchall()
+                if len(rows) == 0:
+                    html = "登入失敗"
+                else:
+                    islogin = True
+                    html = "登入成功"
+                    setcookie["cvn_smart_token"] = logintoken
+            else:
+                html = "您沒有提供存取權杖"
+        if not islogin:
+            logintoken = request.cookies.get("cvn_smart_token")
+            if logintoken is not None:
+                M.cur.execute(
+                    """SELECT `name` FROM `admin` WHERE `token` = %s""",
+                    (logintoken)
+                )
+                rows = M.cur.fetchall()
+                if len(rows) != 0:
+                    islogin = True
+                    loginname = rows[0][0]
         if request.args["type"] == "blackipv4":
             M.cur.execute(
                 """SELECT `wiki`, `val`, `point`, `reason`, `black_ipv4`.`timestamp`
@@ -175,14 +194,20 @@ def blacklist():
                                M.formattimediff(row[3]))
             html += """</table>"""
         elif request.args["type"] == "blackpage":
+            if "delpage" in request.form:
+                page, wiki = M.parse_page(request.form["delpage"])
+                M.delblack_page(page, wiki, msgprefix=loginname+"透過網頁將")
+                
             M.cur.execute("""SELECT `wiki`, `page`, `reason`, `timestamp`
                              FROM `black_page` ORDER BY `timestamp` DESC""")
             rows = M.cur.fetchall()
-            html += """<table>"""
             html += """
+                <form action="?type=blackpage" method="POST">
+                <table>
                 <tr>
                     <th>wiki</th>
                     <th>page</th>
+                    <th>unwatch</th>
                     <th>reason</th>
                     <th>timestamp</th>
                 </tr>
@@ -190,17 +215,24 @@ def blacklist():
             for row in rows:
                 html += """
                     <tr>
-                        <td>{}</td>
-                        <td>{}</td>
-                        <td>{}</td>
-                        <td>{}</td>
+                        <td>{0}</td>
+                        <td>{1}</td>
+                        <td><button type="submit" name="delpage" value="{1}|{0}">unwatch</button></td>
+                        <td>{2}</td>
+                        <td>{3}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
                                M.parse_wikicode(row[2]),
                                M.formattimediff(row[3]))
-            html += """</table>"""
-    return html
+            html += """
+                </table>
+                </form>
+                """
+    response = make_response(render_template('blacklist.html', maincontent=html, hidelogin=islogin, loginname=loginname))
+    for key in setcookie:
+        response.set_cookie(key, setcookie[key], path="/wikipedia_rc")
+    return response
 
 
 @app.route("/log")
@@ -880,9 +912,9 @@ def api():
 
             user, wiki = M.parse_user(data["user"])
             try:
-            	point = int(data["point"])
+                point = int(data["point"])
             except ValueError:
-            	point = 10
+                point = 10
             userobj = M.user_type(user)
             M.adduser_score(userobj, point, "handler/api/userscore")
             point2 = M.getuser_score(userobj)
