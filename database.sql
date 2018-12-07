@@ -59,14 +59,16 @@ CREATE TABLE `bot_message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `error` (
+  `id` int(11) NOT NULL,
   `timestamp` int(11) NOT NULL,
   `error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `log` (
+  `id` int(11) NOT NULL,
   `timestamp` int(11) NOT NULL,
-  `type` varchar(20) NOT NULL DEFAULT '',
+  `type` varchar(30) NOT NULL DEFAULT '',
   `log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -484,8 +486,24 @@ CREATE TABLE `white_user` (
 ALTER TABLE `admin`
   ADD UNIQUE KEY `user_id` (`user_id`);
 
+ALTER TABLE `bot_message`
+  ADD PRIMARY KEY (`message_id`);
+
+ALTER TABLE `error`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `log`
+  ADD PRIMARY KEY (`id`);
+
 ALTER TABLE `user_score`
   ADD UNIQUE KEY `user` (`userhash`) USING BTREE;
+
+
+ALTER TABLE `error`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
