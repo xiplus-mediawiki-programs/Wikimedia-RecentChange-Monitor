@@ -1347,7 +1347,7 @@ class Monitor():
                        " " + str(exc_tb.tb_lineno))
             return None
 
-    def __exit__(self):
+    def __del__(self):
         self.db.close()
 
 
