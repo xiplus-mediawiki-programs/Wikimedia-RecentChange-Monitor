@@ -72,7 +72,11 @@ with open('cookie.txt', 'wb') as f:
 
 M.cur.execute("""SELECT `timestamp` FROM `RC_log_abuselog`
                  ORDER BY `timestamp` DESC LIMIT 1""")
-timestamp = M.cur.fetchall()[0][0]
+rows = M.cur.fetchall()
+if len(rows) > 0:
+    timestamp = rows[0][0]
+else:
+    timestamp = 0
 timestamp = (datetime.datetime.fromtimestamp(timestamp+1, tz=pytz.utc)
              .isoformat().replace('+00:00', 'Z'))
 print(timestamp)
