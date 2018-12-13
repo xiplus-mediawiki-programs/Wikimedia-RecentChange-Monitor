@@ -47,7 +47,7 @@ def main(change):
                 "\n（監視：" + M.parse_wikicode(rows[0][0]) +
                 ', ' + M.formattimediff(rows[0][1]) + "）")
 
-        if wiki not in followwiki:
+        if wiki not in followwiki and not issend:
             return
 
         if ctype == "edit":
