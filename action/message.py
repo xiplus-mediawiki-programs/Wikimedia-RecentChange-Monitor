@@ -38,7 +38,6 @@ def main(change):
                 message_append += "，\u200b" + rows[0][2] + "\u200b"
                 blackuser = rows[0][2] + "|" + rows[0][3]
             message_append += "，" + M.formattimediff(rows[0][1]) + "，" + str(rows[0][4]) + "p）"
-            M.log(json.dumps(change), logtype="message/checklist/userscore")
 
         rows = M.check_page_blacklist(title, wiki)
         if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
