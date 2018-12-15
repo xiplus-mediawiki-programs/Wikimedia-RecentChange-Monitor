@@ -12,6 +12,37 @@ from Monitor import Monitor
 
 os.environ['TZ'] = 'UTC'
 
+tables = [
+    'bot_message',
+    'error',
+    'log',
+    'RC_142',
+    'RC_categorize',
+    'RC_edit',
+    'RC_log_abusefilter_hit',
+    'RC_log_abusefilter_modify',
+    'RC_log_abuselog',
+    'RC_log_block',
+    'RC_log_delete',
+    'RC_log_delete_restore',
+    'RC_log_delete_revision',
+    'RC_log_gblblock',
+    'RC_log_gblrename',
+    'RC_log_globalauth',
+    'RC_log_merge',
+    'RC_log_move',
+    'RC_log_newusers',
+    'RC_log_patrol',
+    'RC_log_protect',
+    'RC_log_protect_move_prot',
+    'RC_log_protect_unprotect',
+    'RC_log_renameuser',
+    'RC_log_rights',
+    'RC_log_thanks',
+    'RC_log_upload',
+    'RC_new'
+    ]
+
 M = Monitor()
 
 app = Flask(__name__)
@@ -257,40 +288,13 @@ def log():
             <a href="./blacklist">blacklist</a>
             <form>
             """
-        dbs = [
-            'bot_message',
-            'error',
-            'log',
-            'RC_142',
-            'RC_categorize',
-            'RC_edit',
-            'RC_log_abusefilter_hit',
-            'RC_log_abusefilter_modify',
-            'RC_log_abuselog',
-            'RC_log_block',
-            'RC_log_delete',
-            'RC_log_delete_restore',
-            'RC_log_delete_revision',
-            'RC_log_merge',
-            'RC_log_move',
-            'RC_log_newusers',
-            'RC_log_patrol',
-            'RC_log_protect',
-            'RC_log_protect_move_prot',
-            'RC_log_protect_unprotect',
-            'RC_log_renameuser',
-            'RC_log_rights',
-            'RC_log_thanks',
-            'RC_log_upload',
-            'RC_new'
-            ]
-        for db in dbs:
+        for table in tables:
             html += ('<button type="submit" name="type" value="{0}">' +
-                     '{0}</button> ').format(db)
+                     '{0}</button> ').format(table)
         html += '</form>'
         if "type" in request.args:
             logtype = request.args["type"]
-            if logtype in dbs:
+            if logtype in tables:
                 M.cur2 = M.db.cursor(pymysql.cursors.DictCursor)
                 M.cur2.execute(
                     """SELECT * FROM {} ORDER BY `timestamp` DESC LIMIT 20"""
@@ -366,35 +370,8 @@ def status():
             <th>last time</th>
         </tr>
         """
-        dbs = [
-            'bot_message',
-            'error',
-            'log',
-            'RC_142',
-            'RC_categorize',
-            'RC_edit',
-            'RC_log_abusefilter_hit',
-            'RC_log_abusefilter_modify',
-            'RC_log_abuselog',
-            'RC_log_block',
-            'RC_log_delete',
-            'RC_log_delete_restore',
-            'RC_log_delete_revision',
-            'RC_log_merge',
-            'RC_log_move',
-            'RC_log_newusers',
-            'RC_log_patrol',
-            'RC_log_protect',
-            'RC_log_protect_move_prot',
-            'RC_log_protect_unprotect',
-            'RC_log_renameuser',
-            'RC_log_rights',
-            'RC_log_thanks',
-            'RC_log_upload',
-            'RC_new'
-            ]
-        for db in dbs:
-            M.cur.execute("""SELECT MAX(`timestamp`) FROM """+db)
+        for table in tables:
+            M.cur.execute("""SELECT MAX(`timestamp`) FROM """+table)
             rows = M.cur.fetchall()
             if rows[0][0] is None:
                 html += """
@@ -402,14 +379,14 @@ def status():
                         <td>{}</td>
                         <td>No record</td>
                     </tr>
-                    """.format(db)
+                    """.format(table)
             else:
                 html += """
                     <tr>
                         <td><a href="{0}log?type={1}" target="_blank">{1}</td>
                         <td>{2}前</td>
                     </tr>
-                    """.format(M.siteurl, db, M.formattimediff(rows[0][0]))
+                    """.format(M.siteurl, table, M.formattimediff(rows[0][0]))
         html += '</table>'
         return html
     except Exception as e:
