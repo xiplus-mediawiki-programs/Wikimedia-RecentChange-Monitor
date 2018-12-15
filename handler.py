@@ -866,6 +866,22 @@ def api():
             message = M.delblack_page(page, wiki, msgprefix=name+"透過API將")
             return json.dumps({"message": message})
 
+        if data["action"] == "pagescore":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"message": "你沒有權限", "nopermission": True})
+
+            page, wiki = M.parse_user(data["page"])
+            try:
+                point = int(data["point"])
+            except ValueError:
+                point = 30
+
+            M.addpage_score(page, wiki, point)
+            point2 = M.getpage_score(page, wiki)
+            message = "為 {0} 調整分數 {1:+d} 為 {2}".format(page, point, point2)
+            return json.dumps({"message": message})
+
         if data["action"] == "adduser":
             name = checkadmin()
             if name is None:

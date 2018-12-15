@@ -36,9 +36,11 @@ CREATE TABLE `black_ipv6` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `black_page` (
+  `pagehash` bigint(20) NOT NULL,
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `page` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `point` int(11) NOT NULL DEFAULT '30',
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -493,6 +495,7 @@ ALTER TABLE `black_ipv6`
   ADD KEY `userhash` (`userhash`);
 
 ALTER TABLE `black_page`
+  ADD PRIMARY KEY (`pagehash`),
   ADD KEY `wiki` (`wiki`,`page`(191));
 
 ALTER TABLE `black_user`

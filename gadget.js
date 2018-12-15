@@ -10,27 +10,36 @@ function gettoken() {
 	return localStorage.getItem("cvn_smart_token");
 }
 
-function requestpage(type, askreason=true) {
+function requestpage(type) {
 	var token = gettoken();
 	if (token) {
+		var datobj = {
+			'action': type,
+			'token': token,
+			'page': mw.config.get('wgPageName')+"|"+mw.config.get('wgDBname')
+		};
 		var reason = "";
-		if (askreason) {
+		if (type == "addpage") {
 			reason = prompt("原因：");
 			if (reason === null) {
 				return;
 			}
-		} else if (!confirm("確定移除監視？")) {
+			datobj.reason = reason;
+		}
+		if (type == "delpage" && !confirm("確定移除監視？")) {
 			return;
+		}
+		if (type == "addpage" || type == "pagescore") {
+			point = prompt("分數：", "30");
+			if (point === null) {
+				return;
+			}
+			datobj.point = point;
 		}
 		$.ajax({
 			type: 'POST',
 			url: 'https://xiplus.ddns.net/wikipedia_rc/api',
-			data: {
-				'action': type,
-				'page': mw.config.get('wgPageName')+"|"+mw.config.get('wgDBname'),
-				'reason': reason,
-				'token': token
-			},
+			data: datobj,
 			success: function success(data) {
 				data = JSON.parse(data);
 				console.log(data);
@@ -48,7 +57,7 @@ function requestpage(type, askreason=true) {
 	}
 }
 
-function requestuser(type, askreason=true) {
+function requestuser(type) {
 	var token = gettoken();
 	if (token) {
 		var datobj = {
@@ -160,7 +169,16 @@ function showbutton(){
 			'cvn-smart: delpage'
 		);
 		$(delpage).on('click', function(){
-			requestpage("delpage", false);
+			requestpage("delpage");
+		});
+
+		var pagescore = mw.util.addPortletLink(
+			'p-cactions',
+			'#',
+			'cvn-smart: pagescore'
+		);
+		$(pagescore).on('click', function(){
+			requestpage("pagescore");
 		});
 	}
 

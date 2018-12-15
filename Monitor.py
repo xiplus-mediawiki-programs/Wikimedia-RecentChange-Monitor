@@ -1076,17 +1076,73 @@ class Monitor():
                          (user))
         return self.cur.fetchall()
 
-    def addblack_page(self, page, timestamp, reason, wiki=None, msgprefix=""):
+    def getpage_hash(self, page, wiki=None):
         if wiki is None:
             wiki = self.wiki
         page = page.strip()
         wiki = wiki.strip()
 
+        pagehash = int(hashlib.sha1(str('{0}|{1}'.format(page, wiki))
+            .encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+
+        return pagehash
+
+    def getpage_score(self, page, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+        page = page.strip()
+        wiki = wiki.strip()
+
+        pagehash = self.getpage_hash(page, wiki)
+        self.cur.execute(
+            """SELECT `point` FROM `black_page`
+               WHERE `pagehash` = %s""",
+            (pagehash)
+        )
+        rows = self.cur.fetchall()
+        if len(rows) == 0:
+            res = 0
+        else:
+            res = rows[0][0]
+        return res
+
+    def addpage_score(self, page, wiki=None, point=30):
+        if point == 0:
+            return
+
+        if wiki is None:
+            wiki = self.wiki
+        page = page.strip()
+        wiki = wiki.strip()
+
+        oldpoint = self.getpage_score(page, wiki)
+
+        pagehash = self.getpage_hash(page, wiki)
+        self.cur.execute(
+            """UPDATE `black_page`
+            SET `point` = `point` + %s
+            WHERE `pagehash` = %s""",
+            (point, pagehash)
+        )
+        self.db.commit()
+        newpoint = self.getpage_score(page, wiki)
+        if oldpoint > 0 and newpoint <= 0:
+            self.sendmessage("{}的分數小於等於0，已停止監視".format(self.link_page(page, wiki)))
+
+    def addblack_page(self, page, timestamp, reason, point=30, wiki=None, msgprefix=""):
+        if wiki is None:
+            wiki = self.wiki
+        page = page.strip()
+        wiki = wiki.strip()
+
+        pagehash = self.getpage_hash(page, wiki)
         self.cur.execute(
             """INSERT INTO `black_page`
-               (`wiki`, `page`, `timestamp`, `reason`)
-               VALUES (%s, %s, %s, %s)""",
-            (wiki, page, timestamp, reason))
+               (`pagehash`, `wiki`, `page`, `timestamp`, `reason`, `point`)
+               VALUES (%s, %s, %s, %s, %s, %s)
+               ON DUPLICATE KEY
+               UPDATE `point` = `point` + %s""",
+            (pagehash, wiki, page, timestamp, reason, point, point))
         self.db.commit()
         message = "{}加入{}({})至監視頁面\n原因：{}".format(
                         msgprefix,
@@ -1101,9 +1157,10 @@ class Monitor():
         page = page.strip()
         wiki = wiki.strip()
 
+        pagehash = self.getpage_hash(page, wiki)
         count = self.cur.execute(
-            """DELETE FROM `black_page` WHERE `page` = %s AND `wiki` = %s""",
-            (page, wiki))
+            """DELETE FROM `black_page` WHERE `pagehash` = %s""",
+            (pagehash))
         self.db.commit()
         message = "{}{}條對於{}({})從監視頁面刪除".format(
                         msgprefix,
@@ -1119,10 +1176,12 @@ class Monitor():
             wiki = self.wiki
         page = page.strip()
         wiki = wiki.strip()
+
+        pagehash = self.getpage_hash(page, wiki)
         self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_page`
-                            WHERE `page` = %s AND `wiki` = %s
+                            WHERE `pagehash` = %s
                             ORDER BY `timestamp` DESC""",
-                         (page, wiki))
+                         (pagehash))
         return self.cur.fetchall()
 
     def link_all(self, page, text=None, wiki=None):
