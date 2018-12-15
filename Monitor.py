@@ -1178,10 +1178,11 @@ class Monitor():
         wiki = wiki.strip()
 
         pagehash = self.getpage_hash(page, wiki)
+        timestamp = int(time.time())
         self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_page`
-                            WHERE `pagehash` = %s
+                            WHERE `pagehash` = %s AND `timestamp` < %s
                             ORDER BY `timestamp` DESC""",
-                         (pagehash))
+                         (pagehash, timestamp))
         return self.cur.fetchall()
 
     def link_all(self, page, text=None, wiki=None):
