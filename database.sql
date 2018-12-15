@@ -484,7 +484,19 @@ CREATE TABLE `white_user` (
 
 
 ALTER TABLE `admin`
-  ADD UNIQUE KEY `user_id` (`user_id`);
+  ADD PRIMARY KEY (`user_id`);
+
+ALTER TABLE `black_ipv4`
+  ADD KEY `userhash` (`userhash`);
+
+ALTER TABLE `black_ipv6`
+  ADD KEY `userhash` (`userhash`);
+
+ALTER TABLE `black_page`
+  ADD KEY `wiki` (`wiki`,`page`(191));
+
+ALTER TABLE `black_user`
+  ADD KEY `userhash` (`userhash`);
 
 ALTER TABLE `bot_message`
   ADD PRIMARY KEY (`message_id`);
@@ -495,8 +507,74 @@ ALTER TABLE `error`
 ALTER TABLE `log`
   ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `RC_142`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_categorize`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_edit`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_abuselog`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_block`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_delete`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_delete_restore`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_delete_revision`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_gblblock`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_gblrename`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_globalauth`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_merge`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_move`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_newusers`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_protect`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_protect_move_prot`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_protect_unprotect`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_renameuser`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_rights`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_log_upload`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_new`
+  ADD PRIMARY KEY (`id`);
+
 ALTER TABLE `user_score`
   ADD UNIQUE KEY `user` (`userhash`) USING BTREE;
+
+ALTER TABLE `white_user`
+  ADD KEY `userhash` (`userhash`);
 
 
 ALTER TABLE `error`
