@@ -4,6 +4,7 @@ from Monitor import *
 from autoblacklist_config import *
 from strtotime import strtotime
 from time import time
+import datetime
 import re
 
 
@@ -65,9 +66,9 @@ def main(change):
                 if log_action == "block" or log_action == "reblock":
                     if (wiki in blockblacklistwiki
                         and re.search(
-                            blockreasonblacklist, change["comment"],
+                            blockreasonblacklist, comment,
                             re.IGNORECASE) is not None):
-                        reason = "於"+wiki+"封禁："+change["comment"]
+                        reason = "於"+wiki+"封禁："+comment
                         M.addblack_user(
                             blockuser, change["timestamp"], reason,
                             msgprefix="自動", wiki=blockwiki)
@@ -89,6 +90,26 @@ def main(change):
                                 M.error(traceback.format_exc())
                                 point = 30
                         M.adduser_score(M.user_type(blockuser), point, "autoblacklist/block")
+
+            elif log_type == "protect":
+                if log_action == "protect" or log_action == "modify":
+                    if (wiki in protectblacklistwiki
+                        and re.search(
+                            protectreasonblacklist, comment,
+                            re.IGNORECASE) is not None):
+                        expiry = change["log_params"]["details"][0]["expiry"]
+                        if expiry == "infinity":
+                            point = 30
+                            endtime = change["timestamp"]
+                        else:
+                            endtime = datetime.datetime.strptime(expiry, "%Y%m%d%H%M%S").timestamp()
+                            duration = endtime-time()
+                            point = max(int(duration/86400)*2, 14)
+                        reason = "保護："+comment
+                        M.addblack_page(
+                            title, endtime, reason,
+                            point=point, msgprefix="自動", wiki=wiki)
+
 
     except Exception as e:
         traceback.print_exc()

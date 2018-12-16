@@ -1141,8 +1141,8 @@ class Monitor():
                (`pagehash`, `wiki`, `page`, `timestamp`, `reason`, `point`)
                VALUES (%s, %s, %s, %s, %s, %s)
                ON DUPLICATE KEY
-               UPDATE `point` = `point` + %s""",
-            (pagehash, wiki, page, timestamp, reason, point, point))
+               UPDATE `point` = `point` + %s, `timestamp` = %s""",
+            (pagehash, wiki, page, timestamp, reason, point, point, timestamp))
         self.db.commit()
         message = "{}加入{}({})至監視頁面\n原因：{}".format(
                         msgprefix,
