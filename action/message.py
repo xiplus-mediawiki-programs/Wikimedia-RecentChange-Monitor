@@ -113,7 +113,7 @@ def main(change):
                         + M.parse_wikicode(change["log_params"]["description"])
                         + '）')
 
-                issend and M.sendmessage(
+                M.sendmessage(
                     message + message_append,
                     page=title + "|" + M.wiki)
 
