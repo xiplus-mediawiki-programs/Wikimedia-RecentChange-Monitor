@@ -1311,14 +1311,21 @@ class Monitor():
     def formattimediff(self, timestamp, basetime=None):
         if basetime is None:
             basetime = int(time.time())
-        diff = basetime - int(timestamp)
+        diff = abs(int(timestamp) - basetime)
+        res = ""
         if diff < 60:
-            return str(diff) + "秒"
-        if diff < 60 * 60:
-            return str(int(diff / 60)) + "分"
-        if diff < 60 * 60 * 24:
-            return str(int(diff / 60 / 60)) + "小時"
-        return str(int(diff / 60 / 60 / 24)) + "日"
+            res = str(diff) + "秒"
+        elif diff < 60 * 60:
+            res = str(int(diff / 60)) + "分"
+        elif diff < 60 * 60 * 24:
+            res = str(int(diff / 60 / 60)) + "小時"
+        else:
+            res = str(int(diff / 60 / 60 / 24)) + "日"
+        if timestamp > basetime:
+            res += "後"
+        else:
+            res += "前"
+        return res
 
     def parse_user(self, user, delimiter="|"):
         user = re.sub(r"^User:", "", user, flags=re.I)
