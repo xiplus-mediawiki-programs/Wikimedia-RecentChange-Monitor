@@ -658,7 +658,7 @@ def telegram():
 
                     page, wiki = M.parse_page(m.group(1))
                     reason = name+"加入："+M.parse_reason(m.group(2))
-                    M.addblack_page(page, m_date, reason, wiki)
+                    M.addblack_page(page, m_date, reason, wiki=wiki)
                     return "OK"
 
                 m = re.match(
@@ -673,7 +673,7 @@ def telegram():
                     for pageline in m.group(1).split("\n"):
                         page, wiki = M.parse_page(pageline)
                         reason = name+"加入："+M.parse_reason(m.group(2))
-                        M.addblack_page(page, m_date, reason, wiki)
+                        M.addblack_page(page, m_date, reason, wiki=wiki)
                     return "OK"
 
                 m = re.match(r"/(?:delpage|dp)", m_text)
