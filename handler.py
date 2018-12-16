@@ -848,11 +848,17 @@ def api():
                 return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             page, wiki = M.parse_page(data["page"])
+            try:
+                point = int(data["point"])
+            except ValueError:
+                point = 30
+
             reason = name+"加入："+M.parse_reason(data["reason"])
             message = M.addblack_page(
                 page,
                 int(time.time()),
                 reason,
+                point,
                 wiki,
                 msgprefix=name+"透過API")
             return json.dumps({"message": message})
