@@ -235,7 +235,7 @@ def blacklist():
                 else:
                     html += "你沒有權限取消監視頁面"
                 
-            M.cur.execute("""SELECT `wiki`, `page`, `reason`, `timestamp`
+            M.cur.execute("""SELECT `wiki`, `page`, `point`, `reason`, `timestamp`
                              FROM `black_page` ORDER BY `timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """
@@ -248,6 +248,7 @@ def blacklist():
             if islogin:
                 html += "<th>unwatch</th>"
             html += """
+                    <th>point</th>
                     <th>reason</th>
                     <th>timestamp</th>
                 </tr>
@@ -263,12 +264,14 @@ def blacklist():
                 temp += """
                         <td>{2}</td>
                         <td>{3}</td>
+                        <td>{4}</td>
                     </tr>
                     """
                 html += temp.format(row[0],
                                row[1],
-                               M.parse_wikicode(row[2]),
-                               M.formattimediff(row[3]))
+                               row[2],
+                               M.parse_wikicode(row[3]),
+                               M.formattimediff(row[4]))
             html += """
                 </table>
                 </form>
