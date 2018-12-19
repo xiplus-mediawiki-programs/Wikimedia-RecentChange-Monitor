@@ -1,7 +1,7 @@
 import sys
 import os
-sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__))+"/../"))
-from Monitor import *
+sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../"))
+from Monitor import *  # noqa: E402
 
 
 M = Monitor()
@@ -19,6 +19,6 @@ for row in rows:
     M.cur.execute(
         """UPDATE `user_score` SET `point` = %s
         WHERE `userhash` = %s""",
-        (point-1, userhash)
+        (point - 1, userhash)
     )
     M.db.commit()

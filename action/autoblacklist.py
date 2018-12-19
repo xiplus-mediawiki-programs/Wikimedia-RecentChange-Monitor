@@ -16,7 +16,7 @@ def main(change):
         wiki = change["wiki"]
         ctype = change["type"]
         user = change["user"]
-        blackuser = user+"|"+wiki
+        blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
 
@@ -29,7 +29,7 @@ def main(change):
                 and re.match(r"^((層級|层级)[1234]|(單層級|单层级)(通知|警告))", comment)
                 and not re.search(warnreasonblacklist, comment)
                 and user not in warnuserblacklist):
-            reason = "被"+user+"警告："+comment
+            reason = "被" + user + "警告：" + comment
             target = re.sub(r"^[^:]+:(.+)$", "\\1", title)
             point = 0
             if re.match(r"^(層級|层级)1", comment):
@@ -68,7 +68,7 @@ def main(change):
                         and re.search(
                             blockreasonblacklist, comment,
                             re.IGNORECASE) is not None):
-                        reason = "於"+wiki+"封禁："+comment
+                        reason = "於" + wiki + "封禁：" + comment
                         M.addblack_user(
                             blockuser, change["timestamp"], reason,
                             msgprefix="自動", wiki=blockwiki)
@@ -77,8 +77,8 @@ def main(change):
                         else:
                             try:
                                 endtime = strtotime(change["log_params"]["duration"])
-                                duration = endtime-time()
-                                point = max(int(duration/86400)*2, 14)+10
+                                duration = endtime - time()
+                                point = max(int(duration / 86400) * 2, 14) + 10
                                 if log_action == "reblock":
                                     oldpoint = M.getuser_score(M.user_type(blockuser))
                                     if point < oldpoint:
@@ -103,13 +103,12 @@ def main(change):
                             endtime = change["timestamp"]
                         else:
                             endtime = datetime.datetime.strptime(expiry, "%Y%m%d%H%M%S").timestamp()
-                            duration = endtime-time()
-                            point = max(int(duration/86400)*2, 14)
-                        reason = "保護："+comment
+                            duration = endtime - time()
+                            point = max(int(duration / 86400) * 2, 14)
+                        reason = "保護：" + comment
                         M.addblack_page(
                             title, endtime, reason,
                             point=point, msgprefix="自動", wiki=wiki)
-
 
     except Exception as e:
         traceback.print_exc()

@@ -701,11 +701,11 @@ class Monitor():
             )
             self.db.commit()
             message = "{}加入User:{}@{}至黑名單\n原因：{}".format(
-                    msgprefix,
-                    self.link_user(userobj.user, wiki),
-                    wiki,
-                    self.parse_wikicode(reason)
-                )
+                msgprefix,
+                self.link_user(userobj.user, wiki),
+                wiki,
+                self.parse_wikicode(reason)
+            )
             self.sendmessage(message, userobj.user + "|" + wiki)
             return message
         elif isinstance(userobj, IPv4):
@@ -741,30 +741,30 @@ class Monitor():
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
                 message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
-                        msgprefix,
-                        self.link_user(str(userobj.start), wiki),
-                        wiki,
-                        self.parse_wikicode(reason)
-                    )
+                    msgprefix,
+                    self.link_user(str(userobj.start), wiki),
+                    wiki,
+                    self.parse_wikicode(reason)
+                )
                 self.sendmessage(message, userobj.val + "|" + wiki)
                 return message
             elif userobj.type == "CIDR":
                 message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
-                        msgprefix,
-                        self.link_user(userobj.val, wiki),
-                        wiki,
-                        self.parse_wikicode(reason)
-                    )
+                    msgprefix,
+                    self.link_user(userobj.val, wiki),
+                    wiki,
+                    self.parse_wikicode(reason)
+                )
                 self.sendmessage(message, userobj.val + "|" + wiki)
                 return message
             elif userobj.type == "range":
                 message = "{}加入IP:{}-{}@{}至黑名單\n原因：{}".format(
-                        msgprefix,
-                        userobj.start,
-                        userobj.end,
-                        wiki,
-                        self.parse_wikicode(reason)
-                    )
+                    msgprefix,
+                    userobj.start,
+                    userobj.end,
+                    wiki,
+                    self.parse_wikicode(reason)
+                )
                 self.sendmessage(message, userobj.val + "|" + wiki)
                 return message
 
@@ -780,12 +780,12 @@ class Monitor():
             if prefix:
                 message += "於黑名單："
             for record in rows:
-                message += "\n"+self.parse_wikicode(record[0])
+                message += "\n" + self.parse_wikicode(record[0])
                 if record[2] != "":
-                    message += "("+record[2]+"@"+record[3]+")"
+                    message += "(" + record[2] + "@" + record[3] + ")"
                 else:
-                    message += "("+record[3]+")"
-                message += ', '+self.formattimediff(record[1])
+                    message += "(" + record[3] + ")"
+                message += ', ' + self.formattimediff(record[1])
 
         return message.strip()
 
@@ -837,11 +837,12 @@ class Monitor():
                 (userobj.user, wiki))
             self.db.commit()
             message = "{}{}條對於User:{}({})的紀錄從黑名單刪除\n{}".format(
-                    msgprefix,
-                    count,
-                    self.link_user(userobj.user, wiki),
-                    wiki,
-                    blacklist)
+                msgprefix,
+                count,
+                self.link_user(userobj.user, wiki),
+                wiki,
+                blacklist
+            )
             self.sendmessage(message)
             return message
         elif isinstance(userobj, IPv4):
@@ -863,21 +864,21 @@ class Monitor():
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
                 message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
-                      msgprefix,
-                      count,
-                      self.link_user(str(userobj.start), wiki),
-                      wiki,
-                      blacklist
-                  )
+                    msgprefix,
+                    count,
+                    self.link_user(str(userobj.start), wiki),
+                    wiki,
+                    blacklist
+                )
                 self.sendmessage(message)
             elif userobj.type == "CIDR":
                 message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
-                       msgprefix,
-                       count,
-                       self.link_user(userobj.val, wiki),
-                       wiki,
-                       blacklist
-                   )
+                    msgprefix,
+                    count,
+                    self.link_user(userobj.val, wiki),
+                    wiki,
+                    blacklist
+                )
                 self.sendmessage(message)
             elif userobj.type == "range":
                 message = "{}{}條對於IP:{}-{}@{}的紀錄從黑名單刪除\n{}".format(
@@ -925,10 +926,10 @@ class Monitor():
         if type(userobj) in [IPv4, IPv6]:
             if userobj.start == userobj.end:
                 self.sendmessage("{}條對於IP:{}的紀錄設定wiki為{}".format(
-                        count,
-                        self.link_user(str(userobj.start), wiki),
-                        wiki
-                    ))
+                    count,
+                    self.link_user(str(userobj.start), wiki),
+                    wiki
+                ))
             elif userobj.type == "CIDR":
                 self.sendmessage(
                     "{}條對於IP:{}的紀錄設定wiki為{}".format(
@@ -1082,8 +1083,9 @@ class Monitor():
         page = page.strip()
         wiki = wiki.strip()
 
-        pagehash = int(hashlib.sha1(str('{0}|{1}'.format(page, wiki))
-            .encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        pagehash = int(hashlib.sha1(
+            str('{0}|{1}'.format(page, wiki))
+            .encode("utf8")).hexdigest(), 16) % (2 ** 64) - 2 ** 63
 
         return pagehash
 
@@ -1145,9 +1147,9 @@ class Monitor():
             (pagehash, wiki, page, timestamp, reason, point, point, timestamp, reason))
         self.db.commit()
         message = "{}加入{}({})至監視頁面\n原因：{}".format(
-                        msgprefix,
-                        self.link_page(page, wiki), wiki, reason
-                    )
+            msgprefix,
+            self.link_page(page, wiki), wiki, reason
+        )
         self.sendmessage(message, page=page + "|" + wiki)
         return message
 
@@ -1163,11 +1165,11 @@ class Monitor():
             (pagehash))
         self.db.commit()
         message = "{}{}條對於{}({})從監視頁面刪除".format(
-                        msgprefix,
-                        count,
-                        self.link_page(page, wiki),
-                        wiki
-                    )
+            msgprefix,
+            count,
+            self.link_page(page, wiki),
+            wiki
+        )
         self.sendmessage(message, page=page + "|" + wiki)
         return message
 

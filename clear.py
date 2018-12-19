@@ -32,9 +32,9 @@ dbs = [
     'RC_log_thanks',
     'RC_log_upload',
     'RC_new'
-    ]
+]
 
-timestamp = str(int(time.time()-recordkept))
+timestamp = str(int(time.time() - recordkept))
 
 for db in dbs:
     rows = M.cur.execute(f"""DELETE FROM {db} WHERE `timestamp` < %s""",

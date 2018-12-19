@@ -12,7 +12,7 @@ def main(change):
         wiki = change["wiki"]
         ctype = change["type"]
         user = change["user"]
-        blackuser = user+"|"+wiki
+        blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
 
@@ -26,13 +26,13 @@ def main(change):
             print(user + " edit " + title)
 
         elif ctype == "new":
-            print(user+" create "+title)
+            print(user + " create " + title)
 
         elif ctype == "142":
             pass
 
         elif ctype == "categorize":
-            print(user+" categorize "+title)
+            print(user + " categorize " + title)
 
         elif ctype == "log":
             log_type = change["log_type"]
@@ -42,8 +42,9 @@ def main(change):
                 pass
 
             elif log_type == "block":
-                print(user + " " + log_action + " " + title +
-                      " comment:" + change["log_action_comment"])
+                print("{} {} {} comment:{}".format(
+                    user, log_action, title, change["log_action_comment"])
+                )
 
                 if log_action == "unblock":
                     pass
@@ -53,16 +54,16 @@ def main(change):
 
             elif log_type == "protect":
                 if log_action == "unprotect":
-                    print(user+" unprotect "+title+" comment:"+comment)
+                    print(user + " unprotect " + title + " comment:" + comment)
 
                 elif log_action == "move_prot":
-                    print(user+" move_prot "+title+" comment:"+comment)
+                    print(user + " move_prot " + title + " comment:" + comment)
 
                 elif log_action == "protect" or log_action == "modify":
-                    print(user+" protect "+title+" comment:"+comment)
+                    print(user + " protect " + title + " comment:" + comment)
 
             elif log_type == "newusers":
-                print(user+" newusers "+title)
+                print(user + " newusers " + title)
 
             elif log_type == "thanks":
                 pass
@@ -97,10 +98,9 @@ def main(change):
 
             elif log_type == "abusefilter":
                 if log_action == "hit":
-                    print(
-                        user + " hit af " +
-                        str(change["log_params"]["filter"]) + " in " +
-                        title)
+                    print("{} hit af {} in {}".format(
+                        user, change["log_params"]["filter"], title)
+                    )
 
                 elif log_action == "modify" or log_action == "create":
                     pass

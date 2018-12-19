@@ -41,7 +41,7 @@ tables = [
     'RC_log_thanks',
     'RC_log_upload',
     'RC_new'
-    ]
+]
 
 M = Monitor()
 
@@ -96,7 +96,7 @@ def blacklist():
         if request.args["type"] == "blackipv4":
             M.cur.execute(
                 """SELECT `wiki`, `val`, `point`, `reason`, `black_ipv4`.`timestamp`
-                   FROM `black_ipv4` 
+                   FROM `black_ipv4`
                    LEFT JOIN `user_score`
                    ON `black_ipv4`.`userhash` = `user_score`.`userhash`
                    WHERE `point` != 0
@@ -230,11 +230,11 @@ def blacklist():
             if "delpage" in request.form:
                 if islogin:
                     page, wiki = M.parse_page(request.form["delpage"])
-                    M.delblack_page(page, wiki, msgprefix=loginname+"透過網頁將")
+                    M.delblack_page(page, wiki, msgprefix=loginname + "透過網頁將")
                     html += "成功取消監視 {}({})".format(page, wiki)
                 else:
                     html += "你沒有權限取消監視頁面"
-                
+
             M.cur.execute("""SELECT `wiki`, `page`, `point`, `reason`, `timestamp`
                              FROM `black_page` ORDER BY `timestamp` DESC""")
             rows = M.cur.fetchall()
@@ -267,11 +267,13 @@ def blacklist():
                         <td>{4}</td>
                     </tr>
                     """
-                html += temp.format(row[0],
-                               row[1],
-                               row[2],
-                               M.parse_wikicode(row[3]),
-                               M.formattimediff(row[4]))
+                html += temp.format(
+                    row[0],
+                    row[1],
+                    row[2],
+                    M.parse_wikicode(row[3]),
+                    M.formattimediff(row[4])
+                )
             html += """
                 </table>
                 </form>
@@ -302,7 +304,7 @@ def log():
                 M.cur2.execute(
                     """SELECT * FROM {} ORDER BY `timestamp` DESC LIMIT 20"""
                     .format(logtype)
-                    )
+                )
                 rows = M.cur2.fetchall()
                 if len(rows) == 0:
                     html += 'No record'
@@ -323,7 +325,7 @@ def log():
                     for col in rows[0]:
                         if col == "parsedcomment":
                             continue
-                        html += '<th>'+col+'</th>'
+                        html += '<th>' + col + '</th>'
                     html += '</tr>'
                     for row in rows:
                         html += '<tr>'
@@ -342,7 +344,7 @@ def log():
                             elif col == "timestamp":
                                 html += '<td>{} ({})</td>'.format(str(row[col]), M.formattimediff(row[col]))
                             else:
-                                html += '<td>'+str(row[col])+'</td>'
+                                html += '<td>' + str(row[col]) + '</td>'
                         html += '</tr>'
                     html += '</table>'
         return html
@@ -374,7 +376,7 @@ def status():
         </tr>
         """
         for table in tables:
-            M.cur.execute("""SELECT MAX(`timestamp`) FROM """+table)
+            M.cur.execute("""SELECT MAX(`timestamp`) FROM """ + table)
             rows = M.cur.fetchall()
             if rows[0][0] is None:
                 html += """
@@ -584,7 +586,7 @@ def telegram():
                         return "OK"
 
                     user = m.group(1)
-                    reason = name+"加入："+M.parse_reason(m.group(2))
+                    reason = name + "加入：" + M.parse_reason(m.group(2))
                     M.addwhite_user(user, m_date, reason)
                     return "OK"
 
@@ -657,7 +659,7 @@ def telegram():
                         return "OK"
 
                     page, wiki = M.parse_page(m.group(1))
-                    reason = name+"加入："+M.parse_reason(m.group(2))
+                    reason = name + "加入：" + M.parse_reason(m.group(2))
                     M.addblack_page(page, m_date, reason, wiki=wiki)
                     return "OK"
 
@@ -672,7 +674,7 @@ def telegram():
 
                     for pageline in m.group(1).split("\n"):
                         page, wiki = M.parse_page(pageline)
-                        reason = name+"加入："+M.parse_reason(m.group(2))
+                        reason = name + "加入：" + M.parse_reason(m.group(2))
                         M.addblack_page(page, m_date, reason, wiki=wiki)
                     return "OK"
 
@@ -752,9 +754,9 @@ def telegram():
                                         ', ' + M.formattimediff(record[1]))
 
                     if message != "":
-                        M.sendmessage(page+"@"+wiki+message)
+                        M.sendmessage(page + "@" + wiki + message)
                     else:
-                        M.sendmessage(page+"@"+wiki+"：查無結果")
+                        M.sendmessage(page + "@" + wiki + "：查無結果")
                     return "OK"
 
                 if (re.match(r"/os(?:@cvn_smart_bot)?$", m_text)
@@ -790,7 +792,7 @@ def telegram():
                     for row in rows:
                         M.deletemessage(row[0])
 
-                    M.sendmessage("已濫權掉"+str(len(rows))+"條訊息")
+                    M.sendmessage("已濫權掉" + str(len(rows)) + "條訊息")
                     return "OK"
 
                 m = re.match(r"/status", m_text)
@@ -856,14 +858,14 @@ def api():
             except ValueError:
                 point = 30
 
-            reason = name+"加入："+M.parse_reason(data["reason"])
+            reason = name + "加入：" + M.parse_reason(data["reason"])
             message = M.addblack_page(
                 page,
                 int(time.time()),
                 reason,
                 point,
                 wiki,
-                msgprefix=name+"透過API")
+                msgprefix=name + "透過API")
             return json.dumps({"message": message})
 
         if data["action"] == "delpage":
@@ -872,7 +874,7 @@ def api():
                 return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             page, wiki = M.parse_page(data["page"])
-            message = M.delblack_page(page, wiki, msgprefix=name+"透過API將")
+            message = M.delblack_page(page, wiki, msgprefix=name + "透過API將")
             return json.dumps({"message": message})
 
         if data["action"] == "pagescore":
@@ -897,13 +899,13 @@ def api():
                 return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             user, wiki = M.parse_user(data["user"])
-            reason = name+"加入："+M.parse_reason(data["reason"])
+            reason = name + "加入：" + M.parse_reason(data["reason"])
             message = M.addblack_user(
                 user,
                 int(time.time()),
                 reason,
                 wiki,
-                msgprefix=name+"透過API")
+                msgprefix=name + "透過API")
             try:
                 point = int(data["point"])
             except ValueError:
@@ -917,7 +919,7 @@ def api():
                 return json.dumps({"message": "你沒有權限", "nopermission": True})
 
             user, wiki = M.parse_user(data["user"])
-            message = M.delblack_user(user, wiki, msgprefix=name+"透過API將")
+            message = M.delblack_user(user, wiki, msgprefix=name + "透過API將")
             return json.dumps({"message": message})
 
         if data["action"] == "userscore":
@@ -948,7 +950,7 @@ def api():
 
 @app.route("/gadget.js", methods=['GET'])
 def gadget():
-    filename = os.path.dirname(os.path.realpath(__file__))+"/gadget.js"
+    filename = os.path.dirname(os.path.realpath(__file__)) + "/gadget.js"
     return send_file(filename)
 
 

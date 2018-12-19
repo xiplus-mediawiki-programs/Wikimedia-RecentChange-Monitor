@@ -3,6 +3,7 @@ python:
   - "3.6"
 install:
   - pip install -r requirements.txt
+  - pip install pycodestyle
 script:
   - pycodestyle --version
-  - pycodestyle .
+  - pycodestyle . --ignore=E501,W503,W504

@@ -16,7 +16,7 @@ def main(change):
         wiki = change["wiki"]
         ctype = change["type"]
         user = change["user"]
-        blackuser = user+"|"+wiki
+        blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
 
@@ -25,7 +25,7 @@ def main(change):
         message_append = ""
 
         if wiki != M.defaultwiki:
-            message_append += "("+wiki+")"
+            message_append += "(" + wiki + ")"
 
         rows = M.check_user_blacklist(user)
         if len(rows) != 0:
@@ -58,7 +58,7 @@ def main(change):
             isblackuser and M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
 
         elif ctype == "new":
-            message = M.link_user(user)+'建立'+M.link_page(title)
+            message = M.link_user(user) + '建立' + M.link_page(title)
             issend and M.sendmessage(
                 message + message_append, blackuser, title + "|" + M.wiki)
             isblackuser and M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
@@ -67,7 +67,7 @@ def main(change):
             if (change["namespace"] == 2600
                     and re.search(r'commented on "(警告|唯一警告) ', comment)
                     and user not in warnuserblacklist):
-                message = "用戶警告訊息："+M.link_page(title)+"，請確認是否添加黑名單"
+                message = "用戶警告訊息：" + M.link_page(title) + "，請確認是否添加黑名單"
                 M.sendmessage(message)
 
         elif ctype == "log":
@@ -124,17 +124,15 @@ def main(change):
                     "create": "建立"}
 
                 if log_action == "modify" or log_action == "create":
-                    message = (
-                        M.link_user(user) + abusefiltername[log_action] +
-                        M.link_abusefilter(change["log_params"]
-                                                 ["newId"]) + '（' +
-                        M.link_all(
-                            'Special:Abusefilter/history/' +
-                            str(change["log_params"]["newId"]) +
-                            '/diff/prev/' +
-                            str(change["log_params"]["historyId"]),
-                            '差異') +
-                        '）')
+                    message = "{}{}{}（{}）".format(
+                        M.link_user(user),
+                        abusefiltername[log_action]
+                        M.link_abusefilter(change["log_params"]["newId"])
+                        M.link_all("Special:Abusefilter/history/{}/diff/prev/{}".format(
+                            change["log_params"]["newId"], change["log_params"]["historyId"]
+                        ), "差異")
+                    )
+
                     if wiki != M.wiki:
                         message += "(" + wiki + ")"
 
@@ -143,21 +141,17 @@ def main(change):
 
             elif log_type == "globalauth":
                 if log_action == "setstatus":
-                    message = (
-                        M.link_user(user) + '全域鎖定' +
-                        M.link_user(title[5:-7]) + '（' +
-                        M.parse_wikicode(change["log_action_comment"]) +
-                        '）')
-                    issend and M.sendmessage(message+message_append)
+                    message = "{}全域鎖定{}（{}）".format(
+                        M.link_user(user), M.link_user(title[5:-7]), M.parse_wikicode(change["log_action_comment"])
+                    )
+                    issend and M.sendmessage(message + message_append)
 
             elif log_type == "gblblock":
                 if log_action == "gblock2" or log_action == "modify":
-                    message = (
-                        M.link_user(user) + '全域封禁' +
-                        M.link_user(title[5:-7]) + '（' +
-                        M.parse_wikicode(change["log_action_comment"]) +
-                        '）')
-                    issend and M.sendmessage(message+message_append)
+                    message = "{}全域封禁{}（{}）".format(
+                        M.link_user(user), M.link_user(title[5:-7]), M.parse_wikicode(change["log_action_comment"])
+                    )
+                    issend and M.sendmessage(message + message_append)
 
     except Exception as e:
         traceback.print_exc()

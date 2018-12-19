@@ -46,7 +46,7 @@ if "error" in res:
         'meta': 'tokens',
         'type': 'login',
         'format': 'json'
-        }
+    }
     res = session.get(M.wp_api, params=params).json()
     logintoken = res["query"]["tokens"]["logintoken"]
 
@@ -57,7 +57,7 @@ if "error" in res:
         'lgpassword': M.wp_pass,
         'lgtoken': logintoken,
         'format': 'json'
-        }
+    }
     res = session.post(M.wp_api, data=params).json()
     if res["login"]["result"] == "Success":
         print("login success")
@@ -77,7 +77,7 @@ if len(rows) > 0:
     timestamp = rows[0][0]
 else:
     timestamp = 0
-timestamp = (datetime.datetime.fromtimestamp(timestamp+1, tz=pytz.utc)
+timestamp = (datetime.datetime.fromtimestamp(timestamp + 1, tz=pytz.utc)
              .isoformat().replace('+00:00', 'Z'))
 print(timestamp)
 
@@ -88,7 +88,7 @@ params = {
     'aflprop': 'ids|user|title|action|result|timestamp|hidden|revid|filter',
     'afllimit': '500',
     'format': 'json'
-    }
+}
 res = session.get(M.wp_api, params=params).json()
 
 try:
@@ -120,7 +120,7 @@ try:
             if rows[0][2] != "" and rows[0][2] != log["user"]:
                 message += "，\u200b" + rows[0][2] + "\u200b"
                 blackuser = rows[0][2] + "|" + rows[0][3]
-            message += '，'+M.formattimediff(rows[0][1])+"，" + str(rows[0][4]) + "p）"
+            message += '，' + M.formattimediff(rows[0][1]) + "，" + str(rows[0][4]) + "p）"
 
         if (len(rows) != 0
                 or log["filter"] in afwatchlistname
