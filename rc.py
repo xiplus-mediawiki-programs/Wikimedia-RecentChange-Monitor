@@ -8,6 +8,7 @@ import urllib
 from sseclient import SSEClient as EventSource
 import traceback
 import importlib
+import time
 from Monitor import *
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__))+"/action")
 
@@ -50,16 +51,23 @@ for module_name in module_list:
         M.error(traceback.format_exc())
         raise e
 
-for event in EventSource(url):
-    if event.event == 'message':
-        try:
-            change = json.loads(event.data)
-        except ValueError:
-            continue
+while True:
+    try:
+        for event in EventSource(url):
+            if event.event == 'message':
+                try:
+                    change = json.loads(event.data)
+                except ValueError:
+                    continue
 
-        for module in modules:
-            try:
-                module(change)
-            except Exception as e:
-                traceback.print_exc()
-                M.error(traceback.format_exc())
+                for module in modules:
+                    try:
+                        module(change)
+                    except Exception as e:
+                        traceback.print_exc()
+                        M.error(traceback.format_exc())
+
+    except Exception as e:
+        traceback.print_exc()
+        M.error(traceback.format_exc())
+        time.sleep(60)
