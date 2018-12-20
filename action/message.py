@@ -126,8 +126,8 @@ def main(change):
                 if log_action == "modify" or log_action == "create":
                     message = "{}{}{}（{}）".format(
                         M.link_user(user),
-                        abusefiltername[log_action]
-                        M.link_abusefilter(change["log_params"]["newId"])
+                        abusefiltername[log_action],
+                        M.link_abusefilter(change["log_params"]["newId"]),
                         M.link_all("Special:Abusefilter/history/{}/diff/prev/{}".format(
                             change["log_params"]["newId"], change["log_params"]["historyId"]
                         ), "差異")
