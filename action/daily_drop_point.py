@@ -22,3 +22,20 @@ for row in rows:
         (point - 1, userhash)
     )
     M.db.commit()
+
+M.cur.execute(
+    """
+    SELECT `pagehash`, `point` FROM `black_page` WHERE `point` > 0
+    """, ())
+rows = M.cur.fetchall()
+
+for row in rows:
+    pagehash = row[0]
+    point = row[1]
+    print(pagehash, point)
+    M.cur.execute(
+        """UPDATE `black_page` SET `point` = %s
+        WHERE `pagehash` = %s""",
+        (point - 1, pagehash)
+    )
+    M.db.commit()
