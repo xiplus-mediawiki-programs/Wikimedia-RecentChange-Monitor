@@ -179,7 +179,7 @@ class Monitor():
             change["revid"] = "0"
         elif change["revid"] == "":
             change["revid"] = "0"
-        change["timestamp"] = str(int(
+        timestamp = str(int(
             dateutil.parser.parse(change["timestamp"]).timestamp()))
         self.cur.execute(
             """INSERT INTO `RC_log_abuselog`
@@ -196,7 +196,7 @@ class Monitor():
             (change["id"], change["filter_id"], change["filter"],
                 change["user"], change["ns"],
                 change["revid"], change["result"],
-                change["action"], change["timestamp"],
+                change["action"], timestamp,
                 change["title"], self.defaultwiki))
         self.db.commit()
 
