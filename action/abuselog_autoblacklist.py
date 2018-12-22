@@ -28,6 +28,7 @@ afblacklistname = []
 for id in afblacklist:
     afblacklistname.append(abusefilter_list[id])
 
+
 def main(log):
     M = Monitor()
     try:
