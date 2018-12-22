@@ -1221,15 +1221,21 @@ class Monitor():
         return ('<a href="https://{}/wiki/Special:Abuselog/{}">詳情</a>'
                 .format(self.domain, id))
 
-    def sendmessage(self, message, user=None, page=None, nolog=False):
+    def sendmessage(self, message, user=None, page=None, nolog=False, chat_id=None, token=None):
+        if chat_id is None:
+            chat_id = self.chat_id
+        if token is None:
+            token = self.token
+        elif token != self.token:
+            nolog = True
         try:
             if not nolog:
                 self.log(message, logtype="response")
             url = ("https://api.telegram.org/bot{}/sendMessage" +
                    "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1" +
                    "&text={}"
-                   ).format(self.token,
-                            self.chat_id,
+                   ).format(token,
+                            chat_id,
                             urllib.parse.quote_plus(message.encode()))
             res = urllib.request.urlopen(url).read().decode("utf8")
             res = json.loads(res)
