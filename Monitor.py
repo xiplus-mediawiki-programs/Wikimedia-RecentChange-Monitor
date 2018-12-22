@@ -174,11 +174,13 @@ class Monitor():
     def addRC_log_abuselog(self, change):
         import dateutil.parser
         if change["filter_id"] == "":
-            change["filter_id"] = "0"
-        if "revid" not in change:
-            change["revid"] = "0"
-        elif change["revid"] == "":
-            change["revid"] = "0"
+            filter_id = 0
+        else:
+            filter_id = change["filter_id"]
+        if "revid" not in change or change["revid"] == "":
+            revid = 0
+        else:
+            revid = change["revid"]
         timestamp = str(int(
             dateutil.parser.parse(change["timestamp"]).timestamp()))
         self.cur.execute(
@@ -193,9 +195,9 @@ class Monitor():
                         %s, %s,
                         %s, %s,
                         %s, %s)""",
-            (change["id"], change["filter_id"], change["filter"],
+            (change["id"], filter_id, change["filter"],
                 change["user"], change["ns"],
-                change["revid"], change["result"],
+                revid, change["result"],
                 change["action"], timestamp,
                 change["title"], self.defaultwiki))
         self.db.commit()
