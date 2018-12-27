@@ -98,17 +98,14 @@ def main(change):
                             protectreasonblacklist, comment,
                             re.IGNORECASE) is not None):
                         expiry = change["log_params"]["details"][0]["expiry"]
-                        if expiry == "infinity":
-                            point = 30
-                            endtime = change["timestamp"]
-                        else:
+                        if expiry != "infinity":
                             endtime = datetime.datetime.strptime(expiry, "%Y%m%d%H%M%S").timestamp()
                             duration = endtime - time()
                             point = max(int(duration / 86400) * 2, 14)
-                        reason = "保護：" + comment
-                        M.addblack_page(
-                            title, endtime, reason,
-                            point=point, msgprefix="自動", wiki=wiki)
+                            reason = "保護：" + comment
+                            M.addblack_page(
+                                title, endtime, reason,
+                                point=point, msgprefix="自動", wiki=wiki)
 
     except Exception as e:
         traceback.print_exc()
