@@ -103,17 +103,6 @@ with open('cookie.txt', 'wb') as f:
     pickle.dump(session.cookies, f)
 
 
-# get latest timestamp
-
-M.cur.execute("""SELECT `timestamp` FROM `RC_log_abuselog`
-                 ORDER BY `timestamp` DESC LIMIT 1""")
-rows = M.cur.fetchall()
-if len(rows) > 0:
-    timestamp = rows[0][0] + 1
-else:
-    timestamp = 0
-
-
 def int2tz(timestamp):
     return (datetime.datetime.fromtimestamp(timestamp, tz=pytz.utc)
             .isoformat().replace('+00:00', 'Z'))
@@ -123,7 +112,7 @@ def tz2int(timestamp):
     return int(dateutil.parser.parse(timestamp).timestamp())
 
 
-timestamp = int2tz(timestamp)
+timestamp = int2tz(int(time.time()))
 
 while True:
     try:
