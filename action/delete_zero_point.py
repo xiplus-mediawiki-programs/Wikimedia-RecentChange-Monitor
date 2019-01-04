@@ -6,6 +6,7 @@ from Monitor import *  # noqa: E402
 
 
 M = Monitor()
+
 M.cur.execute(
     """
     SELECT `val` AS `user`, `user_score`.`userhash`, 'black_ipv4' AS `table`
@@ -36,3 +37,9 @@ for row in rows:
         (userhash)
     )
     M.db.commit()
+
+
+M.cur.execute(
+    """DELETE FROM `black_page` WHERE `point` = 0"""
+)
+M.db.commit()
