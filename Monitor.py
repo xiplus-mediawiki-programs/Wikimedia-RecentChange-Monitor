@@ -1246,10 +1246,10 @@ class Monitor():
                     self.bot_message(
                         res["result"]["message_id"], user, page, message)
             else:
-                self.error("send message error:" + str(json.dumps(res)))
+                self.error("send message error:\n{}".format(json.dumps(res)))
         except urllib.error.HTTPError as e:
-            self.error("send message error:" + str(e.code) + " " +
-                       str(e.read().decode("utf-8")) + " message: " + message)
+            self.error("send message error:{}\n{}\nmessage:{}".format(
+                e.code, e.read().decode("utf-8"), message))
 
     def deletemessage(self, message_id):
         try:
