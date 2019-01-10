@@ -16,7 +16,7 @@ def main(log):
         day = '一二三四五六日'
 
         detailtext = M.link_abuselog(log['id'])
-        if 'revid' in log:
+        if 'revid' in log and log['revid'] != '':
             detailtext += ' | ' + M.link_diff(log['revid'])
 
         message = '{0}{1}：{2} ({3}) 在 {4} 執行操作 "{5}" 時觸發{6}。採取的行動：{7} ； 過濾器描述：{8}（{9}）'.format(
