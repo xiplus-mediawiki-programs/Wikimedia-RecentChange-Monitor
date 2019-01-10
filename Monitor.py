@@ -744,7 +744,7 @@ class Monitor():
             if userobj.start == userobj.end:
                 message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
                     msgprefix,
-                    self.link_user(str(userobj.start), wiki),
+                    self.link_user(str(userobj.val), wiki),
                     wiki,
                     self.parse_wikicode(reason)
                 )
