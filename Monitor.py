@@ -1183,7 +1183,7 @@ class Monitor():
 
         pagehash = self.getpage_hash(page, wiki)
         timestamp = int(time.time())
-        self.cur.execute("""SELECT `reason`, `timestamp` FROM `black_page`
+        self.cur.execute("""SELECT `reason`, `timestamp`, `point` FROM `black_page`
                             WHERE `pagehash` = %s AND `timestamp` < %s
                             ORDER BY `timestamp` DESC""",
                          (pagehash, timestamp))

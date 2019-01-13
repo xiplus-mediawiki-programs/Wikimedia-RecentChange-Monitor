@@ -44,7 +44,7 @@ def main(change):
             issend = True
             message_append += (
                 "\n（監視：" + M.parse_wikicode(rows[0][0]) +
-                ', ' + M.formattimediff(rows[0][1]) + "）")
+                ', ' + M.formattimediff(rows[0][1]) + "，" + str(rows[0][2]) + "p）")
 
         if wiki not in followwiki and not issend:
             return
