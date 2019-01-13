@@ -120,7 +120,7 @@ CREATE TABLE `RC_log_abusefilter_hit` (
   `bot` tinyint(1) NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params_action` varchar(10) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_params_actions` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_params_filter` int(11) NOT NULL,
   `log_params_log` int(11) NOT NULL,
