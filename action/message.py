@@ -97,6 +97,9 @@ def main(change):
                     message + message_append, blockuser + "|" + blockwiki)
 
             elif log_type == "protect":
+                if log_action in ["protect", "modify"] and re.search(r"高风险模板|高風險模板", comment):
+                    return
+
                 protectname = {
                     "unprotect": "解除保護",
                     "move_prot": "移動保護",
