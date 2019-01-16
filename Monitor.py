@@ -12,6 +12,7 @@ import cgi
 import ipaddress
 import re
 import hashlib
+import traceback
 
 
 class Monitor():
@@ -1313,10 +1314,17 @@ class Monitor():
     def error(self, error, timestamp=None):
         if timestamp is None:
             timestamp = int(time.time())
-        self.cur.execute("""INSERT INTO `error` (`timestamp`, `error`)
-                            VALUES (%s, %s)""",
-                         (timestamp, str(error)))
-        self.db.commit()
+        try:
+            self.cur.execute("""INSERT INTO `error` (`timestamp`, `error`)
+                                VALUES (%s, %s)""",
+                             (timestamp, str(error)))
+            self.db.commit()
+        except pymysql.err.OperationalError:
+            traceback.print_exc()
+            print("Failed to log error (pymysql.err.OperationalError)")
+        except Exception as e:
+            traceback.print_exc()
+            print("Failed to log error ({})".format(e))
 
     def formattimediff(self, timestamp, basetime=None):
         if basetime is None:
