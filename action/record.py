@@ -196,6 +196,9 @@ def main(change):
             M.log(json.dumps(
                 change, ensure_ascii=False), logtype="unknowntype")
 
+    except pymysql.err.IntegrityError as e:
+        M.error(e)
+
     except Exception as e:
         traceback.print_exc()
         M.error(traceback.format_exc())
