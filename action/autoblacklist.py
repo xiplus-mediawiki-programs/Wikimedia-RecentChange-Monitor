@@ -55,7 +55,7 @@ def main(change):
                 if not re.match(r"^((Wikipedia|Help|User)([ _]talk)?|Special|UT?):", pagename, flags=re.I):
                     reason = target + "編輯但被警告：" + comment
                     M.addblack_page(
-                        pagename, time.time(), reason,
+                        pagename, time(), reason,
                         point=3, msgprefix="自動", wiki=wiki)
 
         if ctype == "log":
