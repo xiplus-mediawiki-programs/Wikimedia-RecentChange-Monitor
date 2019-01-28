@@ -49,7 +49,7 @@ def main(change):
                     target, change["timestamp"], reason, msgprefix="自動")
                 M.adduser_score(M.user_type(target), point, "autoblacklist/warn")
 
-            page = re.search(r"(于|於)\[\[([^\]]+?)]]", comment)
+            page = re.search(r"(?:于|於)\[\[([^\]]+?)]]", comment)
             if page:
                 pagename = page.group(1)
                 if not re.match(r"^((Wikipedia|Help|User)([ _]talk)?|Special|UT?):", pagename, flags=re.I):
