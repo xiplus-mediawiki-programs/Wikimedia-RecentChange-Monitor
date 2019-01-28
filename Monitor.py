@@ -1232,8 +1232,6 @@ class Monitor():
         elif token != self.token:
             nolog = True
         try:
-            if not nolog:
-                self.log(message, logtype="response")
             url = ("https://api.telegram.org/bot{}/sendMessage" +
                    "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1" +
                    "&text={}"
