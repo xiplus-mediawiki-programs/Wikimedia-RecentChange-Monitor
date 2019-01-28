@@ -49,14 +49,14 @@ def main(change):
                     target, change["timestamp"], reason, msgprefix="自動")
                 M.adduser_score(M.user_type(target), point, "autoblacklist/warn")
 
-            page = re.search(r"(?:于|於)\[\[([^\]]+?)]]", comment)
-            if page:
-                pagename = page.group(1)
-                if not re.match(r"^((Wikipedia|Help|User)([ _]talk)?|Special|UT?):", pagename, flags=re.I):
-                    reason = target + "編輯但被警告：" + comment
-                    M.addblack_page(
-                        pagename, time(), reason,
-                        point=3, msgprefix="自動", wiki=wiki)
+	            page = re.search(r"(?:于|於)\[\[([^\]]+?)]]", comment)
+	            if page:
+	                pagename = page.group(1)
+	                if not re.match(r"^((Wikipedia|Help|User)([ _]talk)?|Special|UT?):", pagename, flags=re.I):
+	                    reason = target + "編輯但被警告：" + comment
+	                    M.addblack_page(
+	                        pagename, time(), reason,
+	                        point=3, msgprefix="自動", wiki=wiki)
 
         if ctype == "log":
             log_type = change["log_type"]
