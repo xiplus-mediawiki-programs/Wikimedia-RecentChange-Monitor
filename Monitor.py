@@ -1225,6 +1225,9 @@ class Monitor():
                 .format(self.domain, id))
 
     def sendmessage(self, message, user=None, page=None, nolog=False, chat_id=None, token=None):
+        if len(message) == 0:
+            self.error('try to send empty message')
+            return
         if chat_id is None:
             chat_id = self.chat_id
         if token is None:
