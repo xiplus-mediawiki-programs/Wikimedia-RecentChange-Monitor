@@ -121,16 +121,16 @@ def web():
                     if not checkadmin():
                         return "OK"
 
-                    if "reply_to_message" not in data["message"]:
-                        M.sendmessage("需要reply訊息")
-                        return "OK"
-
                     parser = argparse.ArgumentParser(prog='/{0}'.format(action))
                     parser.add_argument('nickname', type=str, default=None, nargs='?', help='用戶暱稱')
 
                     args = handle_parser(parser, cmd)
                     if args is None:
                         return 'OK'
+
+                    if "reply_to_message" not in data["message"]:
+                        M.sendmessage("需要reply訊息")
+                        return "OK"
 
                     name = from_firstname
                     if args.nickname is not None and args.nickname.strip() != '':
