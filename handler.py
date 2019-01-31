@@ -29,7 +29,7 @@ def website(path):
     if path.endswith('.js'):
         return send_file(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'web', path))
     try:
-        module = importlib.import_module('.'+path, 'web')
+        module = importlib.import_module('.' + path, 'web')
         print(module)
     except ImportError as e:
         M.log('[handler][error] {}'.format(e))
