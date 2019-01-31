@@ -196,8 +196,6 @@ def web():
 
                     if args.wiki is not None:
                         wiki = args.wiki
-                    
-                    M.error(args)
 
                     reason = name + '加入：' + args.reason
                     M.addblack_user(user, m_date, reason, wiki)
@@ -251,7 +249,7 @@ def web():
 
                     parser = argparse.ArgumentParser(prog='/{0}'.format(action))
                     parser.add_argument('username', type=str, help='用戶名')
-                    parser.add_argument('reason', type=str, default=None, nargs='?', help='原因') # Unused
+                    parser.add_argument('reason', type=str, default=None, nargs='?', help='原因')  # Unused
 
                     args = handle_parser(parser, cmd)
                     if args is None:
@@ -267,7 +265,7 @@ def web():
 
                     parser = argparse.ArgumentParser(prog='/{0}'.format(action))
                     parser.add_argument('username', type=str, default=None, nargs='?', help='用戶名')
-                    parser.add_argument('reason', type=str, default=None, nargs='?', help='原因') # Unused
+                    parser.add_argument('reason', type=str, default=None, nargs='?', help='原因')  # Unused
                     parser.add_argument('-w', '--wiki', type=str, metavar='站點', help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
 
                     args = handle_parser(parser, cmd)
@@ -282,7 +280,7 @@ def web():
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
                         user = user[0][0]
-                    
+
                     if user is None:
                         M.sendmessage('未指定用戶名')
                         return "OK"
@@ -380,7 +378,7 @@ def web():
 
                     parser = argparse.ArgumentParser(prog='/{0}'.format(action))
                     parser.add_argument('pagetitle', type=str, default=None, nargs='?', help='頁面名')
-                    parser.add_argument('reason', type=str, default=None, nargs='?', help='原因') # Unused
+                    parser.add_argument('reason', type=str, default=None, nargs='?', help='原因')  # Unused
                     parser.add_argument('-w', '--wiki', type=str, metavar='站點', help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
 
                     args = handle_parser(parser, cmd)
@@ -425,7 +423,7 @@ def web():
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
                         user = user[0][0]
-                    
+
                     if user is None:
                         M.sendmessage('未指定用戶名')
                         return "OK"
