@@ -944,10 +944,12 @@ class Monitor():
 
     def addwhite_user(self, user, timestamp, reason, msgprefix=""):
         user = user.strip()
+
+        userobj = self.user_type(user)
         self.cur.execute(
-            """INSERT INTO `white_user` (`user`, `timestamp`, `reason`)
-               VALUES (%s, %s, %s)""",
-            (user, timestamp, reason))
+            """INSERT INTO `white_user` (`user`, `timestamp`, `reason`, `userhash`)
+               VALUES (%s, %s, %s, %s)""",
+            (user, timestamp, reason, userobj.userhash))
         self.db.commit()
         self.sendmessage("{}加入{}@global至白名單\n原因：{}"
                          .format(
@@ -1225,6 +1227,9 @@ class Monitor():
                 .format(self.domain, id))
 
     def sendmessage(self, message, user=None, page=None, nolog=False, chat_id=None, token=None):
+        if len(message) == 0:
+            self.error('try to send empty message')
+            return
         if chat_id is None:
             chat_id = self.chat_id
         if token is None:
