@@ -1153,7 +1153,7 @@ class Monitor():
         self.db.commit()
         message = "{}加入{}({})至監視頁面\n原因：{}".format(
             msgprefix,
-            self.link_page(page, wiki), wiki, reason
+            self.link_page(page, wiki), wiki, self.parse_wikicode(reason)
         )
         self.sendmessage(message, page=page + "|" + wiki)
         return message
