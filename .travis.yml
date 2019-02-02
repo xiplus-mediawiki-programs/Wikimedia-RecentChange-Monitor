@@ -9,4 +9,6 @@ install:
 script:
   - pycodestyle --version
   - pycodestyle . --ignore=E501,W503,W504
+  - python -m pylint --version
+  - pylint_runner --version
   - pylint_runner
