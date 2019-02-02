@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
-import pymysql
-import configparser
-import json
-import os
-import re
-import requests
-import pickle
 import datetime
+import importlib
+import os
+import pickle
+import sys
+import time
+import traceback
+
 import dateutil.parser
 import pytz
-import traceback
-import csv
-from http.cookiejar import CookieJar
-import importlib
-import time
-from Monitor import *
+import requests
 
+from Monitor import Monitor
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
@@ -103,13 +99,13 @@ with open('cookie.txt', 'wb') as f:
     pickle.dump(session.cookies, f)
 
 
-def int2tz(timestamp):
-    return (datetime.datetime.fromtimestamp(timestamp, tz=pytz.utc)
+def int2tz(timeint):
+    return (datetime.datetime.fromtimestamp(timeint, tz=pytz.utc)
             .isoformat().replace('+00:00', 'Z'))
 
 
-def tz2int(timestamp):
-    return int(dateutil.parser.parse(timestamp).timestamp())
+def tz2int(timetz):
+    return int(dateutil.parser.parse(timetz).timestamp())
 
 
 timestamp = int2tz(int(time.time()))

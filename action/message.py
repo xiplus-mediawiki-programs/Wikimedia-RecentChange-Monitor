@@ -1,8 +1,8 @@
-import traceback
-import json
-from Monitor import *
-from message_config import *
 import re
+import traceback
+
+from message_config import affollowwiki, followwiki
+from Monitor import Monitor
 
 
 def main(change):
@@ -53,15 +53,19 @@ def main(change):
             message = (
                 M.link_user(user) + '編輯' + M.link_page(title) + '（' +
                 M.link_diff(change["revision"]["new"]) + '）')
-            issend and M.sendmessage(
-                message + message_append, blackuser, title + "|" + M.wiki)
-            isblackuser and M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
+            if issend:
+                M.sendmessage(
+                    message + message_append, blackuser, title + "|" + M.wiki)
+            if isblackuser:
+                M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
 
         elif ctype == "new":
             message = M.link_user(user) + '建立' + M.link_page(title)
-            issend and M.sendmessage(
-                message + message_append, blackuser, title + "|" + M.wiki)
-            isblackuser and M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
+            if issend:
+                M.sendmessage(
+                    message + message_append, blackuser, title + "|" + M.wiki)
+            if isblackuser:
+                M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
 
         elif ctype == "142":
             if (change["namespace"] == 2600
@@ -77,7 +81,7 @@ def main(change):
                 blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
                 user_type = M.user_type(blockuser)
-                if (type(user_type) != User
+                if (not user_type.isuser
                         and user_type.start != user_type.end):
                     blockwiki = wiki
                 else:
@@ -109,7 +113,7 @@ def main(change):
                     M.link_user(user) + protectname[log_action] +
                     M.link_page(title) + '（' +
                     M.parse_wikicode(comment) + '）')
-                if log_action == "protect" or log_action == "modify":
+                if log_action in ["protect", "modify"]:
                     message += (
                         '（'
                         + M.parse_wikicode(change["log_params"]["description"])
@@ -125,7 +129,7 @@ def main(change):
                     "modify": "修改",
                     "create": "建立"}
 
-                if log_action == "modify" or log_action == "create":
+                if log_action in ["modify", "create"]:
                     message = "{}{}{}（{}）".format(
                         M.link_user(user),
                         abusefiltername[log_action],
@@ -146,15 +150,17 @@ def main(change):
                     message = "{}全域鎖定{}（{}）".format(
                         M.link_user(user), M.link_user(title[5:-7]), M.parse_wikicode(change["log_action_comment"])
                     )
-                    issend and M.sendmessage(message + message_append)
+                    if issend:
+                        M.sendmessage(message + message_append)
 
             elif log_type == "gblblock":
-                if log_action == "gblock2" or log_action == "modify":
+                if log_action in ["gblock2", "modify"]:
                     message = "{}全域封禁{}（{}）".format(
                         M.link_user(user), M.link_user(title[5:-7]), M.parse_wikicode(change["log_action_comment"])
                     )
-                    issend and M.sendmessage(message + message_append)
+                    if issend:
+                        M.sendmessage(message + message_append)
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

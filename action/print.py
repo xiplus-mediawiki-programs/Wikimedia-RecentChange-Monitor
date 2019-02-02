@@ -1,6 +1,6 @@
 import traceback
-import json
-from Monitor import *
+
+from Monitor import Monitor
 from print_config import followwiki
 
 
@@ -12,7 +12,6 @@ def main(change):
         wiki = change["wiki"]
         ctype = change["type"]
         user = change["user"]
-        blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
 
@@ -49,7 +48,7 @@ def main(change):
                 if log_action == "unblock":
                     pass
 
-                elif log_action == "block" or log_action == "reblock":
+                elif log_action in ["block", "reblock"]:
                     pass
 
             elif log_type == "protect":
@@ -59,7 +58,7 @@ def main(change):
                 elif log_action == "move_prot":
                     print(user + " move_prot " + title + " comment:" + comment)
 
-                elif log_action == "protect" or log_action == "modify":
+                elif log_action in ["protect", "modify"]:
                     print(user + " protect " + title + " comment:" + comment)
 
             elif log_type == "newusers":
@@ -102,7 +101,7 @@ def main(change):
                         user, change["log_params"]["filter"], title)
                     )
 
-                elif log_action == "modify" or log_action == "create":
+                elif log_action in ["modify", "create"]:
                     pass
 
             elif log_type == "globalauth":
@@ -110,7 +109,7 @@ def main(change):
                     pass
 
             elif log_type == "gblblock":
-                if log_action == "gblock2" or log_action == "modify":
+                if log_action in ["gblock2", "modify"]:
                     pass
 
             elif log_type == "gblrename":
@@ -163,6 +162,6 @@ def main(change):
                 elif log_action == "skipoptout":
                     pass
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

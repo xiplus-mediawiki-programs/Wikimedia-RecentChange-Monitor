@@ -6,7 +6,7 @@ import sys
 from flask import Flask, send_file
 from flask_cors import CORS
 
-import web
+import web  # pylint: disable=W0611
 from Monitor import Monitor
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'web'))

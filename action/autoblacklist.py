@@ -1,11 +1,14 @@
-import traceback
-import json
-from Monitor import *
-from autoblacklist_config import *
-from strtotime import strtotime
-from time import time
 import datetime
 import re
+import traceback
+from time import time
+
+from autoblacklist_config import (blockblacklistwiki, blockreasonblacklist,
+                                  followwiki, protectblacklistwiki,
+                                  protectreasonblacklist, warnreasonblacklist,
+                                  warnuserblacklist)
+from Monitor import Monitor
+from strtotime import strtotime
 
 
 def main(change):
@@ -16,7 +19,6 @@ def main(change):
         wiki = change["wiki"]
         ctype = change["type"]
         user = change["user"]
-        blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
 
@@ -66,13 +68,13 @@ def main(change):
                 blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
                 user_type = M.user_type(blockuser)
-                if (type(user_type) != User
+                if (not user_type.isuser
                         and user_type.start != user_type.end):
                     blockwiki = wiki
                 else:
                     blockwiki = "global"
 
-                if log_action == "block" or log_action == "reblock":
+                if log_action in ["block", "reblock"]:
                     if (wiki in blockblacklistwiki
                         and re.search(
                             blockreasonblacklist, comment,
@@ -94,14 +96,14 @@ def main(change):
                                         point = 0
                                     else:
                                         point -= oldpoint
-                            except Exception as e:
+                            except Exception:
                                 traceback.print_exc()
                                 M.error(traceback.format_exc())
                                 point = 30
                         M.adduser_score(M.user_type(blockuser), point, "autoblacklist/block")
 
             elif log_type == "protect":
-                if log_action == "protect" or log_action == "modify":
+                if log_action in ["protect", "modify"]:
                     if (wiki in protectblacklistwiki
                         and re.search(
                             protectreasonblacklist, comment,
@@ -116,6 +118,6 @@ def main(change):
                                 title, endtime, reason,
                                 point=point, msgprefix="自動", wiki=wiki)
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

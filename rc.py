@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-import pymysql
-import configparser
+import importlib
 import json
 import os
-import re
-import urllib
-from sseclient import SSEClient as EventSource
-import traceback
-import importlib
+import sys
 import time
-from Monitor import *
+import traceback
 
+from sseclient import SSEClient as EventSource
+
+from Monitor import Monitor
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 

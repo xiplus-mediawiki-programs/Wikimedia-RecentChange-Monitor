@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import traceback
-import os
 import csv
-import json
-import dateutil
-from Monitor import *
-from abuselog_autoblacklist_config import afwatchlist, afblacklist
+import os
+import traceback
 
+import dateutil
+
+from abuselog_autoblacklist_config import afblacklist, afwatchlist
+from Monitor import Monitor
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,16 +21,15 @@ with open(os.path.dirname(os.path.realpath(__file__)) + '/abusefilter_list.csv')
         abusefilter_list[int(row[0])] = row[1]
 
 afwatchlistname = []
-for id in afwatchlist:
-    afwatchlistname.append(abusefilter_list[id])
+for afid in afwatchlist:
+    afwatchlistname.append(abusefilter_list[afid])
 
 afblacklistname = []
-for id in afblacklist:
-    afblacklistname.append(abusefilter_list[id])
+for afid in afblacklist:
+    afblacklistname.append(abusefilter_list[afid])
 
 
 def main(log):
-    M = Monitor()
     try:
         print(log["filter"], log["timestamp"])
 
@@ -43,15 +42,12 @@ def main(log):
             message += "|" + M.link_diff(log["revid"])
         message += '）'
 
-        blackuser = log["user"] + "|" + M.wiki
         rows = M.check_user_blacklist(log["user"])
         if len(rows) != 0:
-            blackuser = log["user"] + "|" + rows[0][3]
             message += (
                 "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
             if rows[0][2] != "" and rows[0][2] != log["user"]:
                 message += "，\u200b" + rows[0][2] + "\u200b"
-                blackuser = rows[0][2] + "|" + rows[0][3]
             message += '，' + M.formattimediff(rows[0][1]) + "，" + str(rows[0][4]) + "p）"
 
         if (len(rows) != 0
@@ -76,6 +72,6 @@ def main(log):
                 )
             M.adduser_score(M.user_type(log["user"]), 10, "abuselog")
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

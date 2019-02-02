@@ -1,10 +1,11 @@
-import traceback
-import json
-import dateutil
 import time
-from Monitor import *
-from abuselog_message_config import *
-from abuselog_message_function import *
+import traceback
+
+import dateutil
+
+from abuselog_message_config import chats, token
+from abuselog_message_function import afLogo, result
+from Monitor import Monitor
 
 
 def main(log):
@@ -37,6 +38,6 @@ def main(log):
             if chats[chat_id](log):
                 M.sendmessage(message, chat_id=chat_id, token=token)
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

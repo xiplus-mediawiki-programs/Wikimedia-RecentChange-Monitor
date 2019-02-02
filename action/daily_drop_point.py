@@ -1,7 +1,8 @@
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../"))
-from Monitor import *  # noqa: E402
+from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
 
 
 M = Monitor()

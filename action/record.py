@@ -1,6 +1,9 @@
-import traceback
 import json
-from Monitor import *
+import traceback
+
+import pymysql
+
+from Monitor import Monitor
 from record_config import recordwiki
 
 
@@ -47,7 +50,7 @@ def main(change):
                     M.addRC_log_block_unblock(change)
                     unknowntype = False
 
-                elif log_action == "block" or log_action == "reblock":
+                elif log_action in ["block", "reblock"]:
                     M.addRC_log_block(change)
                     unknowntype = False
 
@@ -60,7 +63,7 @@ def main(change):
                     M.addRC_log_protect_move_prot(change)
                     unknowntype = False
 
-                elif log_action == "protect" or log_action == "modify":
+                elif log_action in ["protect", "modify"]:
                     M.addRC_log_protect(change)
                     unknowntype = False
 
@@ -114,7 +117,7 @@ def main(change):
                     M.addRC_log_abusefilter_hit(change)
                     unknowntype = False
 
-                elif log_action == "modify" or log_action == "create":
+                elif log_action in["modify", "create"]:
                     M.addRC_log_abusefilter_modify(change)
                     unknowntype = False
 
@@ -124,7 +127,7 @@ def main(change):
                     unknowntype = False
 
             elif log_type == "gblblock":
-                if log_action == "gblock2" or log_action == "modify":
+                if log_action in ["gblock2", "modify"]:
                     M.addRC_log_gblblock(change)
                     unknowntype = False
 

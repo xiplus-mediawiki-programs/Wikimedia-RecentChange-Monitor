@@ -1,6 +1,6 @@
 import traceback
-import json
-from Monitor import *
+
+from Monitor import Monitor
 
 
 def main(log):
@@ -8,6 +8,6 @@ def main(log):
     try:
         M.addRC_log_abuselog(log)
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

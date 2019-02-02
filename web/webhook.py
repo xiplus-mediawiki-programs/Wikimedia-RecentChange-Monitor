@@ -227,8 +227,7 @@ def web():
                         if len(user) == 0:
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
-                        else:
-                            user, wiki = M.parse_user(user[0][0])
+                        user, wiki = M.parse_user(user[0][0])
                     else:
                         return "OK"
 
@@ -248,8 +247,7 @@ def web():
                         if len(user) == 0:
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
-                        else:
-                            user, wiki = M.parse_user(user[0][0])
+                        user, wiki = M.parse_user(user[0][0])
                         wiki = m.group(1).strip()
                     elif m is not None:
                         user, wiki = M.parse_user(m.group(1))
@@ -303,8 +301,7 @@ def web():
                         if len(page) == 0:
                             M.sendmessage("無法從訊息找到所對應的頁面")
                             return "OK"
-                        else:
-                            page, wiki = M.parse_page(page[0][0])
+                        page, wiki = M.parse_page(page[0][0])
                     else:
                         return "OK"
 
@@ -325,8 +322,7 @@ def web():
                         if len(user) == 0:
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
-                        else:
-                            user, wiki = M.parse_user(user[0][0])
+                        user, wiki = M.parse_user(user[0][0])
                     else:
                         return "OK"
 
@@ -348,8 +344,7 @@ def web():
                         if len(page) == 0:
                             M.sendmessage("無法從訊息找到所對應的頁面")
                             return "OK"
-                        else:
-                            page, wiki = M.parse_page(page[0][0])
+                        page, wiki = M.parse_page(page[0][0])
                     else:
                         return "OK"
 

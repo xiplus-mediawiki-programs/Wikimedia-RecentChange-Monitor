@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import time
-from Monitor import Monitor
+
 from clear_config import recordkept
+from Monitor import Monitor
+
 
 M = Monitor()
 M.log("running clear", logtype="clear")

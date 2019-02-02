@@ -12,10 +12,10 @@ def result(res):
     return ''
 
 
-def afLogo(filter_id='', filter=''):
+def afLogo(filter_id='', filter_name=''):
     try:
         filter_id = int(filter_id)
-    except ValueError as e:
+    except ValueError:
         filter_id = ''
 
     logo = {
@@ -66,6 +66,6 @@ def afLogo(filter_id='', filter=''):
     }
     if filter_id in logo:
         return logo[filter_id]
-    if filter_id == '' and filter in logo:
-        return logo[filter]
+    if filter_id == '' and filter_name in logo:
+        return logo[filter_name]
     return ''

@@ -1,8 +1,8 @@
-import cgi
+import html
 import traceback
 
 import pymysql
-from flask import make_response, render_template, request
+from flask import request
 
 from Monitor import Monitor
 from tables import tables
@@ -11,16 +11,16 @@ from tables import tables
 def web():
     M = Monitor()
     try:
-        html = """
+        result = """
             <a href="./status">status</a>
             log
             <a href="./blacklist">blacklist</a>
             <form>
             """
         for table in tables:
-            html += ('<button type="submit" name="type" value="{0}">' +
+            result += ('<button type="submit" name="type" value="{0}">' +
                      '{0}</button> ').format(table)
-        html += '</form>'
+        result += '</form>'
         if "type" in request.args:
             logtype = request.args["type"]
             if logtype in tables:
@@ -31,9 +31,9 @@ def web():
                 )
                 rows = M.cur2.fetchall()
                 if len(rows) == 0:
-                    html += 'No record'
+                    result += 'No record'
                 else:
-                    html += """
+                    result += """
                         <style>
                         table {
                             border-collapse: collapse;
@@ -44,34 +44,33 @@ def web():
                         }
                         </style>
                         """
-                    html += '<table>'
-                    html += '<tr>'
+                    result += '<table>'
+                    result += '<tr>'
                     for col in rows[0]:
                         if col == "parsedcomment":
                             continue
-                        html += '<th>' + col + '</th>'
-                    html += '</tr>'
+                        result += '<th>' + col + '</th>'
+                    result += '</tr>'
                     for row in rows:
-                        html += '<tr>'
+                        result += '<tr>'
                         for col in row:
                             if col == "parsedcomment":
                                 continue
                             elif (logtype == "error" and col == "error"):
-                                html += ('<td><pre>' +
-                                         cgi.escape(row[col], quote=False) +
+                                result += ('<td><pre>' +
+                                         html.escape(row[col], quote=False) +
                                          '</pre></td>')
-                            elif (col == "log_action_comment"
-                                  or col == "comment"):
-                                html += ('<td>' +
-                                         cgi.escape(row[col], quote=False) +
+                            elif col in ['log_action_comment', 'comment']:
+                                result += ('<td>' +
+                                         html.escape(row[col], quote=False) +
                                          '</pre>')
                             elif col == "timestamp":
-                                html += '<td>{} ({})</td>'.format(str(row[col]), M.formattimediff(row[col]))
+                                result += '<td>{} ({})</td>'.format(str(row[col]), M.formattimediff(row[col]))
                             else:
-                                html += '<td>' + str(row[col]) + '</td>'
-                        html += '</tr>'
-                    html += '</table>'
-        return html
+                                result += '<td>' + str(row[col]) + '</td>'
+                        result += '</tr>'
+                    result += '</table>'
+        return result
     except Exception:
         M.error(traceback.format_exc())
         return traceback.format_exc()

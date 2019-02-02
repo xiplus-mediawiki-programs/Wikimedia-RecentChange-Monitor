@@ -4,6 +4,9 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install pycodestyle
+  - pip install pylint
+  - pip install pylint_runner
 script:
   - pycodestyle --version
   - pycodestyle . --ignore=E501,W503,W504
+  - pylint_runner

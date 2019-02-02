@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
-import pymysql
 import configparser
+import hashlib
+import html
+import ipaddress
+import json
 import os
+import re
 import sys
 import time
+import traceback
 import urllib.error
 import urllib.parse
 import urllib.request
-import json
-import cgi
-import ipaddress
-import re
-import hashlib
-import traceback
+
+import pymysql
 
 
 class Monitor():
@@ -685,7 +686,7 @@ class Monitor():
         )
         self.db.commit()
         newpoint = self.getuser_score(userobj)
-        if oldpoint > 0 and newpoint <= 0:
+        if oldpoint > 0 and newpoint <= 0:  # pylint: disable=R1716
             self.sendmessage("{}的分數小於等於0，已停止監視".format(self.link_user(userobj.val)))
 
     def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
@@ -695,7 +696,7 @@ class Monitor():
         wiki = wiki.strip()
 
         userobj = self.user_type(user)
-        if isinstance(userobj, User):
+        if isinstance(userobj, User):  # pylint: disable=R1705
             self.cur.execute(
                 """INSERT INTO `black_user`
                    (`wiki`, `user`, `timestamp`, `reason`, `userhash`)
@@ -741,8 +742,8 @@ class Monitor():
             message = "cannot detect user type: " + user
             self.error(message)
             return message
-        if type(userobj) in [IPv4, IPv6]:
-            if userobj.start == userobj.end:
+        if isinstance(userobj, (IPv4, IPv6)):
+            if userobj.start == userobj.end:  # pylint: disable=R1705
                 message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
                     msgprefix,
                     self.link_user(str(userobj.val), wiki),
@@ -770,6 +771,7 @@ class Monitor():
                 )
                 self.sendmessage(message, userobj.val + "|" + wiki)
                 return message
+        return None
 
     def getblackuser(self, user, wiki=None, prefix=True):
         if wiki is None:
@@ -820,7 +822,7 @@ class Monitor():
 
         userobj = self.user_type(user)
         point = self.getuser_score(userobj)
-        if message != "":
+        if message != "":  # pylint: disable=R1705
             return "{}@{}，{}p\n{}".format(user, wiki, point, message)
         else:
             return "{}@{}：查無結果".format(user, wiki)
@@ -833,7 +835,7 @@ class Monitor():
 
         blacklist = self.getblackuser(user, wiki, prefix=False)
         userobj = self.user_type(user)
-        if isinstance(userobj, User):
+        if isinstance(userobj, User):  # pylint: disable=R1705
             count = self.cur.execute(
                 """DELETE FROM `black_user`
                    WHERE `user` = %s AND `wiki` = %s""",
@@ -864,7 +866,7 @@ class Monitor():
             message = "cannot detect user type: " + user
             self.error(message)
             return message
-        if type(userobj) in [IPv4, IPv6]:
+        if isinstance(userobj, (IPv4, IPv6)):
             if userobj.start == userobj.end:
                 message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
                     msgprefix,
@@ -894,6 +896,7 @@ class Monitor():
                 )
                 self.sendmessage(message)
             return message
+        return None
 
     def setwikiblack_user(self, user, wiki=None):
         if wiki is None:
@@ -902,7 +905,7 @@ class Monitor():
         wiki = wiki.strip()
 
         userobj = self.user_type(user)
-        if isinstance(userobj, User):
+        if isinstance(userobj, User):  # pylint: disable=R1705
             count = self.cur.execute(
                 """UPDATE `black_user` SET `wiki` = %s
                    WHERE `user` = %s""",
@@ -926,7 +929,7 @@ class Monitor():
         else:
             self.error("cannot detect user type: " + user)
             return
-        if type(userobj) in [IPv4, IPv6]:
+        if isinstance(userobj, (IPv4, IPv6)):
             if userobj.start == userobj.end:
                 self.sendmessage("{}條對於IP:{}的紀錄設定wiki為{}".format(
                     count,
@@ -959,7 +962,7 @@ class Monitor():
                          )
                          )
 
-    def delwhite_user(self, user, msgprefix=""):
+    def delwhite_user(self, user):
         user = user.strip()
         count = self.cur.execute(
             """DELETE FROM `white_user` WHERE `user` = %s""",
@@ -973,13 +976,13 @@ class Monitor():
         user = user.strip()
         wiki = wiki.strip()
 
-        # if not ignorewhite:
-        #     rows = self.check_user_whitelist(user, wiki)
-        #     if len(rows) != 0:
-        #         return []
+        if not ignorewhite:
+            rows = self.check_user_whitelist(user, wiki)
+            if len(rows) != 0:
+                return []
 
         userobj = self.user_type(user)
-        if isinstance(userobj, User):
+        if isinstance(userobj, User):  # pylint: disable=R1705
             self.cur.execute(
                 """SELECT `reason`, `black_user`.`timestamp`, '' AS `val`, `wiki`, `point`
                    FROM `black_user`
@@ -1025,13 +1028,13 @@ class Monitor():
             wiki = self.wiki
         user = user.strip()
 
-        # if not ignorewhite:
-        #     rows = self.check_user_whitelist(user, wiki)
-        #     if len(rows) != 0:
-        #         return []
+        if not ignorewhite:
+            rows = self.check_user_whitelist(user, wiki)
+            if len(rows) != 0:
+                return []
 
         userobj = self.user_type(user)
-        if isinstance(userobj, User):
+        if isinstance(userobj, User):  # pylint: disable=R1705
             self.cur.execute(
                 """SELECT `reason`, `black_user`.`timestamp`, `user`, `point`
                    FROM `black_user`
@@ -1133,7 +1136,7 @@ class Monitor():
         )
         self.db.commit()
         newpoint = self.getpage_score(page, wiki)
-        if oldpoint > 0 and newpoint <= 0:
+        if oldpoint > 0 and newpoint <= 0:  # pylint: disable=R1716
             self.sendmessage("{}的分數小於等於0，已停止監視".format(self.link_page(page, wiki)))
 
     def addblack_page(self, page, timestamp, reason, point=30, wiki=None, msgprefix=""):
@@ -1212,19 +1215,19 @@ class Monitor():
         return ('<a href="https://{}/wiki/{}">{}</a>'
                 .format(self.domain, urllib.parse.quote(title), title))
 
-    def link_diff(self, id):
+    def link_diff(self, diffid):
         return ('<a href="https://{}/wiki/Special:Diff/{}">差異</a>'
-                .format(self.domain, id))
+                .format(self.domain, diffid))
 
-    def link_abusefilter(self, id):
-        if id == "":
+    def link_abusefilter(self, afid):
+        if afid == "":
             return "過濾器"
         return ('<a href="https://{0}/wiki/Special:Abusefilter/{1}">過濾器{1}</a>'
-                .format(self.domain, id))
+                .format(self.domain, afid))
 
-    def link_abuselog(self, id):
+    def link_abuselog(self, logid):
         return ('<a href="https://{}/wiki/Special:Abuselog/{}">詳情</a>'
-                .format(self.domain, id))
+                .format(self.domain, logid))
 
     def sendmessage(self, message, user=None, page=None, nolog=False, chat_id=None, token=None):
         if len(message) == 0:
@@ -1374,15 +1377,14 @@ class Monitor():
     def parse_reason(self, reason):
         if reason is None or reason.strip() == "":
             return "無原因"
-        else:
-            return reason
+        return reason
 
     def parse_wikicode(self, code):
-        code = cgi.escape(code, quote=False)
+        code = html.escape(code, quote=False)
 
         def repl1(m):
             page = m.group(1)
-            if len(m.groups()) == 2:
+            if len(m.groups()) == 2:  # pylint: disable=R1705
                 text = m.group(2)
                 return self.link_all(page, text)
             else:
@@ -1409,20 +1411,20 @@ class Monitor():
                 if ip1 > ip2:
                     ip1, ip2 = ip2, ip1
                 if isinstance(ip1, type(ip2)):
-                    if isinstance(ip1, ipaddress.IPv4Address):
+                    if isinstance(ip1, ipaddress.IPv4Address):  # pylint: disable=R1705
                         return IPv4(ip1, ip2, "range", user)
                     elif isinstance(ip1, ipaddress.IPv6Address):
                         return IPv6(ip1, ip2, "range", user)
                 self.error("cannot detect user type: " + user)
                 raise ValueError
             network = ipaddress.ip_network(user, strict=False)
-            if isinstance(network, ipaddress.IPv4Network):
-                if network[0] == network[-1]:
+            if isinstance(network, ipaddress.IPv4Network):  # pylint: disable=R1705
+                if network[0] == network[-1]:  # pylint: disable=R1705
                     return IPv4(network[0], network[-1], "CIDR", network[0])
                 else:
                     return IPv4(network[0], network[-1], "CIDR", network)
             elif isinstance(network, ipaddress.IPv6Network):
-                if network[0] == network[-1]:
+                if network[0] == network[-1]:  # pylint: disable=R1705
                     return IPv6(network[0], network[-1], "CIDR", network[0])
                 else:
                     return IPv6(network[0], network[-1], "CIDR", network)
@@ -1432,7 +1434,7 @@ class Monitor():
         except ValueError as e:
             return User(user)
         except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
+            exc_type, _, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             self.error(str(e))
             self.error(str(exc_type) + " " + str(fname) +
@@ -1448,21 +1450,24 @@ class User():
         self.user = user
         self.val = user
         self.userhash = int(hashlib.sha1(user.encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        self.isuser = True
 
 
 class IPv4():
-    def __init__(self, start, end, type, val):
+    def __init__(self, start, end, usertype, val):
         self.start = start
         self.end = end
-        self.type = type
+        self.type = usertype
         self.val = str(val)
         self.userhash = int(hashlib.sha1(str(val).encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        self.isuser = False
 
 
 class IPv6():
-    def __init__(self, start, end, type, val):
+    def __init__(self, start, end, usertype, val):
         self.start = start
         self.end = end
-        self.type = type
+        self.type = usertype
         self.val = str(val).upper()
         self.userhash = int(hashlib.sha1(str(val).encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        self.isuser = False
