@@ -19,7 +19,7 @@ def web():
             """
         for table in tables:
             result += ('<button type="submit" name="type" value="{0}">' +
-                     '{0}</button> ').format(table)
+                       '{0}</button> ').format(table)
         result += '</form>'
         if "type" in request.args:
             logtype = request.args["type"]
@@ -58,14 +58,15 @@ def web():
                                 continue
                             elif (logtype == "error" and col == "error"):
                                 result += ('<td><pre>' +
-                                         html.escape(row[col], quote=False) +
-                                         '</pre></td>')
+                                           html.escape(row[col], quote=False) +
+                                           '</pre></td>')
                             elif col in ['log_action_comment', 'comment']:
                                 result += ('<td>' +
-                                         html.escape(row[col], quote=False) +
-                                         '</pre>')
+                                           html.escape(row[col], quote=False) +
+                                           '</pre>')
                             elif col == "timestamp":
-                                result += '<td>{} ({})</td>'.format(str(row[col]), M.formattimediff(row[col]))
+                                result += '<td>{} ({})</td>'.format(
+                                    str(row[col]), M.formattimediff(row[col]))
                             else:
                                 result += '<td>' + str(row[col]) + '</td>'
                         result += '</tr>'
