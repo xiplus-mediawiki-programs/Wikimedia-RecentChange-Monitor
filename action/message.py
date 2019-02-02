@@ -65,8 +65,7 @@ def main(change):
 
         elif ctype == "142":
             if (change["namespace"] == 2600
-                    and re.search(r'commented on "(唯一|最后)?警告 ', comment)
-                    and user not in warnuserblacklist):
+                    and re.search(r'commented on "(唯一|最后)?警告 ', comment)):
                 message = "用戶警告訊息：" + M.link_page(title) + "，請確認是否添加黑名單"
                 M.sendmessage(message)
 
