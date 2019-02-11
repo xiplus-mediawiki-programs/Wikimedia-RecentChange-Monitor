@@ -52,11 +52,11 @@ def web():
                     with io.StringIO() as buf, contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
                         try:
                             args = parser.parse_args(cmd)
-                        except SystemExit as e:
+                        except SystemExit:
                             output = buf.getvalue()
                             M.sendmessage(output)
                             return None
-                        except Exception as e:
+                        except Exception:
                             M.error(traceback.format_exc())
                             return None
                         else:
