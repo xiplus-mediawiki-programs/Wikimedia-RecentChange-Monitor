@@ -1,5 +1,9 @@
+import argparse
+import contextlib
+import io
 import json
 import re
+import shlex
 import traceback
 
 from flask import request
@@ -44,9 +48,30 @@ def web():
                         return None
                     return rows[0][0]
 
-                m = re.match(r"/gettoken(?:@cvn_smart_bot)?",
-                             m_text)
-                if m_chat_id == m_user_id and m is not None:
+                def handle_parser(parser, cmd):
+                    with io.StringIO() as buf, contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                        try:
+                            args = parser.parse_args(cmd)
+                        except SystemExit as e:
+                            output = buf.getvalue()
+                            M.sendmessage(output)
+                            return None
+                        except Exception as e:
+                            M.error(traceback.format_exc())
+                            return None
+                        else:
+                            return args
+
+                cmd = shlex.split(m_text)
+                action = cmd[0]
+                cmd = cmd[1:]
+                action = action[1:]
+                action = re.sub(r'@cvn_smart_bot$', '', action)
+                action = action.lower()
+
+                M.error('[webhook] {}, {}'.format(action, json.dumps(cmd)))
+
+                if action in ['gettoken'] and m_chat_id == m_user_id:
                     if not checkadmin():
                         return "OK"
 
@@ -67,9 +92,7 @@ def web():
 
                     return "OK"
 
-                m = re.match(r"/newtoken(?:@cvn_smart_bot)?",
-                             m_text)
-                if m_chat_id == m_user_id and m is not None:
+                if action in ['newtoken'] and m_chat_id == m_user_id:
                     if not checkadmin():
                         return "OK"
 
@@ -94,19 +117,26 @@ def web():
                 if m_chat_id not in M.response_chat_id:
                     return "OK"
 
-                m = re.match(r"/setadmin(?:@cvn_smart_bot)?(?:\s+(.+))?",
-                             m_text)
-                if m is not None:
+                if action in ['setadmin']:
                     if not checkadmin():
                         return "OK"
+
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument(
+                        'nickname', type=str, default=None, nargs='?', help='用戶暱稱')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
 
                     if "reply_to_message" not in data["message"]:
                         M.sendmessage("需要reply訊息")
                         return "OK"
 
                     name = from_firstname
-                    if m.group(1) is not None and m.group(1).strip() != "":
-                        name = m.group(1)
+                    if args.nickname is not None and args.nickname.strip() != '':
+                        name = args.nickname
 
                     M.cur.execute("""REPLACE INTO `admin` (`user_id`, `name`)
                                      VALUES (%s, %s)""",
@@ -119,8 +149,7 @@ def web():
                     )
                     return "OK"
 
-                m = re.match(r"/deladmin", m_text)
-                if m is not None:
+                if action in ['deladmin']:
                     if not checkadmin():
                         return "OK"
 
@@ -149,204 +178,336 @@ def web():
                         )
                     return "OK"
 
-                m = re.match(
-                    r"/(?:adduser|au)(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?",
-                    m_text
-                )
-                if m is not None:
+                if action in ['adduser', 'au']:
                     name = checkadmin()
                     if name is None:
                         return "OK"
 
-                    user, wiki = M.parse_user(m.group(1))
-                    reason = name + "加入：" + M.parse_reason(m.group(2))
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument('username', type=str, help='用戶名')
+                    parser.add_argument('reason', type=str,
+                                        default='無原因', nargs='?', help='原因')
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+                    parser.add_argument(
+                        '-r', '--reason', type=str, metavar='原因', default='無原因', help='預設：%(default)s')
+                    parser.add_argument(
+                        '-p', '--point', type=int, metavar='點數', default=10, help='預設：%(default)s')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user, wiki = M.parse_user(args.username)
+
+                    if args.wiki is not None:
+                        wiki = args.wiki
+
+                    reason = name + '加入：' + args.reason
                     M.addblack_user(user, m_date, reason, wiki)
-                    M.adduser_score(M.user_type(user), 10, "handler/cmd/adduser")
-                    return "OK"
+                    M.adduser_score(M.user_type(user),
+                                    args.point, 'handler/cmd/adduser')
+                    return 'OK'
 
-                m = re.match(
-                    r"/(?:userscore)(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?",
-                    m_text
-                )
-                if m is not None:
+                if action in ['userscore', 'us']:
                     name = checkadmin()
                     if name is None:
                         return "OK"
 
-                    user, wiki = M.parse_user(m.group(1))
-                    point = 10
-                    if m.group(2) is not None:
-                        point = int(m.group(2))
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument('username', type=str, help='用戶名')
+                    parser.add_argument(
+                        '-p', '--point', type=int, metavar='點數', default=10, help='預設：%(default)s')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user, wiki = M.parse_user(args.username)
+                    point = args.point
                     userobj = M.user_type(user)
                     M.adduser_score(userobj, point, "handler/cmd/userscore")
                     point2 = M.getuser_score(userobj)
-                    message = "為 {0} 調整分數 {1:+d} 為 {2}".format(user, point, point2)
+                    message = "為 {0} 調整分數 {1:+d} 為 {2}".format(
+                        user, point, point2)
                     M.sendmessage(message)
                     return "OK"
 
-                m = re.match(
-                    r"/addwhiteuser(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?",
-                    m_text
-                )
-                if m is not None:
+                if action in ['addwhiteuser']:
                     name = checkadmin()
                     if name is None:
                         return "OK"
 
-                    user = m.group(1)
-                    reason = name + "加入：" + M.parse_reason(m.group(2))
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument('username', type=str, help='用戶名')
+                    parser.add_argument('reason', type=str,
+                                        default='無原因', nargs='?', help='原因')
+                    parser.add_argument(
+                        '-r', '--reason', type=str, metavar='原因', default='無原因', help='預設：%(default)s')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user, _ = M.parse_user(args.username)
+                    reason = name + '加入：' + args.reason
                     M.addwhite_user(user, m_date, reason)
                     return "OK"
 
-                m = re.match(
-                    r"/delwhiteuser(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?",
-                    m_text
-                )
-                if m is not None:
+                if action in ['delwhiteuser']:
                     if not checkadmin():
                         return "OK"
 
-                    user = m.group(1)
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument('username', type=str, help='用戶名')
+                    parser.add_argument(
+                        'reason', type=str, default=None, nargs='?', help='原因')  # Unused
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user, _ = M.parse_user(args.username)
                     M.delwhite_user(user)
                     return "OK"
 
-                m = re.match(r"/(?:deluser|du)", m_text)
-                if m is not None:
+                if action in ['deluser', 'du']:
                     if not checkadmin():
                         return "OK"
 
-                    m = re.match(
-                        r"/(?:deluser|du)(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?",
-                        m_text
-                    )
-                    if m is not None:
-                        user, wiki = M.parse_user(m.group(1))
-                    elif "reply_to_message" in data["message"]:
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument(
+                        'username', type=str, default=None, nargs='?', help='用戶名')
+                    parser.add_argument(
+                        'reason', type=str, default=None, nargs='?', help='原因')  # Unused
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user = args.username
+                    if user is None and 'reply_to_message' in data['message']:
                         user = M.get_user_from_message_id(
                             data["message"]["reply_to_message"]["message_id"])
                         if len(user) == 0:
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
-                        user, wiki = M.parse_user(user[0][0])
-                    else:
+                        user = user[0][0]
+
+                    if user is None:
+                        M.sendmessage('未指定用戶名')
                         return "OK"
+
+                    user, wiki = M.parse_user(user)
+
+                    if args.wiki is not None:
+                        wiki = args.wiki
 
                     M.delblack_user(user, wiki)
                     return "OK"
 
-                m = re.match(r"/setwiki", m_text)
-                if m is not None:
+                if action in ['setwiki']:
                     if not checkadmin():
                         return "OK"
 
-                    m = re.match(r"/(?:setwiki)(?:@cvn_smart_bot)?\s+(.+)?",
-                                 m_text)
-                    if "reply_to_message" in data["message"]:
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument('wiki', type=str, default='zhwiki', metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+                    parser.add_argument(
+                        '-u', '--user', dest='username', type=str, metavar='用戶名')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user = args.username
+                    if user is None and 'reply_to_message' in data['message']:
                         user = M.get_user_from_message_id(
                             data["message"]["reply_to_message"]["message_id"])
                         if len(user) == 0:
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
-                        user, wiki = M.parse_user(user[0][0])
-                        wiki = m.group(1).strip()
-                    elif m is not None:
-                        user, wiki = M.parse_user(m.group(1))
-                    M.setwikiblack_user(user, wiki)
+                        user = user[0][0]
 
+                    if user is None:
+                        return 'OK'
+
+                    user, _ = M.parse_user(user)
+
+                    M.setwikiblack_user(user, args.wiki)
                     return "OK"
 
-                m = re.match(
-                    r"/(?:addpage|ap)(?:@cvn_smart_bot)?\s+(.+)(?:\n(.+))?",
-                    m_text
-                )
-                if m is not None:
+                if action in ['addpage', 'ap']:
                     name = checkadmin()
                     if name is None:
                         return "OK"
 
-                    page, wiki = M.parse_page(m.group(1))
-                    reason = name + "加入：" + M.parse_reason(m.group(2))
-                    M.addblack_page(page, m_date, reason, wiki=wiki)
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument('pagetitle', type=str, help='頁面名')
+                    parser.add_argument('reason', type=str,
+                                        default='無原因', nargs='?', help='原因')
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+                    parser.add_argument(
+                        '-r', '--reason', type=str, metavar='原因', default='無原因', help='預設：%(default)s')
+                    parser.add_argument(
+                        '-p', '--point', type=int, metavar='點數', default=30, help='預設：%(default)s')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    page, wiki = M.parse_page(args.pagetitle)
+
+                    if args.wiki is not None:
+                        wiki = args.wiki
+
+                    reason = name + '加入：' + M.parse_reason(args.reason)
+                    M.addblack_page(page, m_date, reason,
+                                    wiki=wiki, point=args.point)
                     return "OK"
 
-                m = re.match(
-                    r"/massaddpage(?:@cvn_smart_bot)?\s+(.+(?:\n.+)*)\n(.+)",
-                    m_text
-                )
-                if m is not None:
+                if action in ['massaddpage']:
                     name = checkadmin()
                     if name is None:
                         return "OK"
 
-                    for pageline in m.group(1).split("\n"):
-                        page, wiki = M.parse_page(pageline)
-                        reason = name + "加入：" + M.parse_reason(m.group(2))
-                        M.addblack_page(page, m_date, reason, wiki=wiki)
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument(
+                        'pagetitle', type=str, nargs='+', help='頁面名')
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+                    parser.add_argument(
+                        '-r', '--reason', type=str, metavar='原因', default='無原因', help='預設：%(default)s')
+                    parser.add_argument(
+                        '-p', '--point', type=int, metavar='點數', default=30, help='預設：%(default)s')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    for page in args.pagetitle:
+                        page, wiki = M.parse_page(page)
+
+                        if args.wiki is not None:
+                            wiki = args.wiki
+
+                        reason = name + '加入：' + M.parse_reason(args.reason)
+                        M.addblack_page(page, m_date, reason,
+                                        wiki=wiki, point=args.point)
                     return "OK"
 
-                m = re.match(r"/(?:delpage|dp)", m_text)
-                if m is not None:
+                if action in ['delpage', 'dp']:
                     if not checkadmin():
                         return "OK"
 
-                    m = re.match(
-                        r"/(?:delpage|dp)(?:@cvn_smart_bot)?\s+(.+)(?:\n.+)?",
-                        m_text
-                    )
-                    if m is not None:
-                        page, wiki = M.parse_page(m.group(1))
-                    elif "reply_to_message" in data["message"]:
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument(
+                        'pagetitle', type=str, default=None, nargs='?', help='頁面名')
+                    parser.add_argument(
+                        'reason', type=str, default=None, nargs='?', help='原因')  # Unused
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    page = args.pagetitle
+                    if page is None and 'reply_to_message' in data['message']:
                         page = M.get_page_from_message_id(
                             data["message"]["reply_to_message"]["message_id"])
                         if len(page) == 0:
                             M.sendmessage("無法從訊息找到所對應的頁面")
                             return "OK"
-                        page, wiki = M.parse_page(page[0][0])
-                    else:
-                        return "OK"
+                        page = page[0][0]
+
+                    if page is None:
+                        M.sendmessage('未指定頁面標題')
+                        return 'OK'
+
+                    page, wiki = M.parse_page(page)
+
+                    if args.wiki is not None:
+                        wiki = args.wiki
 
                     M.delblack_page(page, wiki)
                     return "OK"
 
-                m = re.match(r"/(?:checkuser|cu)", m_text)
-                if m is not None:
-                    m = re.match(
-                        r"/(?:checkuser|cu)(?:@cvn_smart_bot)?\s+(.+)",
-                        m_text
-                    )
-                    if m is not None:
-                        user, wiki = M.parse_user(m.group(1))
-                    elif "reply_to_message" in data["message"]:
+                if action in ['checkuser', 'cu']:
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument(
+                        'username', type=str, default=None, nargs='?', help='用戶名')
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    user = args.username
+                    if user is None and 'reply_to_message' in data['message']:
                         user = M.get_user_from_message_id(
                             data["message"]["reply_to_message"]["message_id"])
                         if len(user) == 0:
                             M.sendmessage("無法從訊息找到所對應的對象")
                             return "OK"
-                        user, wiki = M.parse_user(user[0][0])
-                    else:
+                        user = user[0][0]
+
+                    if user is None:
+                        M.sendmessage('未指定用戶名')
                         return "OK"
+
+                    user, wiki = M.parse_user(user)
+
+                    if args.wiki is not None:
+                        wiki = args.wiki
 
                     message = M.checkuser(user, wiki)
                     M.sendmessage(message)
                     return "OK"
 
-                m = re.match(r"/(?:checkpage|cp)", m_text)
-                if m is not None:
-                    m = re.match(
-                        r"/(?:checkpage|cp)(?:@cvn_smart_bot)?\s+(.+)",
-                        m_text
-                    )
-                    if m is not None:
-                        page, wiki = M.parse_page(m.group(1))
-                    elif "reply_to_message" in data["message"]:
+                if action in ['checkpage', 'cp']:
+                    parser = argparse.ArgumentParser(
+                        prog='/{0}'.format(action))
+                    parser.add_argument(
+                        'pagetitle', type=str, default=None, nargs='?', help='頁面名')
+                    parser.add_argument('-w', '--wiki', type=str, metavar='站點',
+                                        help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+
+                    args = handle_parser(parser, cmd)
+                    if args is None:
+                        return 'OK'
+
+                    page = args.pagetitle
+                    if page is None and 'reply_to_message' in data['message']:
                         page = M.get_page_from_message_id(
                             data["message"]["reply_to_message"]["message_id"])
                         if len(page) == 0:
                             M.sendmessage("無法從訊息找到所對應的頁面")
                             return "OK"
-                        page, wiki = M.parse_page(page[0][0])
-                    else:
-                        return "OK"
+                        page = page[0][0]
+
+                    if page is None:
+                        M.sendmessage('未指定頁面標題')
+                        return 'OK'
+
+                    page, wiki = M.parse_page(page)
+
+                    if args.wiki is not None:
+                        wiki = args.wiki
 
                     message = ""
                     rows = M.check_page_blacklist(page, wiki)
@@ -362,8 +523,7 @@ def web():
                         M.sendmessage(page + "@" + wiki + "：查無結果")
                     return "OK"
 
-                if (re.match(r"/os(?:@cvn_smart_bot)?$", m_text)
-                        and "reply_to_message" in data["message"]):
+                if action in ['os'] and 'reply_to_message' in data['message']:
                     if not checkadmin():
                         return "OK"
 
@@ -372,8 +532,7 @@ def web():
                                         ["message_id"])
                     return "OK"
 
-                if (re.match(r"/osall(?:@cvn_smart_bot)?$", m_text)
-                        and "reply_to_message" in data["message"]):
+                if action in ['osall'] and 'reply_to_message' in data['message']:
                     if not checkadmin():
                         return "OK"
 
@@ -398,8 +557,7 @@ def web():
                     M.sendmessage("已濫權掉" + str(len(rows)) + "條訊息")
                     return "OK"
 
-                m = re.match(r"/status", m_text)
-                if m is not None:
+                if action in ['status']:
                     message = (
                         ('Webhook: <a href="{}">WORKING!!</a>\n' +
                          '<a href="{}status">查看資料接收狀況</a>')
