@@ -1144,6 +1144,7 @@ class Monitor():
             wiki = self.wiki
         page = page.strip()
         wiki = wiki.strip()
+        page = page.replace("_", " ")
 
         pagehash = self.getpage_hash(page, wiki)
         self.cur.execute(
