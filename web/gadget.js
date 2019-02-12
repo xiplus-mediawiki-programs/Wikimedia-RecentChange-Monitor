@@ -274,6 +274,7 @@
 					url: 'https://xiplus.ddns.net/wikipedia_rc/api',
 					data: {
 						'action': 'centralauthorize',
+						'token': '',
 						'centralauthtoken': data.centralauthtoken.centralauthtoken
 					},
 					success: function success(data) {
