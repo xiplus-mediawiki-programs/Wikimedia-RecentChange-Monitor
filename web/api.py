@@ -2,6 +2,7 @@ import json
 import re
 import time
 import traceback
+import urllib
 
 from flask import request
 
@@ -38,6 +39,60 @@ def web():
             if name is None:
                 return json.dumps({"result": "fail"})
             return json.dumps({"result": "success", "user": name})
+
+        if data["action"] == "centralauthorize":
+            query = {
+                "format": "json",
+                "action": "query",
+                "meta": "userinfo",
+                "centralauthtoken": data["centralauthtoken"]
+            }
+            query = urllib.parse.urlencode(query)
+            url = "https://meta.wikimedia.org/w/api.php?" + query
+            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = json.loads(res)
+
+            if "query" in res:
+                wiki_username = res["query"]["userinfo"]["name"]
+                M.cur.execute(
+                    """SELECT `name`, `token` FROM `admin` WHERE `wiki_username` = %s""",
+                    (wiki_username)
+                )
+                rows = M.cur.fetchall()
+                if len(rows) == 0:
+                    return json.dumps({"result": "fail"})
+                return json.dumps({"result": "success", "user": rows[0][0], "token": rows[0][1]})
+
+            return json.dumps({"result": "fail"})
+
+        if data["action"] == "updatecentralinfo":
+            name = checkadmin()
+            if name is None:
+                return json.dumps({"result": "fail"})
+
+            query = {
+                "format": "json",
+                "action": "query",
+                "meta": "userinfo",
+                "centralauthtoken": data["centralauthtoken"]
+            }
+            query = urllib.parse.urlencode(query)
+            url = "https://meta.wikimedia.org/w/api.php?" + query
+            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = json.loads(res)
+
+            if "query" in res:
+                wiki_username = res["query"]["userinfo"]["name"]
+                count = M.cur.execute(
+                    """UPDATE `admin` SET `wiki_username` = %s
+                   WHERE `token` = %s""",
+                    (wiki_username, data["token"]))
+                M.db.commit()
+                if count == 0:
+                    return json.dumps({"result": "fail"})
+                return json.dumps({"result": "success", "wiki_username": wiki_username, "user": name})
+
+            return json.dumps({"result": "fail"})
 
         if data["action"] == "addpage":
             name = checkadmin()

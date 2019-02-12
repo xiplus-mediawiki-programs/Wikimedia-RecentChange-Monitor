@@ -1,6 +1,6 @@
 (function() {
 
-	mw.loader.using(['mediawiki.util']).done(function() {
+	mw.loader.using(['mediawiki.util', 'mediawiki.api', 'mediawiki.notify']).done(function() {
 
 		function gettoken() {
 			if (localStorage.getItem("cvn_smart_authorized") !== "1") {
@@ -131,6 +131,32 @@
 							localStorage.setItem("cvn_smart_authorized", "1");
 							localStorage.setItem("cvn_smart_token", token);
 							showbutton();
+
+							var api = new mw.Api();
+							api.get({
+								action: 'centralauthtoken'
+							}).done(function(data) {
+								$.ajax({
+									type: 'POST',
+									url: 'https://xiplus.ddns.net/wikipedia_rc/api',
+									data: {
+										'action': 'updatecentralinfo',
+										'token': token,
+										'centralauthtoken': data.centralauthtoken.centralauthtoken
+									},
+									success: function success(data) {
+										data = JSON.parse(data);
+										if (data.result === "success") {
+											mw.notify(["cvn-smart: 已將維基帳戶 " + data.wiki_username + " 和 " + data.user + " 連結，未來登入此維基帳戶即會自動登入cvn-smart"]);
+										}
+									},
+									error: function error(e) {
+										console.log(e);
+										mw.notify(["cvn-smart: 傳送請求時發生錯誤\n" + e.statusText]);
+									}
+								});
+							});
+
 						} else {
 							mw.notify(["認證失敗，存取權杖錯誤或過期，請向機器人私訊 /newtoken 以獲得新權杖"]);
 						}
@@ -231,10 +257,44 @@
 			if (first && localStorage.getItem("cvn_smart_firstnotice")) {
 				return;
 			}
+
 			mw.notify(["cvn-smart: 您尚未進行認證，或是存取權杖已過期"]);
 			var date = new Date();
 			date.setTime(date.getTime() + 1000 * 86400);
 			localStorage.setItem("cvn_smart_firstnotice", "1");
+
+			var api = new mw.Api();
+			api.get({
+				action: 'centralauthtoken'
+			}).done(function(data) {
+				mw.notify(["cvn-smart: 正在嘗試進行中央登入"]);
+
+				$.ajax({
+					type: 'POST',
+					url: 'https://xiplus.ddns.net/wikipedia_rc/api',
+					data: {
+						'action': 'centralauthorize',
+						'centralauthtoken': data.centralauthtoken.centralauthtoken
+					},
+					success: function success(data) {
+						data = JSON.parse(data);
+						if (data.result === "success") {
+							mw.notify(["cvn-smart: 已成功自動認證，您是 " + data.user]);
+							localStorage.setItem("cvn_smart_authorized", "1");
+							localStorage.setItem("cvn_smart_token", data.token);
+							showbutton();
+						} else {
+							mw.notify(["cvn-smart: 中央登入認證失敗"]);
+						}
+					},
+					error: function error(e) {
+						console.log(e);
+						mw.notify(["cvn-smart: 傳送請求時發生錯誤\n" + e.statusText]);
+					}
+				});
+
+			});
+
 		}
 
 
