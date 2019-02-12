@@ -43,7 +43,8 @@ def main(log):
                 "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
             if rows[0][2] != "" and rows[0][2] != log["user"]:
                 message += "，\u200b" + rows[0][2] + "\u200b"
-            message += '，' + M.formattimediff(rows[0][1]) + "，" + str(rows[0][4]) + "p）"
+            message += '，{0}，{1}p）'.format(
+                M.formattimediff(rows[0][1]), rows[0][4])
 
         if (len(rows) != 0
                 or log["filter"] in afwatchlistname
