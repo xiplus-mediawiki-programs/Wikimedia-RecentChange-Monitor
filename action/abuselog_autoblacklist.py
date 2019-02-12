@@ -5,6 +5,7 @@ import traceback
 
 import dateutil
 
+from abusefilter_list_producer import abusefilter_list
 from abuselog_autoblacklist_config import afblacklist, afwatchlist
 from Monitor import Monitor
 
@@ -13,12 +14,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.environ['TZ'] = 'UTC'
 
 M = Monitor()
-
-abusefilter_list = {}
-with open(os.path.dirname(os.path.realpath(__file__)) + '/abusefilter_list.csv') as csvfile:
-    reader = csv.reader(csvfile)
-    for row in reader:
-        abusefilter_list[int(row[0])] = row[1]
 
 afwatchlistname = []
 for afid in afwatchlist:
