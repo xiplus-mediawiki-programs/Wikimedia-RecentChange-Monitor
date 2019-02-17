@@ -24,7 +24,7 @@ def main(log):
             afLogo(log['filter_id'], log['filter']),
             time.strftime('%Y年%m月%d日 ({}) %H:%M', time.gmtime(timestamp)).format(day[timestr.weekday()]),
             M.link_user(log['user']),
-            M.link_all(log['user'], '對話'),
+            M.link_all('User_talk:{0}'.format(log['user']), '對話'),
             M.link_page(log['title']),
             log['action'],
             M.link_abusefilter(log['filter_id']),
