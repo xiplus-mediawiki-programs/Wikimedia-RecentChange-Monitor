@@ -171,6 +171,41 @@
 			}
 		}
 
+		function centralauthorize() {
+			var api = new mw.Api();
+			api.get({
+				action: 'centralauthtoken'
+			}).done(function(data) {
+				mw.notify(["cvn-smart: 正在嘗試進行中央登入"]);
+
+				$.ajax({
+					type: 'POST',
+					url: 'https://xiplus.ddns.net/wikipedia_rc/api',
+					data: {
+						'action': 'centralauthorize',
+						'token': '',
+						'centralauthtoken': data.centralauthtoken.centralauthtoken
+					},
+					success: function success(data) {
+						data = JSON.parse(data);
+						if (data.result === "success") {
+							mw.notify(["cvn-smart: 已成功自動認證，您是 " + data.user]);
+							localStorage.setItem("cvn_smart_authorized", "1");
+							localStorage.setItem("cvn_smart_token", data.token);
+							showbutton();
+						} else {
+							mw.notify(["cvn-smart: 中央登入認證失敗"]);
+						}
+					},
+					error: function error(e) {
+						console.log(e);
+						mw.notify(["cvn-smart: 傳送請求時發生錯誤\n" + e.statusText]);
+					}
+				});
+
+			});
+		}
+
 		function showbutton() {
 			if (window.cvn_smart_button) {
 				return;
@@ -252,6 +287,17 @@
 				});
 				window.cvn_smart_authorize_button = true;
 			}
+			if (window.cvn_smart_centralauthorize_button === undefined) {
+				var centralauthorizebtn = mw.util.addPortletLink(
+					'p-cactions',
+					'#',
+					'cvn-smart: centralauthorize'
+				);
+				$(centralauthorizebtn).on('click', function() {
+					centralauthorize();
+				});
+				window.cvn_smart_centralauthorize_button = true;
+			}
 			localStorage.setItem("cvn_smart_authorized", "0");
 			localStorage.setItem("cvn_smart_token", "");
 			if (first && localStorage.getItem("cvn_smart_firstnotice")) {
@@ -263,39 +309,7 @@
 			date.setTime(date.getTime() + 1000 * 86400);
 			localStorage.setItem("cvn_smart_firstnotice", "1");
 
-			var api = new mw.Api();
-			api.get({
-				action: 'centralauthtoken'
-			}).done(function(data) {
-				mw.notify(["cvn-smart: 正在嘗試進行中央登入"]);
-
-				$.ajax({
-					type: 'POST',
-					url: 'https://xiplus.ddns.net/wikipedia_rc/api',
-					data: {
-						'action': 'centralauthorize',
-						'token': '',
-						'centralauthtoken': data.centralauthtoken.centralauthtoken
-					},
-					success: function success(data) {
-						data = JSON.parse(data);
-						if (data.result === "success") {
-							mw.notify(["cvn-smart: 已成功自動認證，您是 " + data.user]);
-							localStorage.setItem("cvn_smart_authorized", "1");
-							localStorage.setItem("cvn_smart_token", data.token);
-							showbutton();
-						} else {
-							mw.notify(["cvn-smart: 中央登入認證失敗"]);
-						}
-					},
-					error: function error(e) {
-						console.log(e);
-						mw.notify(["cvn-smart: 傳送請求時發生錯誤\n" + e.statusText]);
-					}
-				});
-
-			});
-
+			centralauthorize();
 		}
 
 
