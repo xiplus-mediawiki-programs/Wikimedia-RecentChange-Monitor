@@ -62,7 +62,7 @@ while True:
 
                 for module in modules:
                     try:
-                        module(change)
+                        module(M, change)
                     except Exception as e:
                         traceback.print_exc()
                         M.error(traceback.format_exc())
