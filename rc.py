@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 import importlib
 import json
+import logging
 import os
 import sys
 import time
 import traceback
 
+import pymysql
 from sseclient import SSEClient as EventSource
 
 from Monitor import Monitor
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s [%(filename)10s:%(lineno)4s] %(levelname)7s %(message)s')
 
 os.environ['TZ'] = 'UTC'
 
@@ -20,7 +25,7 @@ M = Monitor()
 
 try:
     from rc_config import module_list
-    print("module_list", module_list)
+    logging.info("module_list: %s", module_list)
 except ImportError as e:
     if str(e) == "No module named 'rc_config'":
         traceback.print_exc()
@@ -51,6 +56,7 @@ for module_name in module_list:
         M.error(traceback.format_exc())
         raise e
 
+errorWaitTime = 1
 while True:
     try:
         for event in EventSource(url):
@@ -60,14 +66,27 @@ while True:
                 except ValueError:
                     continue
 
+                noError = True
                 for module in modules:
                     try:
                         module(M, change)
                     except Exception as e:
-                        traceback.print_exc()
-                        M.error(traceback.format_exc())
+                        if not isinstance(e, (pymysql.err.InterfaceError, pymysql.err.OperationalError)):
+                            traceback.print_exc()
+                            M.error(traceback.format_exc(), noRaise=True)
+                        logging.warning(
+                            '(A) %s. Wait %s seconds to retry', e, errorWaitTime)
+                        time.sleep(errorWaitTime)
+                        errorWaitTime *= 2
+                        noError = False
+
+                if noError and errorWaitTime > 1:
+                    errorWaitTime //= 2
 
     except Exception as e:
         traceback.print_exc()
-        M.error(traceback.format_exc())
-        time.sleep(60)
+        M.error(traceback.format_exc(), noRaise=True)
+        logging.warning('(B) %s. Wait %s seconds to retry', e, errorWaitTime)
+        print(errorWaitTime)
+        time.sleep(errorWaitTime)
+        errorWaitTime *= 2
