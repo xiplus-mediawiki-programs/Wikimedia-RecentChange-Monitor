@@ -32,6 +32,7 @@ class Monitor():
         self.dbdb = config.get('database', 'db')
         self.dbcharset = config.get('database', 'charset')
         self.dbretry = 5
+        self.dbconnected = False
         self.db_connect()
         self.siteurl = config.get('site', 'url')
         self.defaultwiki = config.get('monitor', 'defaultwiki')
@@ -44,7 +45,7 @@ class Monitor():
         self.wp_pass = config.get('wikipedia', 'pass')
         self.wp_user_agent = config.get('wikipedia', 'user_agent')
 
-    def db_connect(self):
+    def db_connect(self, noRaise=True):
         try:
             logging.info('Connecting to database.')
             self.db = pymysql.connect(host=self.dbhost,
@@ -53,10 +54,17 @@ class Monitor():
                                       db=self.dbdb,
                                       charset=self.dbcharset)
             self.cur = self.db.cursor()
-        except pymysql.err.Error as e:
+        except pymysql.err.OperationalError as e:
             logging.warning(e)
+            self.dbconnected = False
+            if not noRaise:
+                raise e
+        else:
+            self.dbconnected = True
 
     def db_execute(self, query, args):
+        if not self.dbconnected:
+            self.db_connect(noRaise=False)
         for tryCnt in range(self.dbretry + 1):
             try:
                 result = self.cur.execute(query, args)
