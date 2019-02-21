@@ -1,10 +1,7 @@
 import traceback
 
-from Monitor import Monitor
 
-
-def main(log):
-    M = Monitor()
+def main(M, log):
     try:
         M.addRC_log_abuselog(log)
 

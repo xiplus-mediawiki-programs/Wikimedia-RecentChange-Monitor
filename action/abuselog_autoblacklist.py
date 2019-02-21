@@ -6,13 +6,10 @@ import dateutil
 
 from abusefilter_list_producer import abusefilter_list
 from abuselog_autoblacklist_config import afblacklist, afwatchlist
-from Monitor import Monitor
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ['TZ'] = 'UTC'
-
-M = Monitor()
 
 afwatchlistname = []
 for afid in afwatchlist:
@@ -23,7 +20,7 @@ for afid in afblacklist:
     afblacklistname.append(abusefilter_list[afid])
 
 
-def main(log):
+def main(M, log):
     try:
         print(log["filter"], log["timestamp"])
 

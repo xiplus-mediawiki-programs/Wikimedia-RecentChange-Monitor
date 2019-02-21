@@ -7,12 +7,10 @@ from autoblacklist_config import (blockblacklistwiki, blockreasonblacklist,
                                   followwiki, protectblacklistwiki,
                                   protectreasonblacklist, warnreasonblacklist,
                                   warnuserblacklist)
-from Monitor import Monitor
 from strtotime import strtotime
 
 
-def main(change):
-    M = Monitor()
+def main(M, change):
     try:
         M.change_wiki_and_domain(change['wiki'], change["meta"]["domain"])
 

@@ -3,12 +3,10 @@ import traceback
 
 import pymysql
 
-from Monitor import Monitor
 from record_config import recordwiki
 
 
-def main(change):
-    M = Monitor()
+def main(M, change):
     try:
         wiki = change["wiki"]
 

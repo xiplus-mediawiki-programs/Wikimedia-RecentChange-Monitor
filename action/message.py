@@ -2,11 +2,9 @@ import re
 import traceback
 
 from message_config import affollowwiki, followwiki
-from Monitor import Monitor
 
 
-def main(change):
-    M = Monitor()
+def main(M, change):
     try:
         if change["bot"]:
             return

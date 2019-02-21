@@ -130,7 +130,7 @@ while True:
 
             for module in modules:
                 try:
-                    module(log)
+                    module(M, log)
                 except Exception as e:
                     traceback.print_exc()
                     M.error(traceback.format_exc())

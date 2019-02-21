@@ -5,12 +5,9 @@ import dateutil
 
 from abuselog_message_config import chats, token
 from abuselog_message_function import afLogo, result
-from Monitor import Monitor
 
 
-def main(log):
-    M = Monitor()
-    M.token = token
+def main(M, log):
     try:
         timestr = dateutil.parser.parse(log['timestamp'])
         timestamp = int(timestr.timestamp()) + 3600 * 8
