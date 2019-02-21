@@ -4,11 +4,11 @@ import hashlib
 import html
 import ipaddress
 import json
+import logging
 import os
 import re
 import sys
 import time
-import traceback
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -26,12 +26,13 @@ class Monitor():
         self.chat_id = config.getint('telegram', 'default_chat_id')
         self.response_chat_id = json.loads(
             config.get('telegram', 'response_chat_id'))
-        self.db = pymysql.connect(host=config.get('database', 'host'),
-                                  user=config.get('database', 'user'),
-                                  passwd=config.get('database', 'passwd'),
-                                  db=config.get('database', 'db'),
-                                  charset=config.get('database', 'charset'))
-        self.cur = self.db.cursor()
+        self.dbhost = config.get('database', 'host')
+        self.dbuser = config.get('database', 'user')
+        self.dbpasswd = config.get('database', 'passwd')
+        self.dbdb = config.get('database', 'db')
+        self.dbcharset = config.get('database', 'charset')
+        self.dbretry = 5
+        self.db_connect()
         self.siteurl = config.get('site', 'url')
         self.defaultwiki = config.get('monitor', 'defaultwiki')
         self.wiki = config.get('monitor', 'defaultwiki')
@@ -43,12 +44,42 @@ class Monitor():
         self.wp_pass = config.get('wikipedia', 'pass')
         self.wp_user_agent = config.get('wikipedia', 'user_agent')
 
+    def db_connect(self):
+        try:
+            logging.info('Connecting to database.')
+            self.db = pymysql.connect(host=self.dbhost,
+                                      user=self.dbuser,
+                                      passwd=self.dbpasswd,
+                                      db=self.dbdb,
+                                      charset=self.dbcharset)
+            self.cur = self.db.cursor()
+        except pymysql.err.Error as e:
+            logging.warning(e)
+
+    def db_execute(self, query, args):
+        for tryCnt in range(self.dbretry + 1):
+            try:
+                result = self.cur.execute(query, args)
+                self.db.commit()
+                return result
+            except (pymysql.err.InterfaceError, pymysql.err.OperationalError) as e:
+                if tryCnt == self.dbretry:
+                    logging.warning('%s. Quitting.', e)
+                    raise e
+                logging.warning(
+                    '%s. Wait %s seconds and try to reconnect database.', e, 2**tryCnt)
+                time.sleep(2**tryCnt)
+                self.db_connect()
+
+    def db_fetchall(self):
+        return self.cur.fetchall()
+
     def change_wiki_and_domain(self, wiki, domain):
         self.wiki = wiki
         self.domain = domain
 
     def addRC_edit(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_edit`
                 (`bot`, `comment`, `id`,
                 `length_new`, `length_old`,
@@ -68,10 +99,9 @@ class Monitor():
                 change["parsedcomment"], change["revision"]["new"],
                 change["revision"]["old"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_142(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_142`
                 (`bot`, `comment`, `id`,
                 `namespace`, `parsedcomment`,
@@ -85,10 +115,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_new(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_new`
                 (`bot`, `comment`, `id`,
                 `length_new`, `minor`,
@@ -108,10 +137,9 @@ class Monitor():
                 change["patrolled"], change["revision"]["new"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_categorize(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_categorize`
                 (`bot`, `comment`, `id`,
                 `namespace`, `parsedcomment`,
@@ -125,10 +153,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_move(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_move`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -148,10 +175,9 @@ class Monitor():
                 change["log_params"]["target"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_abusefilter_hit(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_abusefilter_hit`
                 (`bot`, `log_action_comment`,
                 `log_id`, `log_params_action`,
@@ -171,7 +197,6 @@ class Monitor():
                 change["log_params"]["filter"], change["log_params"]["log"],
                 change["namespace"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_abuselog(self, change):
         import dateutil.parser
@@ -185,7 +210,7 @@ class Monitor():
             revid = change["revid"]
         timestamp = str(int(
             dateutil.parser.parse(change["timestamp"]).timestamp()))
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_abuselog`
                 (`id`, `filter_id`, `filter`,
                 `user`, `ns`,
@@ -202,10 +227,9 @@ class Monitor():
                 revid, change["result"],
                 change["action"], timestamp,
                 change["title"], self.defaultwiki))
-        self.db.commit()
 
     def addRC_log_abusefilter_modify(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_abusefilter_modify`
                 (`bot`, `log_action_comment`,
                 `log_id`, `log_params_historyId`,
@@ -222,10 +246,9 @@ class Monitor():
                 change["log_params"]["newId"], change["namespace"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_newusers(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_newusers`
             (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -245,10 +268,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_block(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_block`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -268,10 +290,9 @@ class Monitor():
                 change["log_params"]["duration"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_block_unblock(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_block`
             (`bot`, `comment`, `id`,
             `log_action`, `log_action_comment`,
@@ -288,10 +309,9 @@ class Monitor():
                 change["log_id"], "", "", change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_upload(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_upload`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -311,10 +331,9 @@ class Monitor():
                 change["log_params"]["img_sha1"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_protect(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_protect`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -340,10 +359,9 @@ class Monitor():
                 change["log_params"]["cascade"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_protect_unprotect(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_protect_unprotect`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -360,10 +378,9 @@ class Monitor():
                 change["log_id"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_protect_move_prot(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_protect_move_prot`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -383,10 +400,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_renameuser(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_renameuser`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -409,10 +425,9 @@ class Monitor():
                 change["log_params"]["edits"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_merge(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_merge`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -432,10 +447,9 @@ class Monitor():
                 change["log_params"]["mergepoint"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_rights(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_rights`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -467,10 +481,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_patrol(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_patrol`
                 (`bot`, `log_action`,
                 `log_action_comment`, `log_id`,
@@ -490,10 +503,9 @@ class Monitor():
                 change["log_params"]["curid"], change["namespace"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_thanks(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_thanks`
                 (`bot`, `log_action`,
                 `log_action_comment`, `log_id`,
@@ -507,10 +519,9 @@ class Monitor():
                 change["log_action_comment"], change["log_id"],
                 change["namespace"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_delete(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_delete`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -527,10 +538,9 @@ class Monitor():
                 change["log_id"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_delete_restore(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_delete_restore`
                 (`bot`, `comment`, `id`,
                 `log_action_comment`, `log_id`,
@@ -553,10 +563,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_delete_revision(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_delete_revision`
                 (`bot`, `comment`, `id`,
                 `log_action_comment`, `log_id`,
@@ -579,10 +588,9 @@ class Monitor():
                 change["log_params"]["ofield"], change["namespace"],
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_globalauth(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_globalauth`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -602,10 +610,9 @@ class Monitor():
                 change["namespace"], change["parsedcomment"],
                 change["timestamp"], change["title"],
                 change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_gblblock(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_gblblock`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -625,10 +632,9 @@ class Monitor():
              change["namespace"], change["parsedcomment"],
              change["timestamp"], change["title"],
              change["user"], change["wiki"]))
-        self.db.commit()
 
     def addRC_log_gblrename(self, change):
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `RC_log_gblrename`
                 (`bot`, `comment`, `id`,
                 `log_action`, `log_action_comment`,
@@ -654,16 +660,15 @@ class Monitor():
              change["log_params"]["newuser"], change["namespace"],
              change["parsedcomment"], change["timestamp"], change["title"],
              change["user"], change["wiki"]))
-        self.db.commit()
 
     def getuser_score(self, userobj):
         userhash = userobj.userhash
-        self.cur.execute(
+        self.db_execute(
             """SELECT `point` FROM `user_score`
                WHERE `userhash` = %s""",
             (userhash)
         )
-        rows = self.cur.fetchall()
+        rows = self.db_fetchall()
         if len(rows) == 0:
             res = 0
         else:
@@ -673,21 +678,23 @@ class Monitor():
     def adduser_score(self, userobj, point, source=""):
         if point == 0:
             return
-        self.log("{} add score {} from {}".format(userobj.val, point, source), logtype="userscore")
+        self.log("{} add score {} from {}".format(
+            userobj.val, point, source), logtype="userscore")
         oldpoint = self.getuser_score(userobj)
         timestamp = int(time.time())
         userhash = userobj.userhash
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `user_score`
             (`userhash`, `point`, `timestamp`) VALUES (%s, %s, %s)
             ON DUPLICATE KEY
             UPDATE `point` = `point` + %s, `timestamp` = %s""",
             (userhash, point, timestamp, point, timestamp)
         )
-        self.db.commit()
+
         newpoint = self.getuser_score(userobj)
         if oldpoint > 0 and newpoint <= 0:  # pylint: disable=R1716
-            self.sendmessage("{}的分數小於等於0，已停止監視".format(self.link_user(userobj.val)))
+            self.sendmessage("{}的分數小於等於0，已停止監視".format(
+                self.link_user(userobj.val)))
 
     def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
         if wiki is None:
@@ -697,13 +704,13 @@ class Monitor():
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
-            self.cur.execute(
+            self.db_execute(
                 """INSERT INTO `black_user`
                    (`wiki`, `user`, `timestamp`, `reason`, `userhash`)
                    VALUES (%s, %s, %s, %s, %s)""",
                 (wiki, userobj.user, str(timestamp), reason, userobj.userhash)
             )
-            self.db.commit()
+
             message = "{}加入User:{}@{}至黑名單\n原因：{}".format(
                 msgprefix,
                 self.link_user(userobj.user, wiki),
@@ -717,27 +724,27 @@ class Monitor():
                 message = "IP數量超過上限"
                 self.sendmessage(message)
                 return message
-            self.cur.execute(
+            self.db_execute(
                 """INSERT INTO `black_ipv4`
                    (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`, `userhash`)
                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (wiki, userobj.val, int(userobj.start), int(userobj.end),
                     str(timestamp), reason, userobj.userhash)
             )
-            self.db.commit()
+
         elif isinstance(userobj, IPv6):
             if int(userobj.end) - int(userobj.start) > self.ipv6limit:
                 message = "IP數量超過上限"
                 self.sendmessage(message)
                 return message
-            self.cur.execute(
+            self.db_execute(
                 """INSERT INTO `black_ipv6`
                    (`wiki`, `val`, `start`, `end`, `timestamp`, `reason`, `userhash`)
                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (wiki, userobj.val, int(userobj.start), int(userobj.end),
                     str(timestamp), reason, userobj.userhash)
             )
-            self.db.commit()
+
         else:
             message = "cannot detect user type: " + user
             self.error(message)
@@ -806,8 +813,8 @@ class Monitor():
             if prefix:
                 message += "於白名單："
             for record in rows:
-                message += ("\n" + self.parse_wikicode(record[0]) +
-                            ', ' + self.formattimediff(record[1]))
+                message += ("\n" + self.parse_wikicode(record[0])
+                            + ', ' + self.formattimediff(record[1]))
 
         return message.strip()
 
@@ -817,8 +824,8 @@ class Monitor():
         user = user.strip()
         wiki = wiki.strip()
 
-        message = (self.getblackuser(user, wiki) + "\n"
-                   + self.getwhiteuser(user, wiki)).strip()
+        message = (self.getblackuser(user, wiki) + "\n" +
+                   self.getwhiteuser(user, wiki)).strip()
 
         userobj = self.user_type(user)
         point = self.getuser_score(userobj)
@@ -836,11 +843,11 @@ class Monitor():
         blacklist = self.getblackuser(user, wiki, prefix=False)
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
-            count = self.cur.execute(
+            count = self.db_execute(
                 """DELETE FROM `black_user`
                    WHERE `user` = %s AND `wiki` = %s""",
                 (userobj.user, wiki))
-            self.db.commit()
+
             message = "{}{}條對於User:{}({})的紀錄從黑名單刪除\n{}".format(
                 msgprefix,
                 count,
@@ -851,17 +858,17 @@ class Monitor():
             self.sendmessage(message)
             return message
         elif isinstance(userobj, IPv4):
-            count = self.cur.execute(
+            count = self.db_execute(
                 """DELETE FROM `black_ipv4`
                    WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
                 (int(userobj.start), int(userobj.end), wiki))
-            self.db.commit()
+
         elif isinstance(userobj, IPv6):
-            count = self.cur.execute(
+            count = self.db_execute(
                 """DELETE FROM `black_ipv6`
                    WHERE `start` = %s AND `end` = %s AND `wiki` = %s""",
                 (int(userobj.start), int(userobj.end), wiki))
-            self.db.commit()
+
         else:
             message = "cannot detect user type: " + user
             self.error(message)
@@ -906,26 +913,26 @@ class Monitor():
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
-            count = self.cur.execute(
+            count = self.db_execute(
                 """UPDATE `black_user` SET `wiki` = %s
                    WHERE `user` = %s""",
                 (wiki, userobj.user))
-            self.db.commit()
+
             self.sendmessage("{}條對於User:{}的紀錄設定wiki為{}".format(
                 count, self.link_user(userobj.user, wiki), wiki))
             return
         elif isinstance(userobj, IPv4):
-            count = self.cur.execute(
+            count = self.db_execute(
                 """UPDATE `black_ipv4` SET `wiki` = %s
                    WHERE `start` = %s AND `end` = %s""",
                 (wiki, int(userobj.start), int(userobj.end)))
-            self.db.commit()
+
         elif isinstance(userobj, IPv6):
-            count = self.cur.execute(
+            count = self.db_execute(
                 """UPDATE `black_ipv6` SET `wiki` = %s
                    WHERE `start` = %s AND `end` = %s""",
                 (wiki, int(userobj.start), int(userobj.end)))
-            self.db.commit()
+
         else:
             self.error("cannot detect user type: " + user)
             return
@@ -949,11 +956,11 @@ class Monitor():
         user = user.strip()
 
         userobj = self.user_type(user)
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `white_user` (`user`, `timestamp`, `reason`, `userhash`)
                VALUES (%s, %s, %s, %s)""",
             (user, timestamp, reason, userobj.userhash))
-        self.db.commit()
+
         self.sendmessage("{}加入{}@global至白名單\n原因：{}"
                          .format(
                              msgprefix,
@@ -964,10 +971,10 @@ class Monitor():
 
     def delwhite_user(self, user):
         user = user.strip()
-        count = self.cur.execute(
+        count = self.db_execute(
             """DELETE FROM `white_user` WHERE `user` = %s""",
             (user))
-        self.db.commit()
+
         self.sendmessage(str(count) + "條對於" + user + "@global的紀錄從白名單刪除")
 
     def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
@@ -983,7 +990,7 @@ class Monitor():
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
-            self.cur.execute(
+            self.db_execute(
                 """SELECT `reason`, `black_user`.`timestamp`, '' AS `val`, `wiki`, `point`
                    FROM `black_user`
                    LEFT JOIN `user_score`
@@ -993,9 +1000,9 @@ class Monitor():
                    AND `point` > 0
                    ORDER BY `black_user`.`timestamp` DESC""",
                 (user, wiki))
-            return self.cur.fetchall()
+            return self.db_fetchall()
         elif isinstance(userobj, IPv4):
-            self.cur.execute(
+            self.db_execute(
                 """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `wiki`, `point`
                    FROM `black_ipv4`
                    LEFT JOIN `user_score`
@@ -1005,9 +1012,9 @@ class Monitor():
                    AND `point` > 0
                    ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
-            return self.cur.fetchall()
+            return self.db_fetchall()
         elif isinstance(userobj, IPv6):
-            self.cur.execute(
+            self.db_execute(
                 """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `wiki`, `point`
                    FROM `black_ipv6`
                    LEFT JOIN `user_score`
@@ -1017,7 +1024,7 @@ class Monitor():
                    AND `point` > 0
                    ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
-            return self.cur.fetchall()
+            return self.db_fetchall()
         else:
             self.error("cannot detect user type: " + user)
             return []
@@ -1035,7 +1042,7 @@ class Monitor():
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
-            self.cur.execute(
+            self.db_execute(
                 """SELECT `reason`, `black_user`.`timestamp`, `user`, `point`
                    FROM `black_user`
                    LEFT JOIN `user_score`
@@ -1045,9 +1052,9 @@ class Monitor():
                    AND `point` > 0
                    ORDER BY `black_user`.`timestamp` DESC""",
                 (user, reason, wiki))
-            return self.cur.fetchall()
+            return self.db_fetchall()
         elif isinstance(userobj, IPv4):
-            self.cur.execute(
+            self.db_execute(
                 """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `point`
                    FROM `black_ipv4`
                    LEFT JOIN `user_score`
@@ -1057,9 +1064,9 @@ class Monitor():
                    AND `point` > 0
                    ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
-            return self.cur.fetchall()
+            return self.db_fetchall()
         elif isinstance(userobj, IPv6):
-            self.cur.execute(
+            self.db_execute(
                 """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `point`
                    FROM `black_ipv6`
                    LEFT JOIN `user_score`
@@ -1069,7 +1076,7 @@ class Monitor():
                    AND `point` > 0
                    ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
-            return self.cur.fetchall()
+            return self.db_fetchall()
         else:
             self.error("cannot detect user type: " + user)
             return []
@@ -1080,10 +1087,10 @@ class Monitor():
         user = user.strip()
         wiki = wiki.strip()
 
-        self.cur.execute("""SELECT `reason`, `timestamp` FROM `white_user`
+        self.db_execute("""SELECT `reason`, `timestamp` FROM `white_user`
                             WHERE `user` = %s ORDER BY `timestamp` DESC""",
-                         (user))
-        return self.cur.fetchall()
+                        (user))
+        return self.db_fetchall()
 
     def getpage_hash(self, page, wiki=None):
         if wiki is None:
@@ -1104,12 +1111,12 @@ class Monitor():
         wiki = wiki.strip()
 
         pagehash = self.getpage_hash(page, wiki)
-        self.cur.execute(
+        self.db_execute(
             """SELECT `point` FROM `black_page`
                WHERE `pagehash` = %s""",
             (pagehash)
         )
-        rows = self.cur.fetchall()
+        rows = self.db_fetchall()
         if len(rows) == 0:
             res = 0
         else:
@@ -1128,16 +1135,17 @@ class Monitor():
         oldpoint = self.getpage_score(page, wiki)
 
         pagehash = self.getpage_hash(page, wiki)
-        self.cur.execute(
+        self.db_execute(
             """UPDATE `black_page`
             SET `point` = `point` + %s
             WHERE `pagehash` = %s""",
             (point, pagehash)
         )
-        self.db.commit()
+
         newpoint = self.getpage_score(page, wiki)
         if oldpoint > 0 and newpoint <= 0:  # pylint: disable=R1716
-            self.sendmessage("{}的分數小於等於0，已停止監視".format(self.link_page(page, wiki)))
+            self.sendmessage("{}的分數小於等於0，已停止監視".format(
+                self.link_page(page, wiki)))
 
     def addblack_page(self, page, timestamp, reason, point=30, wiki=None, msgprefix=""):
         if wiki is None:
@@ -1147,14 +1155,14 @@ class Monitor():
         page = page.replace("_", " ")
 
         pagehash = self.getpage_hash(page, wiki)
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `black_page`
                (`pagehash`, `wiki`, `page`, `timestamp`, `reason`, `point`)
                VALUES (%s, %s, %s, %s, %s, %s)
                ON DUPLICATE KEY
                UPDATE `point` = `point` + %s, `timestamp` = %s, `reason` = %s""",
             (pagehash, wiki, page, timestamp, reason, point, point, timestamp, reason))
-        self.db.commit()
+
         message = "{}加入{}({})至監視頁面\n原因：{}".format(
             msgprefix,
             self.link_page(page, wiki), wiki, self.parse_wikicode(reason)
@@ -1169,10 +1177,10 @@ class Monitor():
         wiki = wiki.strip()
 
         pagehash = self.getpage_hash(page, wiki)
-        count = self.cur.execute(
+        count = self.db_execute(
             """DELETE FROM `black_page` WHERE `pagehash` = %s""",
             (pagehash))
-        self.db.commit()
+
         message = "{}{}條對於{}({})從監視頁面刪除".format(
             msgprefix,
             count,
@@ -1190,11 +1198,11 @@ class Monitor():
 
         pagehash = self.getpage_hash(page, wiki)
         timestamp = int(time.time())
-        self.cur.execute("""SELECT `reason`, `timestamp`, `point` FROM `black_page`
+        self.db_execute("""SELECT `reason`, `timestamp`, `point` FROM `black_page`
                             WHERE `pagehash` = %s AND `timestamp` < %s
                             ORDER BY `timestamp` DESC""",
-                         (pagehash, timestamp))
-        return self.cur.fetchall()
+                        (pagehash, timestamp))
+        return self.db_fetchall()
 
     def link_all(self, page, text=None, wiki=None):
         if text is None:
@@ -1244,8 +1252,8 @@ class Monitor():
             if not nolog:
                 self.log(message, logtype="response")
             url = ("https://api.telegram.org/bot{}/sendMessage" +
-                   "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1" +
-                   "&text={}"
+                   "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1"
+                   + "&text={}"
                    ).format(token,
                             chat_id,
                             urllib.parse.quote_plus(message.encode()))
@@ -1263,28 +1271,28 @@ class Monitor():
 
     def deletemessage(self, message_id):
         try:
-            url = ("https://api.telegram.org/bot{}/deleteMessage" +
-                   "?chat_id={}&message_id={}"
+            url = ("https://api.telegram.org/bot{}/deleteMessage"
+                   + "?chat_id={}&message_id={}"
                    ).format(self.token,
                             self.chat_id,
                             message_id)
             urllib.request.urlopen(url)
             self.log(message_id, logtype="delete")
-            self.cur.execute("""DELETE FROM `bot_message`
+            self.db_execute("""DELETE FROM `bot_message`
                                 WHERE `message_id` = %s""", (message_id))
-            self.db.commit()
+
         except urllib.error.HTTPError as e:
             datastr = e.read().decode("utf8")
             data = json.loads(datastr)
-            if (data["description"] ==
-                    "Bad Request: message to delete not found"):
-                self.cur.execute("""DELETE FROM `bot_message`
+            if (data["description"]
+                    == "Bad Request: message to delete not found"):
+                self.db_execute("""DELETE FROM `bot_message`
                                     WHERE `message_id` = %s""", (message_id))
-                self.db.commit()
+
             else:
-                self.log("delete message error:" + str(e.code) + " " +
-                         str(e.read().decode("utf-8")) + " message_id: " +
-                         str(message_id))
+                self.log("delete message error:" + str(e.code) + " "
+                         + str(e.read().decode("utf-8")) + " message_id: "
+                         + str(message_id))
 
     def bot_message(self, message_id, user, page, message):
         if user is None:
@@ -1292,48 +1300,44 @@ class Monitor():
         if page is None:
             page = ""
         timestamp = int(time.time())
-        self.cur.execute(
+        self.db_execute(
             """INSERT INTO `bot_message`
                (`timestamp`, `message_id`, `user`, `page`, `message`)
                VALUES (%s, %s, %s, %s, %s)""",
             (timestamp, message_id, user, page, message)
         )
-        self.db.commit()
 
     def get_user_from_message_id(self, message_id):
-        self.cur.execute("""SELECT `user` FROM `bot_message`
+        self.db_execute("""SELECT `user` FROM `bot_message`
                             WHERE `message_id` = %s""",
-                         (message_id))
-        return self.cur.fetchall()
+                        (message_id))
+        return self.db_fetchall()
 
     def get_page_from_message_id(self, message_id):
-        self.cur.execute("""SELECT `page` FROM `bot_message`
+        self.db_execute("""SELECT `page` FROM `bot_message`
                             WHERE `message_id` = %s""",
-                         (message_id))
-        return self.cur.fetchall()
+                        (message_id))
+        return self.db_fetchall()
 
     def log(self, log, timestamp=None, logtype=""):
         if timestamp is None:
             timestamp = int(time.time())
-        self.cur.execute("""INSERT INTO `log` (`timestamp`, `type`, `log`)
+        self.db_execute("""INSERT INTO `log` (`timestamp`, `type`, `log`)
                             VALUES (%s, %s, %s)""",
-                         (timestamp, str(logtype), str(log)))
-        self.db.commit()
+                        (timestamp, str(logtype), str(log)))
 
-    def error(self, error, timestamp=None):
+    def error(self, error, timestamp=None, noRaise=False):
         if timestamp is None:
             timestamp = int(time.time())
         try:
-            self.cur.execute("""INSERT INTO `error` (`timestamp`, `error`)
+            self.db_execute("""INSERT INTO `error` (`timestamp`, `error`)
                                 VALUES (%s, %s)""",
-                             (timestamp, str(error)))
-            self.db.commit()
-        except pymysql.err.OperationalError:
-            traceback.print_exc()
-            print("Failed to log error (pymysql.err.OperationalError)")
+                            (timestamp, str(error)))
+
         except Exception as e:
-            traceback.print_exc()
-            print("Failed to log error ({})".format(e))
+            logging.warning('Failed to log error (%s)', e)
+            if not noRaise:
+                raise e
 
     def formattimediff(self, timestamp, basetime=None):
         if basetime is None:
@@ -1438,19 +1442,21 @@ class Monitor():
             exc_type, _, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             self.error(str(e))
-            self.error(str(exc_type) + " " + str(fname) +
-                       " " + str(exc_tb.tb_lineno))
+            self.error(str(exc_type) + " " + str(fname)
+                       + " " + str(exc_tb.tb_lineno))
             return None
 
     def __del__(self):
-        self.db.close()
+        if hasattr(self, 'db'):
+            self.db.close()
 
 
 class User():
     def __init__(self, user):
         self.user = user
         self.val = user
-        self.userhash = int(hashlib.sha1(user.encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        self.userhash = int(hashlib.sha1(user.encode(
+            "utf8")).hexdigest(), 16) % (2**64) - 2**63
         self.isuser = True
 
 
@@ -1460,7 +1466,8 @@ class IPv4():
         self.end = end
         self.type = usertype
         self.val = str(val)
-        self.userhash = int(hashlib.sha1(str(val).encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        self.userhash = int(hashlib.sha1(str(val).encode(
+            "utf8")).hexdigest(), 16) % (2**64) - 2**63
         self.isuser = False
 
 
@@ -1470,5 +1477,6 @@ class IPv6():
         self.end = end
         self.type = usertype
         self.val = str(val).upper()
-        self.userhash = int(hashlib.sha1(str(val).encode("utf8")).hexdigest(), 16) % (2**64) - 2**63
+        self.userhash = int(hashlib.sha1(str(val).encode(
+            "utf8")).hexdigest(), 16) % (2**64) - 2**63
         self.isuser = False
