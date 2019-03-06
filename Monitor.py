@@ -707,8 +707,8 @@ class Monitor():
     def addblack_user(self, user, timestamp, reason, wiki=None, msgprefix=""):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
@@ -791,8 +791,8 @@ class Monitor():
     def getblackuser(self, user, wiki=None, prefix=True):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         message = ""
         rows = self.check_user_blacklist(user, wiki, ignorewhite=True)
@@ -812,8 +812,8 @@ class Monitor():
     def getwhiteuser(self, user, wiki=None, prefix=True):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         message = ""
         rows = self.check_user_whitelist(user)
@@ -829,8 +829,8 @@ class Monitor():
     def checkuser(self, user, wiki=None):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         message = (self.getblackuser(user, wiki) + "\n" +
                    self.getwhiteuser(user, wiki)).strip()
@@ -845,8 +845,8 @@ class Monitor():
     def delblack_user(self, user, wiki=None, msgprefix=""):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         blacklist = self.getblackuser(user, wiki, prefix=False)
         userobj = self.user_type(user)
@@ -916,8 +916,8 @@ class Monitor():
     def setwikiblack_user(self, user, wiki=None):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
@@ -961,7 +961,7 @@ class Monitor():
                         count, userobj.start, userobj.end, wiki))
 
     def addwhite_user(self, user, timestamp, reason, msgprefix=""):
-        user = user.strip()
+        user = self.normalize_user(user)
 
         userobj = self.user_type(user)
         self.db_execute(
@@ -978,7 +978,7 @@ class Monitor():
                          )
 
     def delwhite_user(self, user):
-        user = user.strip()
+        user = self.normalize_user(user)
         count = self.db_execute(
             """DELETE FROM `white_user` WHERE `user` = %s""",
             (user))
@@ -988,8 +988,8 @@ class Monitor():
     def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         if not ignorewhite:
             rows = self.check_user_whitelist(user, wiki)
@@ -1041,7 +1041,7 @@ class Monitor():
             self, user, reason, wiki=None, ignorewhite=False):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
+        user = self.normalize_user(user)
 
         if not ignorewhite:
             rows = self.check_user_whitelist(user, wiki)
@@ -1092,8 +1092,8 @@ class Monitor():
     def check_user_whitelist(self, user, wiki=None):
         if wiki is None:
             wiki = self.wiki
-        user = user.strip()
-        wiki = wiki.strip()
+        user = self.normalize_user(user)
+        wiki = self.normalize_wiki(wiki)
 
         self.db_execute("""SELECT `reason`, `timestamp` FROM `white_user`
                             WHERE `user` = %s ORDER BY `timestamp` DESC""",
@@ -1103,8 +1103,8 @@ class Monitor():
     def getpage_hash(self, page, wiki=None):
         if wiki is None:
             wiki = self.wiki
-        page = page.strip()
-        wiki = wiki.strip()
+        page = self.normalize_page(page)
+        wiki = self.normalize_wiki(wiki)
 
         pagehash = int(hashlib.sha1(
             str('{0}|{1}'.format(page, wiki))
@@ -1115,8 +1115,8 @@ class Monitor():
     def getpage_score(self, page, wiki=None):
         if wiki is None:
             wiki = self.wiki
-        page = page.strip()
-        wiki = wiki.strip()
+        page = self.normalize_page(page)
+        wiki = self.normalize_wiki(wiki)
 
         pagehash = self.getpage_hash(page, wiki)
         self.db_execute(
@@ -1137,8 +1137,8 @@ class Monitor():
 
         if wiki is None:
             wiki = self.wiki
-        page = page.strip()
-        wiki = wiki.strip()
+        page = self.normalize_page(page)
+        wiki = self.normalize_wiki(wiki)
 
         oldpoint = self.getpage_score(page, wiki)
 
@@ -1158,9 +1158,8 @@ class Monitor():
     def addblack_page(self, page, timestamp, reason, point=30, wiki=None, msgprefix=""):
         if wiki is None:
             wiki = self.wiki
-        page = page.strip()
-        wiki = wiki.strip()
-        page = page.replace("_", " ")
+
+        page = self.normalize_page(page)
 
         pagehash = self.getpage_hash(page, wiki)
         self.db_execute(
@@ -1181,8 +1180,8 @@ class Monitor():
     def delblack_page(self, page, wiki=None, msgprefix=""):
         if wiki is None:
             wiki = self.wiki
-        page = page.strip()
-        wiki = wiki.strip()
+        page = self.normalize_page(page)
+        wiki = self.normalize_wiki(wiki)
 
         pagehash = self.getpage_hash(page, wiki)
         count = self.db_execute(
@@ -1201,8 +1200,8 @@ class Monitor():
     def check_page_blacklist(self, page, wiki=None):
         if wiki is None:
             wiki = self.wiki
-        page = page.strip()
-        wiki = wiki.strip()
+        page = self.normalize_page(page)
+        wiki = self.normalize_wiki(wiki)
 
         pagehash = self.getpage_hash(page, wiki)
         timestamp = int(time.time())
@@ -1213,6 +1212,7 @@ class Monitor():
         return self.db_fetchall()
 
     def link_all(self, page, text=None, wiki=None):
+        page = re.sub(r'^:', '', page)
         if text is None:
             text = page
         if wiki is not None and wiki != self.wiki:
@@ -1366,8 +1366,29 @@ class Monitor():
             res += "前"
         return res
 
+    def normalize_wiki(self, wiki):
+        wiki = wiki.strip()
+        return wiki
+
+    def normalize_user(self, user):
+        user = user.strip()
+        user = re.sub(r'^User:', '', user, flags=re.I)
+        if len(user) == 0:
+            return ''
+        user = user.replace('_', ' ')
+        user = user[0].upper() + user[1:]
+        return user
+
+    def normalize_page(self, page):
+        page = page.strip()
+        if len(page) == 0:
+            return ''
+        page = page.replace('_', ' ')
+        page = page[0].upper() + page[1:]
+        return page
+
     def parse_user(self, user, delimiter="|"):
-        user = re.sub(r"^User:", "", user, flags=re.I)
+        user = self.normalize_user(user)
         if delimiter in user:
             wiki = user.split(delimiter)[1]
             user = user.split(delimiter)[0]
@@ -1375,7 +1396,7 @@ class Monitor():
             wiki = self.wiki
         if len(user) == 0:
             return "", wiki
-        user = user[0].upper() + user[1:]
+        user = self.normalize_user(user)
         return user, wiki
 
     def parse_page(self, page, delimiter="|"):
@@ -1384,7 +1405,7 @@ class Monitor():
             page = page.split(delimiter)[0]
         else:
             wiki = self.wiki
-        page = page.replace("_", " ")
+        page = self.normalize_page(page)
         return page, wiki
 
     def parse_reason(self, reason):
@@ -1416,7 +1437,7 @@ class Monitor():
 
     def user_type(self, user):
         try:
-            user = user.strip()
+            user = self.normalize_user(user)
             m = re.match(r"(.+)\-(.+)", user)
             if m is not None:
                 ip1 = ipaddress.ip_address(m.group(1))
