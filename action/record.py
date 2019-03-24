@@ -15,6 +15,8 @@ def main(M, change):
 
         M.change_wiki_and_domain(change['wiki'], change["meta"]["domain"])
 
+        M.addRC_wiki(change)
+
         ctype = change["type"]
 
         unknowntype = True

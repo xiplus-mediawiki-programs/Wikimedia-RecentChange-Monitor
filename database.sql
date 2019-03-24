@@ -485,6 +485,11 @@ CREATE TABLE `RC_new` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `RC_wiki` (
+  `wiki` varchar(20) COLLATE utf8_bin NOT NULL,
+  `server_name` varchar(255) COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `user_score` (
   `userhash` bigint(20) NOT NULL,
   `point` int(11) NOT NULL DEFAULT '0',
@@ -589,6 +594,9 @@ ALTER TABLE `RC_log_upload`
 
 ALTER TABLE `RC_new`
   ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_wiki`
+  ADD PRIMARY KEY (`wiki`);
 
 ALTER TABLE `user_score`
   ADD UNIQUE KEY `user` (`userhash`) USING BTREE;

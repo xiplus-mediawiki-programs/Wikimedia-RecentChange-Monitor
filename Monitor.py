@@ -86,6 +86,13 @@ class Monitor():
         self.wiki = wiki
         self.domain = domain
 
+    def addRC_wiki(self, change):
+        self.db_execute(
+            """INSERT INTO `RC_wiki`
+                (`wiki`, `server_name`)
+                VALUES (%s, %s)""",
+            (change["wiki"], change["server_name"]))
+
     def addRC_edit(self, change):
         self.db_execute(
             """INSERT INTO `RC_edit`
