@@ -94,19 +94,22 @@ class Monitor():
                 `minor`, `namespace`,
                 `parsedcomment`, `revision_new`,
                 `revision_old`, `timestamp`,
-                `title`, `user`, `wiki`)
+                `title`, `user`, `wiki`,
+                `userhash`)
                 VALUES (%r, %s, %s,
                         %s, %s,
                         %r, %s,
                         %s, %s,
                         %s, %s,
-                        %s, %s, %s)""",
+                        %s, %s, %s,
+                        %s)""",
             (change["bot"], change["comment"], change["id"],
                 change["length"]["new"], change["length"]["old"],
                 change["minor"], change["namespace"],
                 change["parsedcomment"], change["revision"]["new"],
                 change["revision"]["old"], change["timestamp"],
-                change["title"], change["user"], change["wiki"]))
+                change["title"], change["user"], change["wiki"],
+                self.user_type(change["user"]).userhash))
 
     def addRC_142(self, change):
         self.db_execute(

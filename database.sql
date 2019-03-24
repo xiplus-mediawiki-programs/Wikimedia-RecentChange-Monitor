@@ -100,6 +100,13 @@ CREATE TABLE `RC_categorize` (
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `RC_count` (
+  `userhash` bigint(20) NOT NULL,
+  `wiki` varchar(20) COLLATE utf8_bin NOT NULL,
+  `type` varchar(20) COLLATE utf8_bin NOT NULL,
+  `count` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `RC_edit` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -114,8 +121,14 @@ CREATE TABLE `RC_edit` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `userhash` bigint(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DELIMITER $$
+CREATE TRIGGER `RC_edit_count` AFTER INSERT ON `RC_edit` FOR EACH ROW INSERT INTO `RC_count` (`userhash`, `wiki`, `type`, `count`) VALUES (NEW.userhash, NEW.wiki, 'edit', 1)
+ON DUPLICATE KEY UPDATE `count` = `count`+1
+$$
+DELIMITER ;
 
 CREATE TABLE `RC_log_abusefilter_hit` (
   `bot` tinyint(1) NOT NULL,
@@ -516,6 +529,9 @@ ALTER TABLE `RC_142`
 
 ALTER TABLE `RC_categorize`
   ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `RC_count`
+  ADD PRIMARY KEY (`userhash`,`wiki`,`type`);
 
 ALTER TABLE `RC_edit`
   ADD PRIMARY KEY (`id`);
