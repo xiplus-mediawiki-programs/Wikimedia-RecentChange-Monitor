@@ -76,6 +76,9 @@ def main(M, change):
             log_action = change["log_action"]
 
             if log_type == "block":
+                if log_action in ["block", "reblock"] and re.search(r"blocked proxy", comment):
+                    return
+
                 blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
                 user_type = M.user_type(blockuser)
