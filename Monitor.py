@@ -88,7 +88,7 @@ class Monitor():
 
     def addRC_wiki(self, change):
         self.db_execute(
-            """INSERT INTO `RC_wiki`
+            """INSERT IGNORE INTO `RC_wiki`
                 (`wiki`, `server_name`)
                 VALUES (%s, %s)""",
             (change["wiki"], change["server_name"]))
