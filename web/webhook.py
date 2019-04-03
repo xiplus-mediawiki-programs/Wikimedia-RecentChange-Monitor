@@ -69,8 +69,6 @@ def web():
                 action = re.sub(r'@cvn_smart_bot$', '', action)
                 action = action.lower()
 
-                M.error('[webhook] {}, {}'.format(action, json.dumps(cmd)))
-
                 if action in ['gettoken'] and m_chat_id == m_user_id:
                     if not checkadmin():
                         return "OK"
