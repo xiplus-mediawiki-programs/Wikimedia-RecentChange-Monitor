@@ -23,6 +23,7 @@ for afid in afblacklist:
 def main(M, log):
     try:
         print(log["filter"], log["timestamp"])
+        blackuser = log["user"] + "|" + M.wiki
 
         message = (
             M.link_user(log["user"]) + '於' + M.link_page(log["title"]) +
@@ -35,10 +36,12 @@ def main(M, log):
 
         rows = M.check_user_blacklist(log["user"])
         if len(rows) != 0:
+            blackuser = log["user"] + "|" + rows[0][3]
             message += (
                 "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
             if rows[0][2] != "" and rows[0][2] != log["user"]:
                 message += "，\u200b" + rows[0][2] + "\u200b"
+                blackuser = rows[0][2] + "|" + rows[0][3]
             message += '，{0}，{1}p）'.format(
                 M.formattimediff(rows[0][1]), rows[0][4])
 
@@ -47,7 +50,7 @@ def main(M, log):
                 or log["filter"] in afblacklistname):
             M.sendmessage(
                 message,
-                log["user"] + "|" + M.wiki,
+                blackuser,
                 log["title"] + "|" + M.wiki
             )
 
