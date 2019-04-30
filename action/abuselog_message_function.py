@@ -4,12 +4,13 @@ def result(res):
         'disallow': '⛔️',
         'tag': '🔖',
         'blockautopromote': '撤銷自動確認',
+        'block': '封鎖',
         '': '無',
         'disallow,tag': '⛔️,🔖',
     }
     if res in logo:
         return logo[res]
-    return ''
+    return res
 
 
 def afLogo(filter_id='', filter_name=''):
