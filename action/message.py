@@ -41,16 +41,16 @@ def main(M, change):
         if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
             issend = True
             message_append += (
-                "\n（監視：" + M.parse_wikicode(rows[0][0]) +
-                ', ' + M.formattimediff(rows[0][1]) + "，" + str(rows[0][2]) + "p）")
+                "\n（監視：" + M.parse_wikicode(rows[0][0])
+                + ', ' + M.formattimediff(rows[0][1]) + "，" + str(rows[0][2]) + "p）")
 
         if wiki not in followwiki and not issend:
             return
 
         if ctype == "edit":
             message = (
-                M.link_user(user) + '編輯' + M.link_page(title) + '（' +
-                M.link_diff(change["revision"]["new"]) + '）')
+                M.link_user(user) + '編輯' + M.link_page(title) + '（'
+                + M.link_diff(change["revision"]["new"]) + '）')
             if issend:
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
@@ -76,8 +76,8 @@ def main(M, change):
             log_action = change["log_action"]
 
             if log_type == "block":
-                if log_action in ["block", "reblock"] and re.search(r"blocked proxy", comment):
-                    return
+                # if log_action in ["block", "reblock"] and re.search(r"blocked proxy", comment):
+                #     return
 
                 blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
@@ -94,9 +94,9 @@ def main(M, change):
                     "reblock": "重新封禁"}
 
                 message = (
-                    M.link_user(user) + blockname[log_action] +
-                    M.link_user(blockuser) + '（' +
-                    M.parse_wikicode(change["log_action_comment"]) + '）')
+                    M.link_user(user) + blockname[log_action]
+                    + M.link_user(blockuser) + '（'
+                    + M.parse_wikicode(change["log_action_comment"]) + '）')
                 M.sendmessage(
                     message + message_append, blockuser + "|" + blockwiki)
 
@@ -111,9 +111,9 @@ def main(M, change):
                     "modify": "變更保護"}
 
                 message = (
-                    M.link_user(user) + protectname[log_action] +
-                    M.link_page(title) + '（' +
-                    M.parse_wikicode(comment) + '）')
+                    M.link_user(user) + protectname[log_action]
+                    + M.link_page(title) + '（'
+                    + M.parse_wikicode(comment) + '）')
                 if log_action in ["protect", "modify"]:
                     message += (
                         '（'

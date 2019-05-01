@@ -842,8 +842,8 @@ class Monitor():
         user = self.normalize_user(user)
         wiki = self.normalize_wiki(wiki)
 
-        message = (self.getblackuser(user, wiki) + "\n" +
-                   self.getwhiteuser(user, wiki)).strip()
+        message = (self.getblackuser(user, wiki) + "\n"
+                   + self.getwhiteuser(user, wiki)).strip()
 
         userobj = self.user_type(user)
         point = self.getuser_score(userobj)
