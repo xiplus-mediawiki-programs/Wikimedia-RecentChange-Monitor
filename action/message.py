@@ -101,7 +101,7 @@ def main(M, change):
                     message + message_append, blockuser + "|" + blockwiki)
 
             elif log_type == "protect":
-                if log_action in ["protect", "modify"] and re.search(r"高风险模板|高風險模板", comment):
+                if log_action in ["protect", "modify"] and re.search(r"高风险模板|高風險模板|被永久封禁的用戶頁|被永久封禁的用户页", comment):
                     return
 
                 protectname = {
