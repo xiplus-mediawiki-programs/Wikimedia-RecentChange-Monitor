@@ -77,9 +77,6 @@ def main(M, change):
             log_action = change["log_action"]
 
             if log_type == "block":
-                # if log_action in ["block", "reblock"] and re.search(r"blocked proxy", comment):
-                #     return
-
                 blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
 
                 user_type = M.user_type(blockuser)
@@ -94,12 +91,15 @@ def main(M, change):
                     "block": "封禁",
                     "reblock": "重新封禁"}
 
-                message = (
-                    M.link_user(user) + blockname[log_action]
-                    + M.link_user(blockuser) + '（'
-                    + M.parse_wikicode(change["log_action_comment"]) + '）')
-                M.sendmessage(
-                    message + message_append, blockuser + "|" + blockwiki)
+                if log_action in ["block", "reblock"] and re.search(r"blocked proxy", comment):
+                    pass
+                else:
+                    message = (
+                        M.link_user(user) + blockname[log_action]
+                        + M.link_user(blockuser) + '（'
+                        + M.parse_wikicode(change["log_action_comment"]) + '）')
+                    M.sendmessage(
+                        message + message_append, blockuser + "|" + blockwiki)
 
                 if log_action == 'block':
                     M.log('[message] search bot message for {} after {}'.format(
