@@ -1,4 +1,5 @@
 import re
+import time
 import traceback
 
 from message_config import affollowwiki, followwiki
@@ -99,6 +100,23 @@ def main(M, change):
                     + M.parse_wikicode(change["log_action_comment"]) + '）')
                 M.sendmessage(
                     message + message_append, blockuser + "|" + blockwiki)
+
+                if log_action == 'block':
+                    M.log('[message] search bot message for {} after {}'.format(
+                        blockuser + "|" + wiki, int(time.time() - 3600 * 8)))
+                    M.db_execute(
+                        """SELECT `message_id`, `message` FROM `bot_message`
+                        WHERE `user` = %s AND `timestamp` > %s ORDER BY `timestamp` DESC
+                        LIMIT 10""",
+                        (blockuser + "|" + wiki, int(time.time() - 3600 * 8))
+                    )
+                    rows = M.db_fetchall()
+                    M.log('[message] find {} itmes'.format(len(rows)))
+                    for row in rows:
+                        newmessage = '(已封) ' + row[1]
+                        M.log('[message] try to edit message {} from {} to {}'.format(
+                            row[0], row[1], newmessage))
+                        M.editmessage(row[0], newmessage)
 
             elif log_type == "protect":
                 if log_action in ["protect", "modify"] and re.search(r"高风险模板|高風險模板|被永久封禁的用戶頁|被永久封禁的用户页", comment):
