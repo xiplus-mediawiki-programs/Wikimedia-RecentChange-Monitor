@@ -1287,6 +1287,32 @@ class Monitor():
             self.error("send message error:{}\n{}\nmessage:{}".format(
                 e.code, e.read().decode("utf-8"), message))
 
+    def editmessage(self, message_id, message, chat_id=None, token=None):
+        if len(message) == 0:
+            self.error('try to send empty message')
+            return
+        if chat_id is None:
+            chat_id = self.chat_id
+        if token is None:
+            token = self.token
+        try:
+            url = ("https://api.telegram.org/bot{}/editMessageText" +
+                   "?chat_id={}&message_id={}&parse_mode=HTML&disable_web_page_preview=1"
+                   + "&text={}"
+                   ).format(token,
+                            chat_id,
+                            message_id,
+                            urllib.parse.quote_plus(message.encode()))
+            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = json.loads(res)
+            if res["ok"]:
+                pass
+            else:
+                self.error("edit message error:\n{}".format(json.dumps(res)))
+        except urllib.error.HTTPError as e:
+            self.error("edit message error:{}\n{}\nmessage:{}".format(
+                e.code, e.read().decode("utf-8"), message))
+
     def deletemessage(self, message_id):
         try:
             url = ("https://api.telegram.org/bot{}/deleteMessage"
