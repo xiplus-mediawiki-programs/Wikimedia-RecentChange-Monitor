@@ -14,6 +14,7 @@ import urllib.parse
 import urllib.request
 
 import pymysql
+from bs4 import BeautifulSoup
 
 
 class Monitor():
@@ -1543,6 +1544,31 @@ class Monitor():
             if float(info['noFraud']['result']['chance']) > 50:
                 score += 1
         return score
+
+    def get_diff(self, fromrev, torev):
+        url = '{}?action=compare&format=json&fromrev={}&torev={}'.format(self.wp_api, fromrev, torev)
+        html = urllib.request.urlopen(url).read().decode("utf8")
+        html = json.loads(html)['compare']['*']
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        result = {
+            'removed_lines': [],
+            'added_lines': [],
+            'removed_words': [],
+            'added_words': [],
+        }
+
+        for el in soup.find_all('td', {'class': 'diff-deletedline'}):
+            result['removed_lines'].append(el.text)
+        for el in soup.find_all('td', {'class': 'diff-addedline'}):
+            result['added_lines'].append(el.text)
+        for el in soup.find_all('del', {'class': 'diffchange-inline'}):
+            result['removed_words'].append(el.text)
+        for el in soup.find_all('ins', {'class': 'diffchange-inline'}):
+            result['added_words'].append(el.text)
+
+        return result
 
     def __del__(self):
         if hasattr(self, 'db'):
