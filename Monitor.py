@@ -1520,7 +1520,6 @@ class Monitor():
 
     def get_proxy_score(self, ip):
         info = self.get_proxy_info(ip)
-        print(json.dumps(info))
         score = 0
         if 'proxycheck' in info:
             if info['proxycheck']['result']['proxy']:
