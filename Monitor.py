@@ -44,6 +44,7 @@ class Monitor():
         self.wp_user = config.get('wikipedia', 'user')
         self.wp_pass = config.get('wikipedia', 'pass')
         self.wp_user_agent = config.get('wikipedia', 'user_agent')
+        self.wp_ipcheck_token = config.get('wikipedia', 'ipcheck_token')
 
     def db_connect(self, noRaise=True):
         try:
@@ -1510,6 +1511,39 @@ class Monitor():
             self.error(str(exc_type) + " " + str(fname)
                        + " " + str(exc_tb.tb_lineno))
             return None
+
+    def get_proxy_info(self, ip):
+        url = 'https://tools.wmflabs.org/ipcheck/index.php?ip={}&api=true&key={}'.format(ip, self.wp_ipcheck_token)
+        res = urllib.request.urlopen(url).read().decode("utf8")
+        res = json.loads(res)
+        return res
+
+    def get_proxy_score(self, ip):
+        info = self.get_proxy_info(ip)
+        print(json.dumps(info))
+        score = 0
+        if 'proxycheck' in info:
+            if info['proxycheck']['result']['proxy']:
+                score += 1
+        if 'getIPIntel' in info:
+            if float(info['getIPIntel']['result']['chance']) > 50:
+                score += 1
+        if 'ipQualityScore' in info:
+            if info['ipQualityScore']['result']['proxy'] or info['ipQualityScore']['result']['vpn']:
+                score += 1
+        if 'ipHub' in info:
+            if info['ipHub']['result']['block']:
+                score += 1
+        if 'teohio' in info:
+            if info['teohio']['result']['hosting'] or info['teohio']['result']['vpnOrProxy']:
+                score += 1
+        if 'ipHunter' in info:
+            if info['ipHunter']['result']['block']:
+                score += 1
+        if 'noFraud' in info:
+            if float(info['noFraud']['result']['chance']) > 50:
+                score += 1
+        return score
 
     def __del__(self):
         if hasattr(self, 'db'):
