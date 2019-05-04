@@ -103,7 +103,7 @@ def main(M, change):
 
                 if log_action == 'block':
                     M.log('[message] search bot message for {} after {}'.format(
-                        blockuser + "|" + wiki, int(time.time() - 3600 * 8)))
+                        blockuser + "|" + wiki, int(time.time() - 3600 * 8)), logtype='message/markblock')
                     M.db_execute(
                         """SELECT `message_id`, `message` FROM `bot_message`
                         WHERE `user` = %s AND `timestamp` > %s ORDER BY `timestamp` DESC
@@ -111,11 +111,11 @@ def main(M, change):
                         (blockuser + "|" + wiki, int(time.time() - 3600 * 8))
                     )
                     rows = M.db_fetchall()
-                    M.log('[message] find {} itmes'.format(len(rows)))
+                    M.log('[message] find {} itmes'.format(len(rows)), logtype='message/markblock')
                     for row in rows:
                         newmessage = '(已封) ' + row[1]
                         M.log('[message] try to edit message {} from {} to {}'.format(
-                            row[0], row[1], newmessage))
+                            row[0], row[1], newmessage), logtype='message/markblock')
                         M.editmessage(row[0], newmessage)
 
             elif log_type == "protect":
