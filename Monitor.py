@@ -1547,10 +1547,10 @@ class Monitor():
 
     def get_diff(self, fromrev, torev):
         url = '{}?action=compare&format=json&fromrev={}&torev={}'.format(self.wp_api, fromrev, torev)
-        html = urllib.request.urlopen(url).read().decode("utf8")
-        html = json.loads(html)['compare']['*']
+        diffhtml = urllib.request.urlopen(url).read().decode("utf8")
+        diffhtml = json.loads(diffhtml)['compare']['*']
 
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(diffhtml, 'html.parser')
 
         result = {
             'removed_lines': [],
