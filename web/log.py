@@ -63,7 +63,7 @@ def web():
                             elif col in ['log_action_comment', 'comment']:
                                 result += ('<td>' +
                                            html.escape(row[col], quote=False) +
-                                           '</pre>')
+                                           '</td>')
                             elif col == "timestamp":
                                 result += '<td>{} ({})</td>'.format(
                                     str(row[col]), M.formattimediff(row[col]))
