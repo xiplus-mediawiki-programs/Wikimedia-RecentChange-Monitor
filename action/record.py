@@ -197,7 +197,7 @@ def main(M, change):
 
         if unknowntype:
             M.log(json.dumps(
-                change, ensure_ascii=False), logtype="unknowntype")
+                change, ensure_ascii=False), logtype='record/unknowntype')
 
     except pymysql.err.IntegrityError as e:
         M.error(e)

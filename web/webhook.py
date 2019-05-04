@@ -32,7 +32,7 @@ def web():
                 M.chat_id = m_chat_id
 
                 m_text = data["message"]["text"]
-                M.log(m_text, logtype="request")
+                M.log(m_text, logtype='webhook')
 
                 if not m_text.startswith("/"):
                     return "OK"

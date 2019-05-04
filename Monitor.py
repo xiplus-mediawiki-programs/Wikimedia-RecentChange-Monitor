@@ -698,8 +698,6 @@ class Monitor():
     def adduser_score(self, userobj, point, source=""):
         if point == 0:
             return
-        self.log("{} add score {} from {}".format(
-            userobj.val, point, source), logtype="userscore")
         oldpoint = self.getuser_score(userobj)
         timestamp = int(time.time())
         userhash = userobj.userhash
@@ -1270,7 +1268,7 @@ class Monitor():
             nolog = True
         try:
             if not nolog:
-                self.log(message, logtype="response")
+                self.log(message, logtype='Monitor/sendmessage')
             url = ("https://api.telegram.org/bot{}/sendMessage" +
                    "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1"
                    + "&text={}"
