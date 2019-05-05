@@ -1513,8 +1513,11 @@ class Monitor():
 
     def get_proxy_info(self, ip):
         url = 'https://tools.wmflabs.org/ipcheck/index.php?ip={}&api=true&key={}'.format(ip, self.wp_ipcheck_token)
-        res = urllib.request.urlopen(url).read().decode("utf8")
-        res = json.loads(res)
+        jsonstr = urllib.request.urlopen(url).read().decode("utf8")
+        try:
+            res = json.loads(jsonstr)
+        except json.decoder.JSONDecodeError as e:
+            self.error('M.get_proxy_info JSONDecodeError: {} content: {}'.format(e, jsonstr))
         return res
 
     def get_proxy_score(self, ip):
