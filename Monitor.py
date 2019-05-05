@@ -1517,7 +1517,8 @@ class Monitor():
         try:
             res = json.loads(jsonstr)
         except json.decoder.JSONDecodeError as e:
-            self.error('M.get_proxy_info JSONDecodeError: {} content: {}'.format(e, jsonstr))
+            self.error('M.get_proxy_info JSONDecodeError: {} content: {} url: {}'.format(e, jsonstr, url))
+            res = {}
         return res
 
     def get_proxy_score(self, ip):
@@ -1541,7 +1542,7 @@ class Monitor():
         if 'ipHunter' in info:
             if info['ipHunter']['result']['block']:
                 score += 1
-        if 'noFraud' in info:
+        if 'noFraud' in info and 'result' in info['noFraud']:
             if float(info['noFraud']['result']['chance']) > 50:
                 score += 1
         return score
