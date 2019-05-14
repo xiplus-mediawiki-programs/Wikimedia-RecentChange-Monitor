@@ -8,9 +8,10 @@ import time
 import traceback
 
 import dateutil.parser
+
 import pytz
 import requests
-
+from action.abusefilter_list_producer import abusefilter_list_rev
 from Monitor import Monitor
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
@@ -126,6 +127,8 @@ while True:
         res = session.get(M.wp_api, params=params).json()
 
         for log in res["query"]["abuselog"]:
+            if log['filter_id'] == '':
+                log['filter_id'] = abusefilter_list_rev[log['filter']]
             print(log)
 
             for module in modules:

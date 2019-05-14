@@ -8,6 +8,8 @@ url = ("https://zh.wikipedia.org/w/api.php"
 res = urllib.request.urlopen(url).read().decode("utf8")
 res = json.loads(res)
 abusefilter_list = {}
+abusefilter_list_rev = {}
 
 for row in res["query"]["abusefilters"]:
     abusefilter_list[row["id"]] = row["description"]
+    abusefilter_list_rev[row["description"]] = row["id"]
