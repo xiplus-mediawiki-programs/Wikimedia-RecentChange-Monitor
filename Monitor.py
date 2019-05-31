@@ -1572,6 +1572,14 @@ class Monitor():
 
         return result
 
+    def get_tags(self, title, revid):
+        url = '{0}?action=query&format=json&prop=revisions&titles={1}&rvprop=tags&rvlimit=1&rvstartid={2}&rvendid={2}'.format(
+            self.wp_api, urllib.parse.quote(title), revid)
+        apiresult = urllib.request.urlopen(url).read().decode('utf8')
+        apiresult = json.loads(apiresult)
+        result = list(apiresult['query']['pages'].values())[0]['revisions'][0]['tags']
+        return result
+
     def __del__(self):
         if hasattr(self, 'db'):
             self.db.close()
