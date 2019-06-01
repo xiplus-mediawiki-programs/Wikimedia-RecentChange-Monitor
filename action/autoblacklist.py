@@ -47,7 +47,7 @@ def main(M, change):
             if point > 0:
                 M.addblack_user(
                     target, change["timestamp"], reason, msgprefix="自動")
-                M.adduser_score(M.user_type(target), point, "autoblacklist/warn")
+                M.adduser_score(M.user_type(target), point)
 
                 page = re.search(r"(?:于|於)\[\[:?([^\]]+?)]]", comment)
                 if page:
@@ -98,7 +98,7 @@ def main(M, change):
                                 traceback.print_exc()
                                 M.error(traceback.format_exc())
                                 point = 30
-                        M.adduser_score(M.user_type(blockuser), point, "autoblacklist/block")
+                        M.adduser_score(M.user_type(blockuser), point)
 
             elif log_type == "protect":
                 if log_action in ["protect", "modify"]:

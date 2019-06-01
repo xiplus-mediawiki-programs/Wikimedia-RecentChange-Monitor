@@ -695,7 +695,7 @@ class Monitor():
             res = rows[0][0]
         return res
 
-    def adduser_score(self, userobj, point, source=""):
+    def adduser_score(self, userobj, point):
         if point == 0:
             return
         oldpoint = self.getuser_score(userobj)

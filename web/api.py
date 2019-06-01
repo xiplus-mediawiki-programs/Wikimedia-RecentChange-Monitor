@@ -157,7 +157,7 @@ def web():
                 point = int(data["point"])
             except ValueError:
                 point = 10
-            M.adduser_score(M.user_type(user), point, "handler/api/adduser")
+            M.adduser_score(M.user_type(user), point)
             return json.dumps({"message": message})
 
         if data["action"] == "deluser":
@@ -180,7 +180,7 @@ def web():
             except ValueError:
                 point = 10
             userobj = M.user_type(user)
-            M.adduser_score(userobj, point, "handler/api/userscore")
+            M.adduser_score(userobj, point)
             point2 = M.getuser_score(userobj)
             message = "為 {0} 調整分數 {1:+d} 為 {2}".format(user, point, point2)
             return json.dumps({"message": message})

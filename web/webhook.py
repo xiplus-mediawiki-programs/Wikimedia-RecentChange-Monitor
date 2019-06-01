@@ -205,7 +205,7 @@ def web():
                     reason = name + '加入：' + args.reason
                     M.addblack_user(user, m_date, reason, wiki)
                     M.adduser_score(M.user_type(user),
-                                    args.point, 'handler/cmd/adduser')
+                                    args.point)
                     return 'OK'
 
                 if action in ['userscore', 'us']:
@@ -226,7 +226,7 @@ def web():
                     user, wiki = M.parse_user(args.username)
                     point = args.point
                     userobj = M.user_type(user)
-                    M.adduser_score(userobj, point, "handler/cmd/userscore")
+                    M.adduser_score(userobj, point)
                     point2 = M.getuser_score(userobj)
                     message = "為 {0} 調整分數 {1:+d} 為 {2}".format(
                         user, point, point2)

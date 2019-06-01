@@ -56,7 +56,7 @@ def main(M, change):
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
             if isblackuser:
-                M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
+                M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1)
 
         elif ctype == "new":
             message = M.link_user(user) + '建立' + M.link_page(title)
@@ -64,7 +64,7 @@ def main(M, change):
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
             if isblackuser:
-                M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1, "message/checklist")
+                M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1)
 
         elif ctype == "142":
             if (change["namespace"] == 2600
