@@ -57,6 +57,7 @@ for module_name in module_list_abuselog:
 # login to wikimedia
 
 session = requests.Session()
+session.headers.update({'User-Agent': M.wp_user_agent})
 
 try:
     with open('cookie.txt', 'rb') as f:
