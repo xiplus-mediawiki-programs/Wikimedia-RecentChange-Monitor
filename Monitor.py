@@ -1536,7 +1536,7 @@ class Monitor():
         if 'ipHub' in info:
             if info['ipHub']['result']['block']:
                 score += 1
-        if 'teohio' in info:
+        if 'teohio' in info and 'result' in info['teohio']:
             if info['teohio']['result']['hosting'] or info['teohio']['result']['vpnOrProxy']:
                 score += 1
         if 'ipHunter' in info:
