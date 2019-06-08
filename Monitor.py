@@ -1592,6 +1592,8 @@ class User():
         self.userhash = int(hashlib.sha1(user.encode(
             "utf8")).hexdigest(), 16) % (2**64) - 2**63
         self.isuser = True
+        self.isipv4 = False
+        self.isipv6 = False
 
 
 class IPv4():
@@ -1603,6 +1605,8 @@ class IPv4():
         self.userhash = int(hashlib.sha1(str(val).encode(
             "utf8")).hexdigest(), 16) % (2**64) - 2**63
         self.isuser = False
+        self.isipv4 = True
+        self.isipv6 = False
 
 
 class IPv6():
@@ -1614,3 +1618,5 @@ class IPv6():
         self.userhash = int(hashlib.sha1(str(val).encode(
             "utf8")).hexdigest(), 16) % (2**64) - 2**63
         self.isuser = False
+        self.isipv4 = False
+        self.isipv6 = True
