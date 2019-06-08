@@ -65,7 +65,7 @@ def main(M, log):
                     reason,
                     msgprefix="自動"
                 )
-            M.adduser_score(M.user_type(log["user"]), 10, "abuselog")
+            M.adduser_score(M.user_type(log["user"]), 10)
 
     except Exception:
         traceback.print_exc()
