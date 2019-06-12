@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import configparser
+import functools
 import hashlib
 import html
 import ipaddress
@@ -1511,6 +1512,7 @@ class Monitor():
                        + " " + str(exc_tb.tb_lineno))
             return None
 
+    @functools.lru_cache()
     def get_proxy_info(self, ip):
         url = 'https://tools.wmflabs.org/ipcheck/index.php?ip={}&api=true&key={}'.format(ip, self.wp_ipcheck_token)
         jsonstr = urllib.request.urlopen(url).read().decode("utf8")
