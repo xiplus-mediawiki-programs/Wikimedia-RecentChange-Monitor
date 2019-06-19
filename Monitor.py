@@ -1579,6 +1579,9 @@ class Monitor():
             self.wp_api, urllib.parse.quote(title), revid)
         apiresult = urllib.request.urlopen(url).read().decode('utf8')
         apiresult = json.loads(apiresult)
+        if 'query' not in apiresult:
+            self.error('[M.get_tags] title={} revid={} result={}'.format(title, revid, apiresult))
+            return []
         result = list(apiresult['query']['pages'].values())[0]['revisions'][0]['tags']
         return result
 
