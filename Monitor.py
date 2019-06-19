@@ -1550,18 +1550,22 @@ class Monitor():
         return score
 
     def get_diff(self, fromrev, torev):
-        url = '{}?action=compare&format=json&fromrev={}&torev={}'.format(self.wp_api, fromrev, torev)
-        diffhtml = urllib.request.urlopen(url).read().decode("utf8")
-        diffhtml = json.loads(diffhtml)['compare']['*']
-
-        soup = BeautifulSoup(diffhtml, 'html.parser')
-
         result = {
             'removed_lines': [],
             'added_lines': [],
             'removed_words': [],
             'added_words': [],
         }
+
+        url = '{}?action=compare&format=json&fromrev={}&torev={}'.format(self.wp_api, fromrev, torev)
+        diffhtml = urllib.request.urlopen(url).read().decode("utf8")
+        diffhtml = json.loads(diffhtml)
+        if 'compare' not in diffhtml:
+            self.error('[M.get_diff] fromrev={} torev={} result={}'.format(fromrev, torev, diffhtml))
+            return result
+        diffhtml = diffhtml['compare']['*']
+
+        soup = BeautifulSoup(diffhtml, 'html.parser')
 
         for el in soup.find_all('td', {'class': 'diff-deletedline'}):
             result['removed_lines'].append(el.text)
