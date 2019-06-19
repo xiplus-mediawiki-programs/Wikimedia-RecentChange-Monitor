@@ -66,12 +66,6 @@ def main(M, change):
             if isblackuser:
                 M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1)
 
-        elif ctype == "142":
-            if (change["namespace"] == 2600
-                    and re.search(r'commented on "(唯一|最后)?警告 ', comment)):
-                message = "用戶警告訊息：" + M.link_page(title) + "，請確認是否添加黑名單"
-                M.sendmessage(message)
-
         elif ctype == "log":
             log_type = change["log_type"]
             log_action = change["log_action"]
