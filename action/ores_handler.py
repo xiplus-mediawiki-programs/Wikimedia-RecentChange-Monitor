@@ -46,12 +46,13 @@ while True:
                     summary = data['summary']
                     summary = re.sub(r'/\*.*?\*/', '', summary)
                     summary = re.sub(r'^\s+$', '', summary)
-                    message = '{0}編輯{1}{2}（{3}） 破壞可能性: {4:.0f}%'.format(
+                    message = '{4:.0f}%（{3}）{1}（{5:+d}）{0}{2}'.format(
                         M.link_user(data['user']),
                         M.link_page(data['page']),
                         '' if summary == '' else '（' + M.parse_wikicode(summary) + '）',
                         M.link_diff(data['revid']),
                         score['probability']['true'] * 100,
+                        data['length_diff'],
                     )
                     M.sendmessage(message, chat_id=config['chat_id'], token=config['token'])
 

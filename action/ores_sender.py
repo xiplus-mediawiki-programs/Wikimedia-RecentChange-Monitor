@@ -33,8 +33,8 @@ def main(M, change):
             'summary': change['comment'],
             'user': change['user'],
             'page': change['title'],
+            'length_diff': change['length']['new'] - change['length']['old'],
         }
-        print('send', data)
         data = json.dumps(data)
         data = data.encode()
         sock.send(data)
