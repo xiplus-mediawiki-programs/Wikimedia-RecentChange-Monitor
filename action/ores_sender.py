@@ -18,6 +18,9 @@ def main(M, change):
         if change['bot']:
             return
 
+        if change['type'] != 'edit':
+            return
+
         M.change_wiki_and_domain(change['wiki'], change['meta']['domain'])
 
         M.addRC_wiki(change)
