@@ -45,11 +45,11 @@ while True:
                 if score['prediction']:
                     summary = data['summary']
                     summary = re.sub(r'/\*.*?\*/', '', summary)
-                    summary = re.sub(r'\s+', '', summary)
-                    message = '{}編輯{} {}（{}） 破壞可能性: {:.0f}%'.format(
+                    summary = re.sub(r'^\s+$', '', summary)
+                    message = '{0}編輯{1}{2}（{3}） 破壞可能性: {4:.0f}%'.format(
                         M.link_user(data['user']),
                         M.link_page(data['page']),
-                        '無摘要' if summary == '' else '有摘要',
+                        '' if summary == '' else '（' + M.parse_wikicode(summary) + '）',
                         M.link_diff(data['revid']),
                         score['probability']['true'] * 100,
                     )
