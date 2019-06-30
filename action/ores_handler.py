@@ -9,7 +9,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../"))
 from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
-from ores_config import config  # pylint: disable=E0611,W0614
+from ores_config import config  # noqa: E402, pylint: disable=E0611,W0614
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
