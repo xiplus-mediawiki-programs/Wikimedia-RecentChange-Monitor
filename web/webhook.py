@@ -141,9 +141,9 @@ def web():
                                   (str(from_user_id), name))
                     M.db.commit()
                     M.sendmessage(
-                        "設定" + name + "(" +
-                        (from_firstname + " " + from_lastname).strip() +
-                        ")(" + str(from_user_id) + ")為管理員"
+                        "設定" + name + "("
+                        + (from_firstname + " " + from_lastname).strip()
+                        + ")(" + str(from_user_id) + ")為管理員"
                     )
                     return "OK"
 
@@ -170,9 +170,9 @@ def web():
                         M.sendmessage("該用戶不是管理員")
                     else:
                         M.sendmessage(
-                            "移除" +
-                            (from_firstname + " " + from_lastname).strip() +
-                            "(" + str(from_user_id) + ")為管理員"
+                            "移除"
+                            + (from_firstname + " " + from_lastname).strip()
+                            + "(" + str(from_user_id) + ")為管理員"
                         )
                     return "OK"
 
@@ -204,8 +204,7 @@ def web():
 
                     reason = name + '加入：' + args.reason
                     M.addblack_user(user, m_date, reason, wiki)
-                    M.adduser_score(M.user_type(user),
-                                    args.point)
+                    M.adduser_score(M.user_type(user), args.point)
                     return 'OK'
 
                 if action in ['userscore', 'us']:
@@ -512,8 +511,8 @@ def web():
                     if len(rows) != 0:
                         message += "\n於黑名單："
                         for record in rows:
-                            message += ("\n" + M.parse_wikicode(record[0]) +
-                                        ', ' + M.formattimediff(record[1]))
+                            message += ("\n" + M.parse_wikicode(record[0])
+                                        + ', ' + M.formattimediff(record[1]))
 
                     if message != "":
                         M.sendmessage(page + "@" + wiki + message)
@@ -557,8 +556,8 @@ def web():
 
                 if action in ['status']:
                     message = (
-                        ('Webhook: <a href="{}">WORKING!!</a>\n' +
-                         '<a href="{}status">查看資料接收狀況</a>')
+                        ('Webhook: <a href="{}">WORKING!!</a>\n'
+                         + '<a href="{}status">查看資料接收狀況</a>')
                         .format(
                             'https://zh.wikipedia.org/wiki/WORKING!!',
                             M.siteurl
