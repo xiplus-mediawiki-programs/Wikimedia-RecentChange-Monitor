@@ -2,7 +2,7 @@ import re
 import time
 import traceback
 
-from message_config import affollowwiki, followwiki
+from autoblacklist_message_config import affollowwiki, followwiki
 
 
 def main(M, change):
