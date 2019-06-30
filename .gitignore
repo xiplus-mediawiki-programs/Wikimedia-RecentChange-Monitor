@@ -1,6 +1,8 @@
 .vs/
 .vscode/
 action/abusefilter_list.csv
+action/user-config.py
+action/user-password.py
 config.ini
 cookie.txt
 *_config.py
