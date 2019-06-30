@@ -44,20 +44,20 @@ rightname = {
 }
 
 
-def parse_rights(group, metadata):
-    if len(group) == 0:
+def parse_rights(groups, metadatas):
+    if len(groups) == 0:
         return '無'
     res = []
-    for i in range(len(group)):
-        if 'expiry' in metadata[i]:
+    for group, metadata in zip(groups, metadatas):
+        if 'expiry' in metadata:
             res.append('{}（{}/{}/{} {}:{}）'.format(
-                rightname[group[i]],
-                metadata[i]['expiry'][0:4],
-                metadata[i]['expiry'][4:6],
-                metadata[i]['expiry'][6:8],
-                metadata[i]['expiry'][8:10],
-                metadata[i]['expiry'][10:12],
+                rightname[group],
+                metadata['expiry'][0:4],
+                metadata['expiry'][4:6],
+                metadata['expiry'][6:8],
+                metadata['expiry'][8:10],
+                metadata['expiry'][10:12],
             ))
         else:
-            res.append(rightname[group[i]])
+            res.append(rightname[group])
     return '、'.join(res)
