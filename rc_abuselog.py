@@ -120,7 +120,7 @@ while True:
             'action': 'query',
             'list': 'abuselog',
             'aflstart': timestamp,
-            'aflprop': 'ids|user|title|action|result|timestamp|hidden|revid|filter',
+            'aflprop': 'ids|user|title|action|result|timestamp|hidden|revid|filter|details',
             'afldir': 'newer',
             'afllimit': '500',
             'format': 'json'
