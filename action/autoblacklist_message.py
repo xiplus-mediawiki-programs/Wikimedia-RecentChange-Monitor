@@ -48,6 +48,8 @@ def main(M, change):
         if wiki not in followwiki and not issend:
             return
 
+        M.addRC_wiki(change)
+
         if ctype == "edit":
             message = (
                 M.link_user(user) + '編輯' + M.link_page(title) + '（'
