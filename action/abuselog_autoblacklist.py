@@ -22,7 +22,6 @@ for afid in afblacklist:
 
 def main(M, log):
     try:
-        print(log["filter"], log["timestamp"])
         blackuser = log["user"] + "|" + M.wiki
 
         message = (
