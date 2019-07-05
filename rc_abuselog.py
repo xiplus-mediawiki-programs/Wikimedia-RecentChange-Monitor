@@ -80,7 +80,7 @@ if "error" in res:
     res = session.get(M.wp_api, params=params).json()
     logintoken = res["query"]["tokens"]["logintoken"]
 
-    print("logging in")
+    print("logging in as {}".format(M.wp_user))
     params = {
         'action': 'login',
         'lgname': M.wp_user,
@@ -92,7 +92,7 @@ if "error" in res:
     if res["login"]["result"] == "Success":
         print("login success")
     else:
-        exit("log in fail")
+        exit("log in fail: {}".format(res))
 
 else:
     print("logged in")
