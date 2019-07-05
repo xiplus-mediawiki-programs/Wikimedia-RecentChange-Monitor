@@ -37,8 +37,12 @@ while True:
             revids = '|'.join([str(data['revid']) for data in pool])
             url = 'https://ores.wikimedia.org/v3/scores/zhwiki/?models=damaging&revids={}'.format(revids)
             req = urllib.request.Request(url, headers={'User-Agent': M.wp_user_agent})
-            result = urllib.request.urlopen(req).read().decode("utf8")
-            result = json.loads(result)
+            rawresult = urllib.request.urlopen(req).read().decode("utf8")
+            try:
+                result = json.loads(rawresult)
+            except json.decoder.JSONDecodeError:
+                M.error('[ores_handler] JSONDecodeError: {}'.format(rawresult))
+                continue
 
             for data in pool:
                 score = result['zhwiki']['scores'][str(data['revid'])]['damaging']['score']
