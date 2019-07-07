@@ -51,6 +51,8 @@ def main(M, change):
         M.addRC_wiki(change)
 
         if ctype == "edit":
+            comment = re.sub(r'/\*.*?\*/', '', comment)
+            comment = re.sub(r'^\s+$', '', comment)
             message = '{0}編輯{1}（{2}）（{3}）'.format(
                 M.link_user(user),
                 M.link_page(title),
