@@ -66,7 +66,11 @@ def main(M, change):
                 M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1)
 
         elif ctype == "new":
-            message = M.link_user(user) + '建立' + M.link_page(title)
+            message = '{0}建立{1}（{2}）'.format(
+                M.link_user(user),
+                M.link_page(title),
+                M.parse_wikicode(comment),
+            ).replace('（）', '')
             if issend:
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
