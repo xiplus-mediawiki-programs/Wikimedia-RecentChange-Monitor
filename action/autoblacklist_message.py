@@ -51,9 +51,12 @@ def main(M, change):
         M.addRC_wiki(change)
 
         if ctype == "edit":
-            message = (
-                M.link_user(user) + '編輯' + M.link_page(title) + '（'
-                + M.link_diff(change["revision"]["new"]) + '）')
+            message = '{0}編輯{1}（{2}）（{3}）'.format(
+                M.link_user(user),
+                M.link_page(title),
+                M.link_diff(change['revision']['new']),
+                M.parse_wikicode(comment),
+            ).replace('（）', '')
             if issend:
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
