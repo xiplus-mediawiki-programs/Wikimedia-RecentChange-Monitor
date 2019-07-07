@@ -1586,6 +1586,9 @@ class Monitor():
         if 'query' not in apiresult:
             self.error('[M.get_tags] title={} revid={} result={}'.format(title, revid, apiresult))
             return []
+        if 'revisions' not in list(apiresult['query']['pages'].values())[0]:
+            self.error('[M.get_tags] title={} revid={} page={}'.format(title, revid, list(apiresult['query']['pages'].values())[0]))
+            return []
         result = list(apiresult['query']['pages'].values())[0]['revisions'][0]['tags']
         return result
 
