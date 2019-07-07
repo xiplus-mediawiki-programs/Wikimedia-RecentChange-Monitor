@@ -53,12 +53,12 @@ def main(M, change):
         if ctype == "edit":
             comment = re.sub(r'/\*.*?\*/', '', comment)
             comment = re.sub(r'^\s+$', '', comment)
-            message = '{0}編輯{1}（{2}）（{3}）'.format(
+            message = '{0}編輯{1}（{2}）（\u200b{3}\u200b）'.format(
                 M.link_user(user),
                 M.link_page(title),
                 M.link_diff(change['revision']['new']),
                 M.parse_wikicode(comment),
-            ).replace('（）', '')
+            ).replace('（\u200b\u200b）', '')
             if issend:
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
@@ -66,11 +66,11 @@ def main(M, change):
                 M.adduser_score(M.user_type(M.parse_user(blackuser)[0]), -1)
 
         elif ctype == "new":
-            message = '{0}建立{1}（{2}）'.format(
+            message = '{0}建立{1}（\u200b{2}\u200b）'.format(
                 M.link_user(user),
                 M.link_page(title),
                 M.parse_wikicode(comment),
-            ).replace('（）', '')
+            ).replace('（\u200b\u200b）', '')
             if issend:
                 M.sendmessage(
                     message + message_append, blackuser, title + "|" + M.wiki)
