@@ -1454,23 +1454,24 @@ class Monitor():
     def parse_wikicode(self, code):
         code = html.escape(code, quote=False)
 
-        def repl1(m):
-            page = m.group(1)
-            if len(m.groups()) == 2:  # pylint: disable=R1705
-                text = m.group(2)
-                return self.link_all(page, text)
-            else:
-                return self.link_all(page)
-        code = re.sub(r"\[\[([^\]\|]+)(?:\|([^\]]+))?\]\]", repl1, code)
-
-        def repl2(m):
+        def rep_template(m):
             text = m.group(1)
             page = "Template:" + m.group(1)
             parms = ""
             if len(m.groups()) == 2 and m.group(2) is not None:
                 parms = m.group(2)
             return "{{" + self.link_all(page, text) + parms + "}}"
-        code = re.sub(r"{{([^\|}]+)(\|[^}]+)?}}", repl2, code)
+        code = re.sub(r"{{([^\|}\[\]]+)(\|[^}]+)?}}", rep_template, code)
+
+        def rep_link(m):
+            page = m.group(1)
+            if len(m.groups()) == 2:  # pylint: disable=R1705
+                text = m.group(2)
+                return self.link_all(page, text)
+            else:
+                return self.link_all(page)
+        code = re.sub(r"\[\[([^\]\|]+)(?:\|([^\]]+))?\]\]", rep_link, code)
+
         return code
 
     def user_type(self, user):
