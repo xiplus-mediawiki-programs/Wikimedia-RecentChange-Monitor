@@ -91,10 +91,11 @@ class Monitor():
 
     def addRC_wiki(self, change):
         self.db_execute(
-            """INSERT IGNORE INTO `RC_wiki`
+            """INSERT INTO `RC_wiki`
                 (`wiki`, `server_name`)
-                VALUES (%s, %s)""",
-            (change["wiki"], change["server_name"]))
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE `server_name` = %s""",
+            (change["wiki"], change["server_name"], change["server_name"]))
 
     def addRC_edit(self, change):
         self.db_execute(
