@@ -215,8 +215,7 @@ def web():
                     parser = argparse.ArgumentParser(
                         prog='/{0}'.format(action))
                     parser.add_argument('username', type=str, help='用戶名')
-                    parser.add_argument(
-                        '-p', '--point', type=int, metavar='點數', default=10, help='預設：%(default)s')
+                    parser.add_argument('point', type=int, nargs='?', default=10, help='點數，預設：%(default)s')
 
                     args = handle_parser(parser, cmd)
                     if args is None:
