@@ -18,8 +18,6 @@ def main(M, change):
         if wiki not in messagewiki:
             return
 
-        # print(timestr, change)
-
         M.change_wiki_and_domain(change['wiki'], change['meta']['domain'])
 
         ctype = change['type']
@@ -112,7 +110,6 @@ def main(M, change):
                     parse_rights(change['log_params']['newgroups'], change['log_params']['newmetadata']),
                     M.parse_wikicode(change['comment']),
                 ).replace('（）', '')
-                print(message)
 
             elif log_type == 'delete':
                 if log_action == 'delete':
@@ -124,7 +121,6 @@ def main(M, change):
                     ).replace('（）', '')
 
                 elif log_action == 'delete_redir':
-                    # print(timestr, change)
                     pass
 
                 elif log_action == 'restore':
@@ -136,14 +132,11 @@ def main(M, change):
                     ).replace('（）', '')
 
                 elif log_action == 'revision':
-                    # print(timestr, change)
                     pass
 
         if message:
-            print(message)
             for chat_id in chats:
                 if chats[chat_id](change):
-                    print(chat_id)
                     M.sendmessage(message, chat_id=chat_id, token=token)
 
     except Exception:
