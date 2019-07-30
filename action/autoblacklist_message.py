@@ -163,7 +163,7 @@ def main(M, change):
                         ), "差異")
                     )
 
-                    if wiki != M.wiki:
+                    if wiki != M.defaultwiki:
                         message += "(" + wiki + ")"
 
                     if wiki in affollowwiki:
