@@ -154,6 +154,10 @@ def main(M, change):
                     # ignore
                     unknowntype = False
 
+                elif log_action == "prioritylanguages":
+                    # ignore
+                    unknowntype = False
+
             elif log_type == "translationreview":
                 if log_action == "group":
                     # ignore
