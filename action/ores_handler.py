@@ -24,9 +24,13 @@ while True:
         starttime = time.time()
         while True:
             try:
-                data, address = sock.recvfrom(config['max_bytes'])
-                data = data.decode()
-                data = json.loads(data)
+                rawdata, address = sock.recvfrom(config['max_bytes'])
+                rawdata = rawdata.decode()
+                try:
+                    data = json.loads(rawdata)
+                except json.decoder.JSONDecodeError:
+                    M.error('[ores_handler] JSONDecodeError: {}'.format(rawdata))
+                    continue
                 pool.append(data)
                 if len(pool) >= 10 or time.time() - starttime > 10:
                     break
@@ -45,7 +49,11 @@ while True:
                 continue
 
             for data in pool:
-                score = result['zhwiki']['scores'][str(data['revid'])]['damaging']['score']
+                try:
+                    score = result['zhwiki']['scores'][str(data['revid'])]['damaging']['score']
+                except Exception as e:
+                    M.error('[ores_handler] {}: {}', e, result['zhwiki']['scores'][str(data['revid'])]['damaging'])
+                    continue
                 if score['prediction']:
                     summary = data['summary']
                     summary = re.sub(r'/\*.*?\*/', '', summary)
