@@ -550,7 +550,6 @@ def web():
                     for row in rows:
                         M.deletemessage(row[0])
 
-                    M.sendmessage("已刪除" + str(len(rows)) + "條訊息")
                     return "OK"
 
                 if action in ['status']:
