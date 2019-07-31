@@ -15,7 +15,7 @@ from Monitor import Monitor
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s [%(filename)10s:%(lineno)4s] %(levelname)7s %(message)s')
+                    format='%(asctime)s [%(filename)15s:%(lineno)4s] %(levelname)7s %(message)s')
 
 os.environ['TZ'] = 'UTC'
 

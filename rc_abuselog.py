@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import importlib
+import logging
 import os
 import pickle
 import sys
@@ -8,13 +9,16 @@ import time
 import traceback
 
 import dateutil.parser
-
 import pytz
+
 import requests
 from action.abusefilter_list_producer import abusefilter_list_rev
 from Monitor import Monitor
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s [%(filename)15s:%(lineno)4s] %(levelname)7s %(message)s')
 
 os.environ['TZ'] = 'UTC'
 
@@ -22,7 +26,7 @@ M = Monitor()
 
 try:
     from rc_config import module_list_abuselog
-    print("module_list", module_list_abuselog)
+    logging.info("module_list {}".format(module_list_abuselog))
 except ImportError as e:
     if str(e) == "No module named 'rc_config'":
         traceback.print_exc()
@@ -66,11 +70,11 @@ try:
 except Exception as e:
     print("parse cookie file fail")
 
-print("checking is logged in")
+logging.info("checking is logged in")
 params = {'action': 'query', 'assert': 'user', 'format': 'json'}
 res = session.get(M.wp_api, params=params).json()
 if "error" in res:
-    print("fetching login token")
+    logging.info("fetching login token")
     params = {
         'action': 'query',
         'meta': 'tokens',
@@ -80,7 +84,7 @@ if "error" in res:
     res = session.get(M.wp_api, params=params).json()
     logintoken = res["query"]["tokens"]["logintoken"]
 
-    print("logging in as {}".format(M.wp_user))
+    logging.info("logging in as {}".format(M.wp_user))
     params = {
         'action': 'login',
         'lgname': M.wp_user,
@@ -90,12 +94,12 @@ if "error" in res:
     }
     res = session.post(M.wp_api, data=params).json()
     if res["login"]["result"] == "Success":
-        print("login success")
+        logging.info("login success")
     else:
         exit("log in fail: {}".format(res))
 
 else:
-    print("logged in")
+    logging.info("logged in")
 
 with open('cookie.txt', 'wb') as f:
     pickle.dump(session.cookies, f)
@@ -114,7 +118,7 @@ timestamp = int2tz(int(time.time()))
 
 while True:
     try:
-        print(timestamp)
+        logging.info('query {}'.format(timestamp))
 
         params = {
             'action': 'query',
@@ -130,7 +134,9 @@ while True:
         for log in res["query"]["abuselog"]:
             if log['filter_id'] == '':
                 log['filter_id'] = abusefilter_list_rev[log['filter']]
-            print(log)
+            log['filter_id'] = int(log['filter_id'])
+            logging.info('{} {} {} {} {}'.format(
+                log['timestamp'], log['id'], log['user'], log['filter'], len(log['details'])))
 
             for module in modules:
                 try:
