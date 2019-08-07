@@ -31,7 +31,7 @@ def main(M, log):
         )
 
         for chat_id in chats:
-            print(chat_id)
+            logging.info('send to {}'.format(chat_id))
             if chats[chat_id](log):
                 M.sendmessage(message, chat_id=chat_id, token=token)
 

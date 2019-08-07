@@ -68,7 +68,7 @@ try:
         cookies = pickle.load(f)
         session.cookies = cookies
 except Exception as e:
-    print("parse cookie file fail")
+    logging.info("parse cookie file fail")
 
 logging.info("checking is logged in")
 params = {'action': 'query', 'assert': 'user', 'format': 'json'}
