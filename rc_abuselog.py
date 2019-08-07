@@ -153,4 +153,4 @@ while True:
         traceback.print_exc()
         M.error(traceback.format_exc())
 
-    time.sleep(60)
+    time.sleep(20)
