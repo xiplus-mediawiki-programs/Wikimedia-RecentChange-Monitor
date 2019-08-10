@@ -8,18 +8,22 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ['TZ'] = 'UTC'
 
+
 def main(M, log):
     try:
         blackuser = log["user"] + "|" + M.wiki
 
-        message = (
-            M.link_user(log["user"]) + '於' + M.link_page(log["title"]) +
-            '觸發' + M.link_abusefilter(log["filter_id"]) + '：' +
-            log["filter"] + '（' + M.link_abuselog(log["id"])
+        message = '{0}於{1}觸發{2}：{3}（{4}）'.format(
+            M.link_user(log["user"]),
+            M.link_page(log["title"]),
+            M.link_abusefilter(log["filter_id"]),
+            log["filter"],
+            M.link_abuselog(log["id"]) + (
+                "|" + M.link_diff(log["revid"])
+                if "revid" in log and log["revid"] != ""
+                else ""
+            )
         )
-        if "revid" in log and log["revid"] != "":
-            message += "|" + M.link_diff(log["revid"])
-        message += '）'
 
         rows = M.check_user_blacklist(log["user"])
         if len(rows) != 0:
