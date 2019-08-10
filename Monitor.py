@@ -85,9 +85,13 @@ class Monitor():
     def db_fetchall(self):
         return self.cur.fetchall()
 
+    def db_fetchone(self):
+        return self.cur.fetchone()
+
     def change_wiki_and_domain(self, wiki, domain):
         self.wiki = wiki
         self.domain = domain
+        self.wp_api = 'https://{}/w/api.php'.format(domain)
 
     def addRC_wiki(self, change):
         self.db_execute(
@@ -248,7 +252,7 @@ class Monitor():
                 change["user"], change["ns"],
                 revid, change["result"],
                 change["action"], timestamp,
-                change["title"], self.defaultwiki))
+                change["title"], self.wiki))
 
     def addRC_log_abusefilter_modify(self, change):
         self.db_execute(

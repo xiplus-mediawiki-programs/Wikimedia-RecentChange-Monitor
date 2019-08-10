@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import argparse
 import datetime
+import getpass
 import importlib
 import logging
 import os
@@ -10,10 +12,17 @@ import traceback
 
 import dateutil.parser
 import pytz
-
 import requests
+
 from action.abusefilter_list_producer import abusefilter_list_rev
 from Monitor import Monitor
+
+parser = argparse.ArgumentParser()
+parser.add_argument('wiki')
+parser.add_argument('--user')
+parser.add_argument('--hidden', action='store_true')
+parser.set_defaults(hidden=False)
+args = parser.parse_args()
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
@@ -23,6 +32,21 @@ logging.basicConfig(level=logging.INFO,
 os.environ['TZ'] = 'UTC'
 
 M = Monitor()
+
+M.db_execute("""SELECT `server_name` FROM `RC_wiki` WHERE `wiki` = %s""", (args.wiki))
+domain = M.db_fetchone()
+if domain is None:
+    logging.error('Cannot get domain')
+    exit()
+else:
+    domain = domain[0]
+    logging.info('domain is {}'.format(domain))
+M.change_wiki_and_domain(args.wiki, domain)
+api = 'https://{}/w/api.php'.format(domain)
+
+if args.user:
+    M.wp_user = args.user
+    M.wp_pass = getpass.getpass('Password:')
 
 try:
     from rc_config import module_list_abuselog
@@ -71,7 +95,7 @@ except Exception as e:
     logging.info("parse cookie file fail")
 
 logging.info("checking is logged in")
-params = {'action': 'query', 'assert': 'user', 'format': 'json'}
+params = {'action': 'query', 'assert': 'user', 'assertuser': M.wp_user, 'format': 'json'}
 res = session.get(M.wp_api, params=params).json()
 if "error" in res:
     logging.info("fetching login token")
@@ -116,6 +140,11 @@ def tz2int(timetz):
 
 timestamp = int2tz(int(time.time()))
 
+aflprop = 'ids|user|title|action|result|timestamp|revid|filter|details'
+if args.hidden:
+    aflprop += '|hidden'
+    logging.info('Include hidden log')
+
 while True:
     try:
         logging.info('query {}'.format(timestamp))
@@ -124,12 +153,15 @@ while True:
             'action': 'query',
             'list': 'abuselog',
             'aflstart': timestamp,
-            'aflprop': 'ids|user|title|action|result|timestamp|hidden|revid|filter|details',
+            'aflprop': aflprop,
             'afldir': 'newer',
             'afllimit': '500',
             'format': 'json'
         }
         res = session.get(M.wp_api, params=params).json()
+
+        if 'query' not in res:
+            print(res)
 
         for log in res["query"]["abuselog"]:
             if log['filter_id'] == '':
