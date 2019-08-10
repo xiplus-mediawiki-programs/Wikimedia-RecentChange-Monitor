@@ -46,7 +46,7 @@ api = 'https://{}/w/api.php'.format(domain)
 
 if args.user:
     M.wp_user = args.user
-    M.wp_pass = getpass.getpass('Password:')
+    M.wp_pass = ''
 
 try:
     from rc_config import module_list_abuselog
@@ -107,6 +107,9 @@ if "error" in res:
     }
     res = session.get(M.wp_api, params=params).json()
     logintoken = res["query"]["tokens"]["logintoken"]
+
+    if args.user:
+        M.wp_pass = getpass.getpass('Password:')
 
     logging.info("logging in as {}".format(M.wp_user))
     params = {
