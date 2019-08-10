@@ -19,6 +19,7 @@ from Monitor import Monitor
 parser = argparse.ArgumentParser()
 parser.add_argument('wiki')
 parser.add_argument('--user')
+parser.add_argument('--sleep', type=int, default=20)
 parser.add_argument('--hidden', action='store_true')
 parser.set_defaults(hidden=False)
 args = parser.parse_args()
@@ -192,4 +193,4 @@ while True:
         traceback.print_exc()
         M.error(traceback.format_exc())
 
-    time.sleep(20)
+    time.sleep(args.sleep)
