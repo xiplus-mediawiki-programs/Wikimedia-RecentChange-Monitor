@@ -17,7 +17,7 @@ import requests
 from Monitor import Monitor
 
 parser = argparse.ArgumentParser()
-parser.add_argument('wiki')
+parser.add_argument('wiki', nargs='?', default='zhwiki')
 parser.add_argument('--user')
 parser.add_argument('--sleep', type=int, default=20)
 parser.add_argument('--hidden', action='store_true')
