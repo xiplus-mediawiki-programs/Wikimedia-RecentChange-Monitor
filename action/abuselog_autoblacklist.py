@@ -25,6 +25,9 @@ def main(M, log):
             )
         )
 
+        if log['wiki'] != M.defaultwiki:
+            message += '(' + log['wiki'] + ')'
+
         rows = M.check_user_blacklist(log["user"])
         if len(rows) != 0:
             blackuser = log["user"] + "|" + rows[0][3]
