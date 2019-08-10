@@ -4,21 +4,9 @@ import traceback
 
 import dateutil
 
-from abusefilter_list_producer import abusefilter_list
-from abuselog_autoblacklist_config import afblacklist, afwatchlist
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ['TZ'] = 'UTC'
-
-afwatchlistname = []
-for afid in afwatchlist:
-    afwatchlistname.append(abusefilter_list[afid])
-
-afblacklistname = []
-for afid in afblacklist:
-    afblacklistname.append(abusefilter_list[afid])
-
 
 def main(M, log):
     try:
@@ -44,16 +32,19 @@ def main(M, log):
             message += '，{0}，{1}p）'.format(
                 M.formattimediff(rows[0][1]), rows[0][4])
 
+        on_watch = M.check_abusefilter_watch(af_name=log["filter"])
+        on_blacklist = M.check_abusefilter_blacklist(af_name=log["filter"])
+
         if (len(rows) != 0
-                or log["filter"] in afwatchlistname
-                or log["filter"] in afblacklistname):
+                or on_watch
+                or on_blacklist):
             M.sendmessage(
                 message,
                 blackuser,
                 log["title"] + "|" + M.wiki
             )
 
-        if log["filter"] in afblacklistname:
+        if on_blacklist:
             reason = "觸發過濾器：" + log["filter"]
             rows = M.check_user_blacklist_with_reason(log["user"], reason)
             if len(rows) == 0:

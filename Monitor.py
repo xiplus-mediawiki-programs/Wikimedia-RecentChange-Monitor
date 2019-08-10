@@ -1593,10 +1593,84 @@ class Monitor():
             self.error('[M.get_tags] title={} revid={} result={}'.format(title, revid, apiresult))
             return []
         if 'revisions' not in list(apiresult['query']['pages'].values())[0]:
-            self.error('[M.get_tags] title={} revid={} page={}'.format(title, revid, list(apiresult['query']['pages'].values())[0]))
+            self.error('[M.get_tags] title={} revid={} page={}'.format(
+                title, revid, list(apiresult['query']['pages'].values())[0]))
             return []
         result = list(apiresult['query']['pages'].values())[0]['revisions'][0]['tags']
         return result
+
+    @functools.lru_cache()
+    def get_af_id_by_name(self, af_name, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+
+        self.db_execute(
+            """SELECT `af_id` FROM `abusefilter`
+                WHERE `af_name` = %s AND `wiki` = %s""",
+            (af_name, wiki)
+        )
+        row = self.db_fetchone()
+        if row is None:
+            return 0
+        return row[0]
+
+    def load_abusefilter_mode(self, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+
+        self.db_execute(
+            """SELECT `af_id`, `af_name` FROM `abusefilter`
+                WHERE `mode` = 'watch' AND `wiki` = %s""",
+            (wiki)
+        )
+        rows = self.db_fetchall()
+        self.abusefilter_watch_id = []
+        self.abusefilter_watch_name = []
+        for row in rows:
+            self.abusefilter_watch_id.append(row[0])
+            self.abusefilter_watch_name.append(row[1])
+
+        self.db_execute(
+            """SELECT `af_id`, `af_name` FROM `abusefilter`
+                WHERE `mode` = 'blacklist' AND `wiki` = %s""",
+            (wiki)
+        )
+        rows = self.db_fetchall()
+        self.abusefilter_blacklist_id = []
+        self.abusefilter_blacklist_name = []
+        for row in rows:
+            self.abusefilter_blacklist_id.append(row[0])
+            self.abusefilter_blacklist_name.append(row[1])
+
+    def check_abusefilter_watch(self, af_id=None, af_name=None, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+
+        if self.abusefilter_watch_id is None:
+            return False
+
+        if af_id is not None:
+            return af_id in self.abusefilter_watch_id
+
+        if af_name is not None:
+            return af_name in self.abusefilter_watch_name
+
+        return False
+
+    def check_abusefilter_blacklist(self, af_id=None, af_name=None, wiki=None):
+        if wiki is None:
+            wiki = self.wiki
+
+        if self.abusefilter_blacklist_id is None:
+            return False
+
+        if af_id is not None:
+            return af_id in self.abusefilter_blacklist_id
+
+        if af_name is not None:
+            return af_name in self.abusefilter_blacklist_name
+
+        return False
 
     def __del__(self):
         if hasattr(self, 'db'):

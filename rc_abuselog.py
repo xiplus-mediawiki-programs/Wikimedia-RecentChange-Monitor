@@ -14,7 +14,6 @@ import dateutil.parser
 import pytz
 import requests
 
-from action.abusefilter_list_producer import abusefilter_list_rev
 from Monitor import Monitor
 
 parser = argparse.ArgumentParser()
@@ -41,7 +40,10 @@ if domain is None:
 else:
     domain = domain[0]
     logging.info('domain is {}'.format(domain))
+
 M.change_wiki_and_domain(args.wiki, domain)
+M.load_abusefilter_mode()
+
 api = 'https://{}/w/api.php'.format(domain)
 
 if args.user:
@@ -168,10 +170,12 @@ while True:
 
         for log in res["query"]["abuselog"]:
             if log['filter_id'] == '':
-                log['filter_id'] = abusefilter_list_rev[log['filter']]
+                log['filter_id'] = M.get_af_id_by_name(log['filter'], args.wiki)
             log['filter_id'] = int(log['filter_id'])
-            logging.info('{} {} {} {} {}'.format(
-                log['timestamp'], log['id'], log['user'], log['filter'], len(log['details'])))
+            log['wiki'] = args.wiki
+
+            logging.info('{} {} {} {} {} {} {}'.format(
+                log['timestamp'], log['wiki'], log['id'], log['user'], log['filter_id'], log['filter'], len(log['details'])))
 
             for module in modules:
                 try:
