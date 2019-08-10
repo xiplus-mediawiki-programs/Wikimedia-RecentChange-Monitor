@@ -27,7 +27,7 @@ args = parser.parse_args()
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
+                    format='%(asctime)s {: <15} [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s'.format(args.wiki))
 
 os.environ['TZ'] = 'UTC'
 
