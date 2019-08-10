@@ -47,6 +47,10 @@ class Monitor():
         self.wp_pass = config.get('wikipedia', 'pass')
         self.wp_user_agent = config.get('wikipedia', 'user_agent')
         self.wp_ipcheck_token = config.get('wikipedia', 'ipcheck_token')
+        self.abusefilter_watch_id = None
+        self.abusefilter_watch_name = None
+        self.abusefilter_blacklist_id = None
+        self.abusefilter_blacklist_name = None
 
     def db_connect(self, noRaise=True):
         try:
