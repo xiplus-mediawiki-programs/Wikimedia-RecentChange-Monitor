@@ -167,7 +167,7 @@ CREATE TABLE `RC_log_abusefilter_modify` (
 
 CREATE TABLE `RC_log_abuselog` (
   `id` int(11) NOT NULL,
-  `filter_id` int(11) NOT NULL,
+  `filter_id` varchar(20) NOT NULL,
   `filter` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `ns` int(11) NOT NULL,
