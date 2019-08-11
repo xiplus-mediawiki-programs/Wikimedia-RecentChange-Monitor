@@ -9,6 +9,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 
+CREATE TABLE `abusefilter` (
+  `af_id` bigint(20) NOT NULL,
+  `af_name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `mode` enum('none','watch','blacklist','') COLLATE utf8_bin NOT NULL DEFAULT 'none',
+  `wiki` varchar(20) COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `admin` (
   `user_id` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
@@ -160,7 +167,7 @@ CREATE TABLE `RC_log_abusefilter_modify` (
 
 CREATE TABLE `RC_log_abuselog` (
   `id` int(11) NOT NULL,
-  `filter_id` int(11) NOT NULL,
+  `filter_id` varchar(20) NOT NULL,
   `filter` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `ns` int(11) NOT NULL,
@@ -503,6 +510,9 @@ CREATE TABLE `white_user` (
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+ALTER TABLE `abusefilter`
+  ADD PRIMARY KEY (`af_id`,`wiki`);
 
 ALTER TABLE `admin`
   ADD PRIMARY KEY (`user_id`);

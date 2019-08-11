@@ -13,7 +13,9 @@ def result(res):
     return res
 
 
-def afLogo(filter_id='', filter_name=''):
+def afLogo(filter_id='', filter_name='', wiki='zhwiki'):
+    if wiki != 'zhwiki':
+        return ''
     try:
         filter_id = int(filter_id)
     except ValueError:

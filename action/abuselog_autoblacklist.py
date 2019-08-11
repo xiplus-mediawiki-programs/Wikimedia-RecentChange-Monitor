@@ -4,34 +4,29 @@ import traceback
 
 import dateutil
 
-from abusefilter_list_producer import abusefilter_list
-from abuselog_autoblacklist_config import afblacklist, afwatchlist
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ['TZ'] = 'UTC'
-
-afwatchlistname = []
-for afid in afwatchlist:
-    afwatchlistname.append(abusefilter_list[afid])
-
-afblacklistname = []
-for afid in afblacklist:
-    afblacklistname.append(abusefilter_list[afid])
 
 
 def main(M, log):
     try:
         blackuser = log["user"] + "|" + M.wiki
 
-        message = (
-            M.link_user(log["user"]) + '於' + M.link_page(log["title"]) +
-            '觸發' + M.link_abusefilter(log["filter_id"]) + '：' +
-            log["filter"] + '（' + M.link_abuselog(log["id"])
+        message = '{0}於{1}觸發{2}：{3}（{4}）'.format(
+            M.link_user(log["user"]),
+            M.link_page(log["title"]),
+            M.link_abusefilter(log["filter_id"]),
+            log["filter"],
+            M.link_abuselog(log["id"]) + (
+                "|" + M.link_diff(log["revid"])
+                if "revid" in log and log["revid"] != ""
+                else ""
+            )
         )
-        if "revid" in log and log["revid"] != "":
-            message += "|" + M.link_diff(log["revid"])
-        message += '）'
+
+        if log['wiki'] != M.defaultwiki:
+            message += '(' + log['wiki'] + ')'
 
         rows = M.check_user_blacklist(log["user"])
         if len(rows) != 0:
@@ -44,16 +39,19 @@ def main(M, log):
             message += '，{0}，{1}p）'.format(
                 M.formattimediff(rows[0][1]), rows[0][4])
 
+        on_watch = M.check_abusefilter_watch(af_name=log["filter"])
+        on_blacklist = M.check_abusefilter_blacklist(af_name=log["filter"])
+
         if (len(rows) != 0
-                or log["filter"] in afwatchlistname
-                or log["filter"] in afblacklistname):
+                or on_watch
+                or on_blacklist):
             M.sendmessage(
                 message,
                 blackuser,
                 log["title"] + "|" + M.wiki
             )
 
-        if log["filter"] in afblacklistname:
+        if on_blacklist:
             reason = "觸發過濾器：" + log["filter"]
             rows = M.check_user_blacklist_with_reason(log["user"], reason)
             if len(rows) == 0:

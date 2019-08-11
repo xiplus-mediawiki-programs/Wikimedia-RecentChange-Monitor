@@ -18,6 +18,10 @@ def main(M, log):
         if 'revid' in log and log['revid'] != '':
             detailtext += ' | ' + M.link_diff(log['revid'])
 
+        message_append = ''
+        if log['wiki'] != M.defaultwiki:
+            message_append += '(' + log['wiki'] + ')'
+
         message = '{0}{1}：{2} ({3}) 在 {4} 執行操作 "{5}" 時觸發{6}。採取的行動：{7} ； 過濾器描述：{8}（{9}）'.format(
             afLogo(log['filter_id'], log['filter']),
             time.strftime('%Y年%m月%d日 ({}) %H:%M', time.gmtime(timestamp)).format(day[timestr.weekday()]),
@@ -34,7 +38,7 @@ def main(M, log):
         for chat_id in chats:
             logging.info('send to {}'.format(chat_id))
             if chats[chat_id](log):
-                M.sendmessage(message, chat_id=chat_id, token=token)
+                M.sendmessage(message + message_append, chat_id=chat_id, token=token)
 
     except Exception:
         traceback.print_exc()

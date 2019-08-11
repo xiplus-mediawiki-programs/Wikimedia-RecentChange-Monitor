@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import argparse
 import datetime
+import getpass
 import importlib
 import logging
 import os
@@ -10,19 +12,44 @@ import traceback
 
 import dateutil.parser
 import pytz
-
 import requests
-from action.abusefilter_list_producer import abusefilter_list_rev
+
 from Monitor import Monitor
+
+parser = argparse.ArgumentParser()
+parser.add_argument('wiki', nargs='?', default='zhwiki')
+parser.add_argument('--user')
+parser.add_argument('--sleep', type=int, default=20)
+parser.add_argument('--hidden', action='store_true')
+parser.set_defaults(hidden=False)
+args = parser.parse_args()
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
+                    format='%(asctime)s {: <15} [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s'.format(args.wiki))
 
 os.environ['TZ'] = 'UTC'
 
 M = Monitor()
+
+M.db_execute("""SELECT `server_name` FROM `RC_wiki` WHERE `wiki` = %s""", (args.wiki))
+domain = M.db_fetchone()
+if domain is None:
+    logging.error('Cannot get domain')
+    exit()
+else:
+    domain = domain[0]
+    logging.info('domain is {}'.format(domain))
+
+M.change_wiki_and_domain(args.wiki, domain)
+M.load_abusefilter_mode()
+
+api = 'https://{}/w/api.php'.format(domain)
+
+if args.user:
+    M.wp_user = args.user
+    M.wp_pass = ''
 
 try:
     from rc_config import module_list_abuselog
@@ -71,7 +98,7 @@ except Exception as e:
     logging.info("parse cookie file fail")
 
 logging.info("checking is logged in")
-params = {'action': 'query', 'assert': 'user', 'format': 'json'}
+params = {'action': 'query', 'assert': 'user', 'assertuser': M.wp_user, 'format': 'json'}
 res = session.get(M.wp_api, params=params).json()
 if "error" in res:
     logging.info("fetching login token")
@@ -83,6 +110,9 @@ if "error" in res:
     }
     res = session.get(M.wp_api, params=params).json()
     logintoken = res["query"]["tokens"]["logintoken"]
+
+    if args.user:
+        M.wp_pass = getpass.getpass('Password:')
 
     logging.info("logging in as {}".format(M.wp_user))
     params = {
@@ -116,6 +146,11 @@ def tz2int(timetz):
 
 timestamp = int2tz(int(time.time()))
 
+aflprop = 'ids|user|title|action|result|timestamp|revid|filter|details'
+if args.hidden:
+    aflprop += '|hidden'
+    logging.info('Include hidden log')
+
 while True:
     try:
         logging.info('query {}'.format(timestamp))
@@ -124,19 +159,31 @@ while True:
             'action': 'query',
             'list': 'abuselog',
             'aflstart': timestamp,
-            'aflprop': 'ids|user|title|action|result|timestamp|hidden|revid|filter|details',
+            'aflprop': aflprop,
             'afldir': 'newer',
             'afllimit': '500',
             'format': 'json'
         }
         res = session.get(M.wp_api, params=params).json()
 
+        if 'query' not in res:
+            print(res)
+
         for log in res["query"]["abuselog"]:
             if log['filter_id'] == '':
-                log['filter_id'] = abusefilter_list_rev[log['filter']]
-            log['filter_id'] = int(log['filter_id'])
-            logging.info('{} {} {} {} {}'.format(
-                log['timestamp'], log['id'], log['user'], log['filter'], len(log['details'])))
+                log['filter_id'] = M.get_af_id_by_name(log['filter'], args.wiki)
+
+            if log['filter_id'].startswith('global-'):
+                log['filter_id'] = int(log['filter_id'][7:])
+                log['global'] = True
+            else:
+                log['filter_id'] = int(log['filter_id'])
+                log['global'] = False
+
+            log['wiki'] = args.wiki
+
+            logging.info('{} {} {} {} {} {} {}'.format(
+                log['timestamp'], log['wiki'], log['id'], log['user'], log['filter_id'], log['filter'], len(log['details'])))
 
             for module in modules:
                 try:
@@ -153,4 +200,4 @@ while True:
         traceback.print_exc()
         M.error(traceback.format_exc())
 
-    time.sleep(20)
+    time.sleep(args.sleep)
