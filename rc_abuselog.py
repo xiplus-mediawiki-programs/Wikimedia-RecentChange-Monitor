@@ -172,7 +172,14 @@ while True:
         for log in res["query"]["abuselog"]:
             if log['filter_id'] == '':
                 log['filter_id'] = M.get_af_id_by_name(log['filter'], args.wiki)
-            log['filter_id'] = int(log['filter_id'])
+
+            if log['filter_id'].startswith('global-'):
+                log['filter_id'] = int(log['filter_id'][7:])
+                log['global'] = True
+            else:
+                log['filter_id'] = int(log['filter_id'])
+                log['global'] = False
+
             log['wiki'] = args.wiki
 
             logging.info('{} {} {} {} {} {} {}'.format(

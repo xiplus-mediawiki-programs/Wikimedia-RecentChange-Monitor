@@ -1614,9 +1614,19 @@ class Monitor():
             (af_name, wiki)
         )
         row = self.db_fetchone()
-        if row is None:
-            return 0
-        return row[0]
+        if row is not None:
+            return str(row[0])
+
+        self.db_execute(
+            """SELECT `af_id` FROM `abusefilter`
+                WHERE `af_name` = %s AND `wiki` = 'metawiki'""",
+            (af_name)
+        )
+        row = self.db_fetchone()
+        if row is not None:
+            return 'global-{}'.format(row[0])
+
+        return 0
 
     def load_abusefilter_mode(self, wiki=None):
         if wiki is None:
