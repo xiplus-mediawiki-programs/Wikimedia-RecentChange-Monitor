@@ -230,10 +230,10 @@ class Monitor():
 
     def addRC_log_abuselog(self, change):
         import dateutil.parser
-        if change["filter_id"] == "":
-            filter_id = 0
+        if change["global"]:
+            filter_id = 'global-{}'.format(change["filter_id"])
         else:
-            filter_id = change["filter_id"]
+            filter_id = str(change["filter_id"])
         if "revid" not in change or change["revid"] == "":
             revid = 0
         else:
