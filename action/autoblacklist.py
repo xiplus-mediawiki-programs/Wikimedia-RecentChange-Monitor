@@ -40,7 +40,7 @@ def main(M, change):
                 point = 15
             elif re.match(r"^(層級|层级)4", comment):
                 point = 20
-            elif re.match(r"^(單層級通知|单层级通知)：(回退個人的測試|回退个人的测试)", comment):
+            elif re.match(r"^(單層級通知|单层级通知)", comment):
                 point = 10
             elif re.match(r"^(單層級警告|单层级警告)", comment):
                 point = 10
