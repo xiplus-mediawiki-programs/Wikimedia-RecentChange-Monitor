@@ -36,8 +36,8 @@ def main(M, log):
         )
 
         for chat_id in chats:
-            logging.info('send to {}'.format(chat_id))
             if chats[chat_id](log):
+                logging.info('send to {}'.format(chat_id))
                 M.sendmessage(message + message_append, chat_id=chat_id, token=token)
 
     except Exception:
