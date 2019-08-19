@@ -19,6 +19,7 @@ from Monitor import Monitor
 parser = argparse.ArgumentParser()
 parser.add_argument('wiki', nargs='?', default='zhwiki')
 parser.add_argument('--user')
+parser.add_argument('--password')
 parser.add_argument('--sleep', type=int, default=20)
 parser.add_argument('--hidden', action='store_true')
 parser.set_defaults(hidden=False)
@@ -112,7 +113,10 @@ if "error" in res:
     logintoken = res["query"]["tokens"]["logintoken"]
 
     if args.user:
-        M.wp_pass = getpass.getpass('Password:')
+        if args.password is not None:
+            M.wp_pass = args.password
+        else:
+            M.wp_pass = getpass.getpass('Password:')
 
     logging.info("logging in as {}".format(M.wp_user))
     params = {
