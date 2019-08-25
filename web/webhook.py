@@ -231,46 +231,6 @@ def web():
                     M.sendmessage(message)
                     return "OK"
 
-                if action in ['addwhiteuser']:
-                    name = checkadmin()
-                    if name is None:
-                        return "OK"
-
-                    parser = argparse.ArgumentParser(
-                        prog='/{0}'.format(action))
-                    parser.add_argument('username', type=str, help='用戶名')
-                    parser.add_argument('reason', type=str,
-                                        default='無原因', nargs='?', help='原因')
-                    parser.add_argument(
-                        '-r', '--reason', type=str, metavar='原因', default='無原因', help='預設：%(default)s')
-
-                    args = handle_parser(parser, cmd)
-                    if args is None:
-                        return 'OK'
-
-                    user, _ = M.parse_user(args.username)
-                    reason = name + '加入：' + args.reason
-                    M.addwhite_user(user, m_date, reason)
-                    return "OK"
-
-                if action in ['delwhiteuser']:
-                    if not checkadmin():
-                        return "OK"
-
-                    parser = argparse.ArgumentParser(
-                        prog='/{0}'.format(action))
-                    parser.add_argument('username', type=str, help='用戶名')
-                    parser.add_argument(
-                        'reason', type=str, default=None, nargs='?', help='原因')  # Unused
-
-                    args = handle_parser(parser, cmd)
-                    if args is None:
-                        return 'OK'
-
-                    user, _ = M.parse_user(args.username)
-                    M.delwhite_user(user)
-                    return "OK"
-
                 if action in ['deluser', 'du']:
                     if not checkadmin():
                         return "OK"

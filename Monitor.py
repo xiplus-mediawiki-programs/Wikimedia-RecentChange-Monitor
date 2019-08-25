@@ -962,31 +962,6 @@ class Monitor():
                     "{}條對於IP:{}-{}的紀錄設定wiki為{}".format(
                         count, userobj.start, userobj.end, wiki))
 
-    def addwhite_user(self, user, timestamp, reason, msgprefix=""):
-        user = self.normalize_user(user)
-
-        userobj = self.user_type(user)
-        self.db_execute(
-            """INSERT INTO `white_user` (`user`, `timestamp`, `reason`, `userhash`)
-               VALUES (%s, %s, %s, %s)""",
-            (user, timestamp, reason, userobj.userhash))
-
-        self.sendmessage("{}加入{}@global至白名單\n原因：{}"
-                         .format(
-                             msgprefix,
-                             self.link_user(user, ""),
-                             self.parse_wikicode(reason)
-                         )
-                         )
-
-    def delwhite_user(self, user):
-        user = self.normalize_user(user)
-        count = self.db_execute(
-            """DELETE FROM `white_user` WHERE `user` = %s""",
-            (user))
-
-        self.sendmessage(str(count) + "條對於" + user + "@global的紀錄從白名單刪除")
-
     def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
         if wiki is None:
             wiki = self.wiki
