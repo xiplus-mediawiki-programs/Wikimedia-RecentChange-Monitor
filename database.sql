@@ -12,7 +12,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `abusefilter` (
   `af_id` bigint(20) NOT NULL,
   `af_name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `mode` enum('none','watch','blacklist','') COLLATE utf8_bin NOT NULL DEFAULT 'none',
+  `mode` enum('none','watch','blacklist') COLLATE utf8_bin NOT NULL DEFAULT 'none',
   `wiki` varchar(20) COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
