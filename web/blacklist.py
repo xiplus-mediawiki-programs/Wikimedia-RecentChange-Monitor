@@ -148,16 +148,17 @@ def web():
             html += """</table>"""
         elif request.args["type"] == "whiteuser":
             M.cur.execute(
-                """SELECT `user`, `point`, `reason`, `white_user`.`timestamp`
-                   FROM `white_user`
+                """SELECT `wiki`, `user`, `point`, `reason`, `black_user`.`timestamp`
+                   FROM `black_user`
                    LEFT JOIN `user_score`
-                   ON `white_user`.`userhash` = `user_score`.`userhash`
-                   WHERE `point` != 0
-                   ORDER BY `white_user`.`timestamp` DESC""")
+                   ON `black_user`.`userhash` = `user_score`.`userhash`
+                   WHERE `point` <= 0
+                   ORDER BY `black_user`.`timestamp` DESC""")
             rows = M.cur.fetchall()
             html += """<table>"""
             html += """
                 <tr>
+                    <th>wiki</th>
                     <th>user</th>
                     <th>point</th>
                     <th>reason</th>
@@ -171,11 +172,13 @@ def web():
                         <td>{}</td>
                         <td>{}</td>
                         <td>{}</td>
+                        <td>{}</td>
                     </tr>
                     """.format(row[0],
                                row[1],
-                               M.parse_wikicode(row[2]),
-                               M.formattimediff(row[3]))
+                               row[2],
+                               M.parse_wikicode(row[3]),
+                               M.formattimediff(row[4]))
             html += """</table>"""
         elif request.args["type"] == "blackpage":
             if "delpage" in request.form:
