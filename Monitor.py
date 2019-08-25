@@ -829,17 +829,13 @@ class Monitor():
 
         return message.strip()
 
-    def getwhiteuser(self, user, wiki=None, prefix=True):
-        return ""
-
     def checkuser(self, user, wiki=None):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
         wiki = self.normalize_wiki(wiki)
 
-        message = (self.getblackuser(user, wiki) + "\n"
-                   + self.getwhiteuser(user, wiki)).strip()
+        message = (self.getblackuser(user, wiki)).strip()
 
         userobj = self.user_type(user)
         point = self.getuser_score(userobj)
