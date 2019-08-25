@@ -212,16 +212,27 @@ def web():
                     if name is None:
                         return "OK"
 
-                    parser = argparse.ArgumentParser(
-                        prog='/{0}'.format(action))
-                    parser.add_argument('username', type=str, help='用戶名')
-                    parser.add_argument('point', type=int, nargs='?', default=10, help='點數，預設：%(default)s')
+                    parser = argparse.ArgumentParser(prog='/{0}'.format(action))
+                    if 'reply_to_message' in data['message']:
+                        user = M.get_user_from_message_id(
+                            data["message"]["reply_to_message"]["message_id"])
+                        if len(user) == 0:
+                            M.sendmessage("無法從訊息找到所對應的對象")
+                            return "OK"
+                        user = user[0][0]
+                        parser.add_argument('point', type=int, nargs='?', default=10, help='點數，預設：%(default)s')
+                    else:
+                        parser.add_argument('username', type=str, help='用戶名')
+                        parser.add_argument('point', type=int, nargs='?', default=10, help='點數，預設：%(default)s')
 
                     args = handle_parser(parser, cmd)
                     if args is None:
                         return 'OK'
 
-                    user, wiki = M.parse_user(args.username)
+                    if 'reply_to_message' not in data['message']:
+                        user = args.username
+
+                    user, wiki = M.parse_user(user)
                     point = args.point
                     userobj = M.user_type(user)
                     M.adduser_score(userobj, point)

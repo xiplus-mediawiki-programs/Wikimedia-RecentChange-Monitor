@@ -7,6 +7,7 @@
 | /deluser [-w 站點] [username] [reason] | 取消監視`username`在`w`的編輯 |
 | /checkuser [-w 站點] [username] | 列出`username`在`w`的監視狀態 |
 | /userscore username [point] | 增減`username`的分數`point` |
+| /userscore [point] (Reply) | （回應訊息）增減回應目標的分數`point` |
 | /setwiki [-u 用戶名] 站點 | 更改`u`的wiki |
 
 | 監視頁面 | 功能 |
