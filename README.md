@@ -5,8 +5,6 @@
 | ---- | ---- |
 | /adduser [-w 站點] [-r 原因] [-p 點數] username [reason] | 監視`username`在`w`的編輯<br>`username`可使用單一IP地址、CIDR、IP區段<br>`w`須使用[資料庫名](https://quarry.wmflabs.org/query/278)(不含_p)<br>可附加原因`reason` |
 | /deluser [-w 站點] [username] [reason] | 取消監視`username`在`w`的編輯 |
-| /addwhiteuser [-r 原因] username [reason] | 永不監視`username`在全域的編輯<br>可附加原因`reason` |
-| /delwhiteuser username [reason] | 移除`username`白名單 |
 | /checkuser [-w 站點] [username] | 列出`username`在`w`的監視狀態 |
 | /userscore username [point] | 增減`username`的分數`point` |
 | /setwiki [-u 用戶名] 站點 | 更改`u`的wiki |
