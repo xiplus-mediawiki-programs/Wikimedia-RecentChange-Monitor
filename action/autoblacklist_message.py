@@ -39,7 +39,7 @@ def main(M, change):
             message_append += "，" + M.formattimediff(rows[0][1]) + "，" + str(rows[0][4]) + "p）"
 
         rows = M.check_page_blacklist(title, wiki)
-        if len(rows) != 0 and len(M.check_user_whitelist(user)) == 0:
+        if len(rows) != 0:
             issend = True
             message_append += (
                 "\n（監視：" + M.parse_wikicode(rows[0][0])

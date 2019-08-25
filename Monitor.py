@@ -830,21 +830,7 @@ class Monitor():
         return message.strip()
 
     def getwhiteuser(self, user, wiki=None, prefix=True):
-        if wiki is None:
-            wiki = self.wiki
-        user = self.normalize_user(user)
-        wiki = self.normalize_wiki(wiki)
-
-        message = ""
-        rows = self.check_user_whitelist(user)
-        if len(rows) != 0:
-            if prefix:
-                message += "於白名單："
-            for record in rows:
-                message += ("\n" + self.parse_wikicode(record[0])
-                            + ', ' + self.formattimediff(record[1]))
-
-        return message.strip()
+        return ""
 
     def checkuser(self, user, wiki=None):
         if wiki is None:
@@ -1011,11 +997,6 @@ class Monitor():
         user = self.normalize_user(user)
         wiki = self.normalize_wiki(wiki)
 
-        if not ignorewhite:
-            rows = self.check_user_whitelist(user, wiki)
-            if len(rows) != 0:
-                return []
-
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
             self.db_execute(
@@ -1063,11 +1044,6 @@ class Monitor():
             wiki = self.wiki
         user = self.normalize_user(user)
 
-        if not ignorewhite:
-            rows = self.check_user_whitelist(user, wiki)
-            if len(rows) != 0:
-                return []
-
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
             self.db_execute(
@@ -1108,17 +1084,6 @@ class Monitor():
         else:
             self.error("cannot detect user type: " + user)
             return []
-
-    def check_user_whitelist(self, user, wiki=None):
-        if wiki is None:
-            wiki = self.wiki
-        user = self.normalize_user(user)
-        wiki = self.normalize_wiki(wiki)
-
-        self.db_execute("""SELECT `reason`, `timestamp` FROM `white_user`
-                            WHERE `user` = %s ORDER BY `timestamp` DESC""",
-                        (user))
-        return self.db_fetchall()
 
     def getpage_hash(self, page, wiki=None):
         if wiki is None:
