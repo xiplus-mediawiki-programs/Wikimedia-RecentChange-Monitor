@@ -503,13 +503,6 @@ CREATE TABLE `user_score` (
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `white_user` (
-  `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `userhash` bigint(20) NOT NULL,
-  `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `timestamp` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 ALTER TABLE `abusefilter`
   ADD PRIMARY KEY (`af_id`,`wiki`);
@@ -610,9 +603,6 @@ ALTER TABLE `RC_wiki`
 
 ALTER TABLE `user_score`
   ADD UNIQUE KEY `user` (`userhash`) USING BTREE;
-
-ALTER TABLE `white_user`
-  ADD KEY `userhash` (`userhash`);
 
 
 ALTER TABLE `error`
