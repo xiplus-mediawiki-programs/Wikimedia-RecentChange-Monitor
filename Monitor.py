@@ -815,7 +815,7 @@ class Monitor():
         wiki = self.normalize_wiki(wiki)
 
         message = ""
-        rows = self.check_user_blacklist(user, wiki, ignorewhite=True)
+        rows = self.check_user_blacklist(user, wiki)
         if len(rows) != 0:
             if prefix:
                 message += "於黑名單："
@@ -962,7 +962,7 @@ class Monitor():
                     "{}條對於IP:{}-{}的紀錄設定wiki為{}".format(
                         count, userobj.start, userobj.end, wiki))
 
-    def check_user_blacklist(self, user, wiki=None, ignorewhite=False):
+    def check_user_blacklist(self, user, wiki=None):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
@@ -1009,8 +1009,7 @@ class Monitor():
             self.error("cannot detect user type: " + user)
             return []
 
-    def check_user_blacklist_with_reason(
-            self, user, reason, wiki=None, ignorewhite=False):
+    def check_user_blacklist_with_reason(self, user, reason, wiki=None):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
