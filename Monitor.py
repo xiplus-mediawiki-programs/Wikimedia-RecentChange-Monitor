@@ -14,6 +14,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+import requests
+
 import pymysql
 from bs4 import BeautifulSoup
 
@@ -51,6 +53,8 @@ class Monitor():
         self.abusefilter_watch_name = None
         self.abusefilter_blacklist_id = None
         self.abusefilter_blacklist_name = None
+        self.session = None
+        self.csrftoken = None
 
     def db_connect(self, noRaise=True):
         try:
@@ -1502,9 +1506,12 @@ class Monitor():
             'added_words': [],
         }
 
-        url = '{}?action=compare&format=json&fromrev={}&torev={}'.format(self.wp_api, fromrev, torev)
-        diffhtml = urllib.request.urlopen(url).read().decode("utf8")
-        diffhtml = json.loads(diffhtml)
+        diffhtml = self.session.get(self.wp_api, params={
+            'action': 'compare',
+            'fromrev': fromrev,
+            'torev': torev,
+            'format': 'json',
+        }).json()
         if 'compare' not in diffhtml:
             self.error('[M.get_diff] fromrev={} torev={} result={}'.format(fromrev, torev, diffhtml))
             return result
@@ -1620,6 +1627,41 @@ class Monitor():
             return af_name in self.abusefilter_blacklist_name
 
         return False
+
+    def login(self):
+        self.session = requests.Session()
+        self.session.headers.update({'User-Agent': self.wp_user_agent})
+
+        logging.info("fetching login token")
+        res = self.session.get(self.wp_api, params={
+            'action': 'query',
+            'meta': 'tokens',
+            'type': 'login',
+            'format': 'json',
+        }).json()
+        logintoken = res["query"]["tokens"]["logintoken"]
+
+        logging.info("logging in")
+        res = self.session.post(self.wp_api, data={
+            'action': 'login',
+            'lgname': self.wp_user,
+            'lgpassword': self.wp_pass,
+            'lgtoken': logintoken,
+            'format': 'json',
+        }).json()
+        if res["login"]["result"] == "Success":
+            logging.info("login success")
+        else:
+            logging.info("login fail")
+            return
+
+        res = self.session.get(self.wp_api, params={
+            'action': 'query',
+            'meta': 'tokens',
+            'type': 'csrf|rollback',
+            'format': 'json',
+        }).json()
+        self.csrftoken = res["query"]["tokens"]["csrftoken"]
 
     def __del__(self):
         if hasattr(self, 'db'):
