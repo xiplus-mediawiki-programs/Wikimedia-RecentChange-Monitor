@@ -1498,7 +1498,7 @@ class Monitor():
                 score += 1
         return score
 
-    def get_diff(self, fromrev, torev):
+    def get_diff(self, fromrev, torev=None, torelative=None):
         result = {
             'removed_lines': [],
             'added_lines': [],
@@ -1506,12 +1506,17 @@ class Monitor():
             'added_words': [],
         }
 
-        diffhtml = self.session.get(self.wp_api, params={
+        params = {
             'action': 'compare',
             'fromrev': fromrev,
-            'torev': torev,
             'format': 'json',
-        }).json()
+        }
+        if torev:
+            params['torev'] = torev
+        if torelative:
+            params['torelative'] = torelative
+        diffhtml = self.session.get(self.wp_api, params=params).json()
+        print(diffhtml)
         if 'compare' not in diffhtml:
             self.error('[M.get_diff] fromrev={} torev={} result={}'.format(fromrev, torev, diffhtml))
             return result
