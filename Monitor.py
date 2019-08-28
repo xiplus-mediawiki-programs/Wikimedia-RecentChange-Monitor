@@ -53,7 +53,8 @@ class Monitor():
         self.abusefilter_watch_name = None
         self.abusefilter_blacklist_id = None
         self.abusefilter_blacklist_name = None
-        self.session = None
+        self.session = requests.Session()
+        self.session.headers.update({'User-Agent': self.wp_user_agent})
         self.csrftoken = None
 
     def db_connect(self, noRaise=True):
@@ -1634,9 +1635,6 @@ class Monitor():
         return False
 
     def login(self):
-        self.session = requests.Session()
-        self.session.headers.update({'User-Agent': self.wp_user_agent})
-
         logging.info("fetching login token")
         res = self.session.get(self.wp_api, params={
             'action': 'query',
