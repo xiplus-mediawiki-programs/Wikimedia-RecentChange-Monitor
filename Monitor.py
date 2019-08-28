@@ -1517,7 +1517,6 @@ class Monitor():
         if torelative:
             params['torelative'] = torelative
         diffhtml = self.session.get(self.wp_api, params=params).json()
-        print(diffhtml)
         if 'compare' not in diffhtml:
             self.error('[M.get_diff] fromrev={} torev={} result={}'.format(fromrev, torev, diffhtml))
             return result
