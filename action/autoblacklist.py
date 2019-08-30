@@ -31,6 +31,9 @@ def main(M, change):
                 and user not in warnuserblacklist):
             reason = "被" + user + "警告：" + comment
             target = re.sub(r"^[^:]+:(.+)$", "\\1", title)
+            if user == target:
+                # No self-warning
+                return
             point = 0
             if re.match(r"^(層級|层级)1", comment):
                 point = 5
