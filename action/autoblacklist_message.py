@@ -111,9 +111,9 @@ def main(M, change):
                         blockuser + "|" + wiki, int(time.time() - 3600 * 8)), logtype='message/markblock')
                     M.db_execute(
                         """SELECT `message_id`, `message` FROM `bot_message`
-                        WHERE `user` = %s AND `timestamp` > %s ORDER BY `timestamp` DESC
+                        WHERE (`user` = %s OR `user` = %s) AND `timestamp` > %s ORDER BY `timestamp` DESC
                         LIMIT 10""",
-                        (blockuser + "|" + wiki, int(time.time() - 3600 * 8))
+                        (blockuser + "|" + wiki, blockuser + "|global", int(time.time() - 3600 * 8))
                     )
                     rows = M.db_fetchall()
                     M.log('[message] find {} itmes'.format(len(rows)), logtype='message/markblock')
