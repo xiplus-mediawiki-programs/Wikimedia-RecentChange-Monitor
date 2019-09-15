@@ -183,7 +183,7 @@ def web():
 
                     parser = argparse.ArgumentParser(
                         prog='/{0}'.format(action))
-                    parser.add_argument('username', type=str, help='用戶名')
+                    parser.add_argument('username', type=str, default=None, nargs='?', help='用戶名')
                     parser.add_argument('reason', type=str,
                                         default='無原因', nargs='?', help='原因')
                     parser.add_argument('-w', '--wiki', type=str, metavar='站點',
@@ -197,7 +197,20 @@ def web():
                     if args is None:
                         return 'OK'
 
-                    user, wiki = M.parse_user(args.username)
+                    user = args.username
+                    if user is None and 'reply_to_message' in data['message']:
+                        user = M.get_user_from_message_id(
+                            data["message"]["reply_to_message"]["message_id"])
+                        if len(user) == 0:
+                            M.sendmessage("無法從訊息找到所對應的對象")
+                            return "OK"
+                        user = user[0][0]
+
+                    if user is None:
+                        M.sendmessage('未指定用戶名')
+                        return "OK"
+
+                    user, wiki = M.parse_user(user)
 
                     if args.wiki is not None:
                         wiki = args.wiki
@@ -319,7 +332,7 @@ def web():
 
                     parser = argparse.ArgumentParser(
                         prog='/{0}'.format(action))
-                    parser.add_argument('pagetitle', type=str, help='頁面名')
+                    parser.add_argument('pagetitle', type=str, default=None, nargs='?', help='頁面名')
                     parser.add_argument('reason', type=str,
                                         default='無原因', nargs='?', help='原因')
                     parser.add_argument('-w', '--wiki', type=str, metavar='站點',
@@ -333,7 +346,20 @@ def web():
                     if args is None:
                         return 'OK'
 
-                    page, wiki = M.parse_page(args.pagetitle)
+                    page = args.pagetitle
+                    if page is None and 'reply_to_message' in data['message']:
+                        page = M.get_page_from_message_id(
+                            data["message"]["reply_to_message"]["message_id"])
+                        if len(page) == 0:
+                            M.sendmessage("無法從訊息找到所對應的頁面")
+                            return "OK"
+                        page = page[0][0]
+
+                    if page is None:
+                        M.sendmessage('未指定頁面標題')
+                        return 'OK'
+
+                    page, wiki = M.parse_page(page)
 
                     if args.wiki is not None:
                         wiki = args.wiki
