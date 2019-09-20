@@ -1573,7 +1573,7 @@ class Monitor():
         if row is not None:
             return 'global-{}'.format(row[0])
 
-        return 0
+        return '0'
 
     def load_abusefilter_mode(self, wiki=None):
         if wiki is None:
