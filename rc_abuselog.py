@@ -170,8 +170,14 @@ while True:
         }
         res = session.get(M.wp_api, params=params).json()
 
+        if 'error' in res:
+            logging.error('{}'.format(res['error']))
+            M.error(res['error'])
+
         if 'query' not in res:
-            print(res)
+            logging.info('{}'.format(res))
+            time.sleep(args.sleep)
+            continue
 
         for log in res["query"]["abuselog"]:
             if log['filter_id'] == '':
