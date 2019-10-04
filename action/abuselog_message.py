@@ -29,7 +29,7 @@ def main(M, log):
             M.link_all('User_talk:{0}'.format(log['user']), '對話'),
             M.link_page(log['title']),
             log['action'],
-            M.link_abusefilter(log['filter_id']),
+            M.link_abusefilter(log['filter_id'], log['global']),
             result(log['result']),
             log['filter'],
             detailtext

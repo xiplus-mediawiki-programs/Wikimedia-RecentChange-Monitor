@@ -1196,9 +1196,12 @@ class Monitor():
         return ('<a href="https://{}/wiki/Special:Diff/{}">差異</a>'
                 .format(self.domain, diffid))
 
-    def link_abusefilter(self, afid):
+    def link_abusefilter(self, afid, globalaf=False):
         if afid == "":
             return "過濾器"
+        if globalaf:
+            return ('<a href="https://meta.wikimedia.org/wiki/Special:Abusefilter/{1}">全域過濾器{1}</a>'
+                    .format(afid))
         return ('<a href="https://{0}/wiki/Special:Abusefilter/{1}">過濾器{1}</a>'
                 .format(self.domain, afid))
 
