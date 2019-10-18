@@ -1014,13 +1014,13 @@ class Monitor():
 
     def check_user_whitelist(self, user, wiki=None):
         rows = self.check_user_list(user, wiki)
-        rows = filter(lambda v: v[4] < 0, rows)
+        rows = list(filter(lambda v: False if v[4] is None else v[4] < 0, rows))
         return rows
 
     def check_user_blacklist(self, user, wiki=None, white=False):
         rows = self.check_user_list(user, wiki)
         if not white:
-            rows = filter(lambda v: v[4] > 0, rows)
+            rows = list(filter(lambda v: False if v[4] is None else v[4] > 0, rows))
         return rows
 
     def check_user_blacklist_with_reason(self, user, reason, wiki=None, white=False):
