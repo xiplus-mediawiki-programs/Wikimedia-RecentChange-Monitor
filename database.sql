@@ -173,7 +173,7 @@ CREATE TABLE `RC_log_abuselog` (
   `ns` int(11) NOT NULL,
   `revid` int(11) NOT NULL,
   `result` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
