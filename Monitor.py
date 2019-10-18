@@ -967,7 +967,7 @@ class Monitor():
                     "{}條對於IP:{}-{}的紀錄設定wiki為{}".format(
                         count, userobj.start, userobj.end, wiki))
 
-    def check_user_blacklist(self, user, wiki=None):
+    def check_user_blacklist(self, user, wiki=None, white=False):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
@@ -984,7 +984,7 @@ class Monitor():
                    AND (`wiki` = %s OR `wiki` = 'global')
                    ORDER BY `black_user`.`timestamp` DESC""",
                 (user, wiki))
-            return self.db_fetchall()
+            rows = self.db_fetchall()
         elif isinstance(userobj, IPv4):
             self.db_execute(
                 """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `wiki`, `point`
@@ -995,7 +995,7 @@ class Monitor():
                    AND (`wiki` = %s OR `wiki` = 'global')
                    ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
-            return self.db_fetchall()
+            rows = self.db_fetchall()
         elif isinstance(userobj, IPv6):
             self.db_execute(
                 """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `wiki`, `point`
@@ -1006,12 +1006,15 @@ class Monitor():
                    AND (`wiki` = %s OR `wiki` = 'global')
                    ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
-            return self.db_fetchall()
+            rows = self.db_fetchall()
         else:
             self.error("cannot detect user type: " + user)
-            return []
+            rows = []
+        if not white:
+            rows = filter(lambda v: v[4]>0, rows)
+        return rows
 
-    def check_user_blacklist_with_reason(self, user, reason, wiki=None):
+    def check_user_blacklist_with_reason(self, user, reason, wiki=None, white=False):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
@@ -1027,7 +1030,7 @@ class Monitor():
                    AND (`wiki` = %s OR `wiki` = 'global')
                    ORDER BY `black_user`.`timestamp` DESC""",
                 (user, reason, wiki))
-            return self.db_fetchall()
+            rows = self.db_fetchall()
         elif isinstance(userobj, IPv4):
             self.db_execute(
                 """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `point`
@@ -1038,7 +1041,7 @@ class Monitor():
                    AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
                    ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
-            return self.db_fetchall()
+            rows = self.db_fetchall()
         elif isinstance(userobj, IPv6):
             self.db_execute(
                 """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `point`
@@ -1049,10 +1052,13 @@ class Monitor():
                    AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
                    ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
-            return self.db_fetchall()
+            rows = self.db_fetchall()
         else:
             self.error("cannot detect user type: " + user)
-            return []
+            rows = []
+        if not white:
+            rows = filter(lambda v: v[4]>0, rows)
+        return rows
 
     def getpage_hash(self, page, wiki=None):
         if wiki is None:
