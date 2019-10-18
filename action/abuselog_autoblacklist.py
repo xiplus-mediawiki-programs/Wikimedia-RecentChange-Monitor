@@ -40,20 +40,22 @@ def main(M, log):
                 M.formattimediff(rows[0][1]), rows[0][4])
 
         on_watch = M.check_abusefilter_watch(af_name=log["filter"])
-        on_blacklist = M.check_abusefilter_blacklist(af_name=log["filter"])
+        on_af_blacklist = M.check_abusefilter_blacklist(af_name=log["filter"])
+        on_user_whitelist = M.check_user_whitelist(log["user"])
 
-        if (len(rows) != 0
+        if not on_user_whitelist and (
+                len(rows) != 0
                 or on_watch
-                or on_blacklist):
+                or on_af_blacklist):
             M.sendmessage(
                 message,
                 blackuser,
                 log["title"] + "|" + M.wiki
             )
 
-        if on_blacklist:
+        if on_af_blacklist:
             reason = "觸發過濾器：" + log["filter"]
-            rows = M.check_user_blacklist_with_reason(log["user"], reason)
+            rows = M.check_user_blacklist_with_reason(log["user"], reason, white=True)
             if len(rows) == 0:
                 M.addblack_user(
                     log["user"],

@@ -967,7 +967,7 @@ class Monitor():
                     "{}條對於IP:{}-{}的紀錄設定wiki為{}".format(
                         count, userobj.start, userobj.end, wiki))
 
-    def check_user_blacklist(self, user, wiki=None, white=False):
+    def check_user_list(self, user, wiki=None):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
@@ -1010,8 +1010,17 @@ class Monitor():
         else:
             self.error("cannot detect user type: " + user)
             rows = []
+        return rows
+
+    def check_user_whitelist(self, user, wiki=None):
+        rows = self.check_user_list(user, wiki)
+        rows = filter(lambda v: v[4] < 0, rows)
+        return rows
+
+    def check_user_blacklist(self, user, wiki=None, white=False):
+        rows = self.check_user_list(user, wiki)
         if not white:
-            rows = filter(lambda v: v[4]>0, rows)
+            rows = filter(lambda v: v[4] > 0, rows)
         return rows
 
     def check_user_blacklist_with_reason(self, user, reason, wiki=None, white=False):
@@ -1057,7 +1066,7 @@ class Monitor():
             self.error("cannot detect user type: " + user)
             rows = []
         if not white:
-            rows = filter(lambda v: v[4]>0, rows)
+            rows = filter(lambda v: v[4] > 0, rows)
         return rows
 
     def getpage_hash(self, page, wiki=None):
