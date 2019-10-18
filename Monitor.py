@@ -820,10 +820,10 @@ class Monitor():
         wiki = self.normalize_wiki(wiki)
 
         message = ""
-        rows = self.check_user_blacklist(user, wiki)
+        rows = self.check_user_blacklist(user, wiki, white=True)
         if len(rows) != 0:
             if prefix:
-                message += "於黑名單："
+                message += "於名單："
             for record in rows:
                 message += "\n" + self.parse_wikicode(record[0])
                 if record[2] != "":
