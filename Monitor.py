@@ -982,7 +982,6 @@ class Monitor():
                    ON `black_user`.`userhash` = `user_score`.`userhash`
                    WHERE `user` = %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   AND `point` > 0
                    ORDER BY `black_user`.`timestamp` DESC""",
                 (user, wiki))
             return self.db_fetchall()
@@ -994,7 +993,6 @@ class Monitor():
                    ON `black_ipv4`.`userhash` = `user_score`.`userhash`
                    WHERE `start` <= %s AND `end` >= %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   AND `point` > 0
                    ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
             return self.db_fetchall()
@@ -1006,7 +1004,6 @@ class Monitor():
                    ON `black_ipv6`.`userhash` = `user_score`.`userhash`
                    WHERE `start` <= %s AND  `end` >= %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   AND `point` > 0
                    ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), wiki))
             return self.db_fetchall()
@@ -1028,7 +1025,6 @@ class Monitor():
                    ON `black_user`.`userhash` = `user_score`.`userhash`
                    WHERE `user` = %s AND `reason` = %s
                    AND (`wiki` = %s OR `wiki` = 'global')
-                   AND `point` > 0
                    ORDER BY `black_user`.`timestamp` DESC""",
                 (user, reason, wiki))
             return self.db_fetchall()
@@ -1040,7 +1036,6 @@ class Monitor():
                    ON `black_ipv4`.`userhash` = `user_score`.`userhash`
                    WHERE `start` <= %s AND  `end` >= %s
                    AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
-                   AND `point` > 0
                    ORDER BY `black_ipv4`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
             return self.db_fetchall()
@@ -1052,7 +1047,6 @@ class Monitor():
                    ON `black_ipv6`.`userhash` = `user_score`.`userhash`
                    WHERE `start` <= %s AND  `end` >= %s
                    AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
-                   AND `point` > 0
                    ORDER BY `black_ipv6`.`timestamp` DESC""",
                 (int(userobj.start), int(userobj.end), reason, wiki))
             return self.db_fetchall()
