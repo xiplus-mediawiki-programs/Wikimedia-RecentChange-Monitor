@@ -4,11 +4,8 @@ import os
 import sys
 
 import diff_match_patch as dmp_module
-import pywikibot
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../'))
 from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
-
-os.environ['PYWIKIBOT2_DIR'] = os.path.dirname(os.path.realpath(__file__))
 
 
 parser = argparse.ArgumentParser()
