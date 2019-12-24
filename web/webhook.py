@@ -469,7 +469,7 @@ def web():
                         wiki = args.wiki
 
                     message = M.checkuser(user, wiki)
-                    M.sendmessage(message)
+                    M.sendmessage(message, user + '|' + wiki)
                     return "OK"
 
                 if action in ['checkpage', 'cp']:
