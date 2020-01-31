@@ -8,6 +8,9 @@ from record_config import recordwiki
 
 def main(M, change):
     try:
+        if change['type'] == 'abuselog':
+            return
+
         wiki = change["wiki"]
 
         if wiki not in recordwiki:

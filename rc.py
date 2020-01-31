@@ -4,13 +4,15 @@ import json
 import logging
 import os
 import sys
+import socket
 import time
 import traceback
 
 import pymysql
-from sseclient import SSEClient as EventSource
 
 from Monitor import Monitor
+from rc_config import SOCKET_HOST, SOCKET_MAX_BYTES, SOCKET_PORT
+
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
@@ -19,7 +21,9 @@ logging.basicConfig(level=logging.INFO,
 
 os.environ['TZ'] = 'UTC'
 
-url = 'https://stream.wikimedia.org/v2/stream/recentchange'
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((SOCKET_HOST, SOCKET_PORT))
+sock.settimeout(10)
 
 M = Monitor()
 
@@ -59,29 +63,38 @@ for module_name in module_list:
 errorWaitTime = 1
 while True:
     try:
-        for event in EventSource(url):
-            if event.event == 'message':
+        starttime = time.time()
+        while True:
+            change = None
+            try:
+                rawdata, address = sock.recvfrom(SOCKET_MAX_BYTES)
+                rawdata = rawdata.decode()
                 try:
-                    change = json.loads(event.data)
-                except ValueError:
+                    change = json.loads(rawdata)
+                except json.decoder.JSONDecodeError as e:
+                    logging.error(e)
+                    M.error('[rc_handler] JSONDecodeError: {}'.format(rawdata))
                     continue
+            except socket.timeout as e:
+                logging.error(e)
+                break
 
-                noError = True
-                for module in modules:
-                    try:
-                        module(M, change)
-                    except Exception as e:
-                        if not isinstance(e, (pymysql.err.InterfaceError, pymysql.err.OperationalError)):
-                            traceback.print_exc()
-                            M.error(traceback.format_exc(), noRaise=True)
-                        logging.warning(
-                            '(A) %s. Wait %s seconds to retry', e, errorWaitTime)
-                        time.sleep(errorWaitTime)
-                        errorWaitTime *= 2
-                        noError = False
+            noError = True
+            for module in modules:
+                try:
+                    module(M, change)
+                except Exception as e:
+                    if not isinstance(e, (pymysql.err.InterfaceError, pymysql.err.OperationalError)):
+                        traceback.print_exc()
+                        M.error(traceback.format_exc(), noRaise=True)
+                    logging.warning(
+                        '(A) %s. Wait %s seconds to retry', e, errorWaitTime)
+                    time.sleep(errorWaitTime)
+                    errorWaitTime *= 2
+                    noError = False
 
-                if noError and errorWaitTime > 1:
-                    errorWaitTime //= 2
+            if noError and errorWaitTime > 1:
+                errorWaitTime //= 2
 
     except Exception as e:
         traceback.print_exc()

@@ -7,6 +7,9 @@ from autoblacklist_message_config import affollowwiki, followwiki
 
 def main(M, change):
     try:
+        if change['type'] == 'abuselog':
+            return
+
         if change["bot"]:
             return
 

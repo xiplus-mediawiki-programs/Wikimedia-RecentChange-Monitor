@@ -10,6 +10,9 @@ from abuselog_message_function import afLogo, result
 
 def main(M, log):
     try:
+        if log['type'] != 'abuselog':
+            return
+
         timestr = dateutil.parser.parse(log['timestamp'])
         timestamp = int(timestr.timestamp()) + 3600 * 8
         day = '一二三四五六日'

@@ -9,6 +9,9 @@ from message_function import block_flags, protect_description, parse_rights
 
 def main(M, change):
     try:
+        if change['type'] == 'abuselog':
+            return
+
         day = '一二三四五六日'
         timestr = time.strftime('%Y年%m月%d日 ({}) %H:%M', time.gmtime(change['timestamp'] + 3600 * 8)).format(
             day[datetime.datetime.fromtimestamp(change['timestamp']).weekday()])

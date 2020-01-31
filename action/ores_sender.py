@@ -7,6 +7,9 @@ from ores_config import config  # pylint: disable=E0611,W0614
 
 def main(M, change):
     try:
+        if change['type'] == 'abuselog':
+            return
+
         wiki = change['wiki']
 
         if wiki != 'zhwiki':

@@ -12,6 +12,9 @@ from strtotime import strtotime
 
 def main(M, change):
     try:
+        if change['type'] == 'abuselog':
+            return
+
         M.change_wiki_and_domain(change['wiki'], change["meta"]["domain"])
 
         wiki = change["wiki"]

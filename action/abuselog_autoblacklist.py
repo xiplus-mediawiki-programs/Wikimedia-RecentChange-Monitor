@@ -11,6 +11,9 @@ os.environ['TZ'] = 'UTC'
 
 def main(M, log):
     try:
+        if log['type'] != 'abuselog':
+            return
+
         blackuser = log["user"] + "|" + M.wiki
 
         message = '{0}於{1}觸發{2}：{3}（{4}）'.format(
