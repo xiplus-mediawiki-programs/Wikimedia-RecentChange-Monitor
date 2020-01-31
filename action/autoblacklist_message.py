@@ -124,7 +124,7 @@ def main(M, change):
                         M.editmessage(row[0], newmessage)
 
             elif log_type == "protect":
-                if log_action in ["protect", "modify"] and re.search(r"高风险模板|高風險模板|被永久封禁的用戶頁|被永久封禁的用户页", comment):
+                if log_action in ["protect", "modify"] and re.search(r"高风险模板|高風險模板|被永久封[禁鎖]的用戶頁|被永久封禁的用户页", comment):
                     return
 
                 protectname = {
