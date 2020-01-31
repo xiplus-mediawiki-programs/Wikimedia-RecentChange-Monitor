@@ -1,6 +1,6 @@
 import traceback
+import logging
 
-from Monitor import Monitor
 from print_config import followwiki
 
 
@@ -24,16 +24,16 @@ def main(M, change):
             return
 
         if ctype == "edit":
-            print(user + " edit " + title)
+            logging.info(user + " edit " + title)
 
         elif ctype == "new":
-            print(user + " create " + title)
+            logging.info(user + " create " + title)
 
         elif ctype == "142":
             pass
 
         elif ctype == "categorize":
-            print(user + " categorize " + title)
+            logging.info(user + " categorize " + title)
 
         elif ctype == "log":
             log_type = change["log_type"]
@@ -43,7 +43,7 @@ def main(M, change):
                 pass
 
             elif log_type == "block":
-                print("{} {} {} comment:{}".format(
+                logging.info("{} {} {} comment:{}".format(
                     user, log_action, title, change["log_action_comment"])
                 )
 
@@ -55,16 +55,16 @@ def main(M, change):
 
             elif log_type == "protect":
                 if log_action == "unprotect":
-                    print(user + " unprotect " + title + " comment:" + comment)
+                    logging.info(user + " unprotect " + title + " comment:" + comment)
 
                 elif log_action == "move_prot":
-                    print(user + " move_prot " + title + " comment:" + comment)
+                    logging.info(user + " move_prot " + title + " comment:" + comment)
 
                 elif log_action in ["protect", "modify"]:
-                    print(user + " protect " + title + " comment:" + comment)
+                    logging.info(user + " protect " + title + " comment:" + comment)
 
             elif log_type == "newusers":
-                print(user + " newusers " + title)
+                logging.info(user + " newusers " + title)
 
             elif log_type == "thanks":
                 pass
@@ -99,7 +99,7 @@ def main(M, change):
 
             elif log_type == "abusefilter":
                 if log_action == "hit":
-                    print("{} hit af {} in {}".format(
+                    logging.info("{} hit af {} in {}".format(
                         user, change["log_params"]["filter"], title)
                     )
 
