@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import argparse
 import importlib
 import json
 import logging
 import os
-import sys
 import socket
+import sys
 import time
 import traceback
 
@@ -16,7 +17,14 @@ from rc_config import SOCKET_HOST, SOCKET_MAX_BYTES, SOCKET_PORT
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
-logging.basicConfig(level=logging.INFO,
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG, default=logging.WARNING)
+parser.add_argument('-v', '--verbose', action='store_const', dest='loglevel', const=logging.INFO)
+parser.set_defaults(loglevel=logging.WARNING)
+args = parser.parse_args()
+print(args)
+
+logging.basicConfig(level=args.loglevel,
                     format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
 
 os.environ['TZ'] = 'UTC'
