@@ -108,7 +108,7 @@ class Monitor():
                 (`wiki`, `server_name`)
                 VALUES (%s, %s)
                 ON DUPLICATE KEY UPDATE `server_name` = %s""",
-            (change["wiki"], change["server_name"], change["server_name"]))
+            (change['wiki'], change['meta']['domain'], change['meta']['domain']))
 
     def addRC_edit(self, change):
         self.db_execute(
