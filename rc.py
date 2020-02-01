@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import socket
+import struct
 import sys
 import time
 import traceback
@@ -29,9 +30,9 @@ logging.basicConfig(level=args.loglevel,
 
 os.environ['TZ'] = 'UTC'
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind((SOCKET_HOST, SOCKET_PORT))
-sock.settimeout(10)
+sock.listen(10)
 
 M = Monitor()
 
@@ -75,8 +76,16 @@ while True:
         while True:
             change = None
             try:
-                rawdata, address = sock.recvfrom(SOCKET_MAX_BYTES)
-                rawdata = rawdata.decode()
+                conn, addr = sock.accept()
+                length, address = conn.recvfrom(8)
+                (length,) = struct.unpack('>Q', length)
+                rawdata = b''
+                while len(rawdata) < length:
+                    to_read = min(length - len(rawdata), SOCKET_MAX_BYTES)
+                    temp, address = conn.recvfrom(to_read)
+                    rawdata += temp
+                conn.close()
+                rawdata = rawdata.decode('utf-8')
                 try:
                     change = json.loads(rawdata)
                 except json.decoder.JSONDecodeError as e:
@@ -85,6 +94,11 @@ while True:
                     continue
             except socket.timeout as e:
                 logging.error(e)
+                break
+            except UnicodeDecodeError as e:
+                msg = '{} from {}'.format(e, address)
+                logging.error(msg)
+                M.error(msg)
                 break
 
             noError = True
