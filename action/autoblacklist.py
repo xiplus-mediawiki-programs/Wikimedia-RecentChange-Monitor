@@ -10,6 +10,10 @@ from autoblacklist_config import (blockblacklistwiki, blockreasonblacklist,
 from strtotime import strtotime
 
 
+# https://gerrit.wikimedia.org/g/mediawiki/core/+/5ddbe251acee87b6633c30c859c73ec391a35530/includes/GlobalFunctions.php#2950
+INFINITY_ALIASES = ['infinite', 'indefinite', 'infinity', 'never']
+
+
 def main(M, change):
     try:
         if change['type'] == 'abuselog':
@@ -87,7 +91,7 @@ def main(M, change):
                         M.addblack_user(
                             blockuser, change["timestamp"], reason,
                             msgprefix="自動", wiki=blockwiki)
-                        if change["log_params"]["duration"] in ["infinite", "indefinite", "never"]:
+                        if change['log_params']['duration'] in INFINITY_ALIASES:
                             point = 365
                         else:
                             try:
@@ -113,7 +117,7 @@ def main(M, change):
                             protectreasonblacklist, comment,
                             re.IGNORECASE) is not None):
                         expiry = change["log_params"]["details"][0]["expiry"]
-                        if expiry != "infinity":
+                        if expiry not in INFINITY_ALIASES:
                             endtime = datetime.datetime.strptime(expiry, "%Y%m%d%H%M%S").timestamp()
                             duration = endtime - time()
                             point = max(int(duration / 86400) * 2, 14)
