@@ -95,7 +95,7 @@ def main(M, change):
             elif log_type == 'newusers':
                 target = re.sub(r"^[^:]+:(.+)$", "\\1", change['title'])
 
-                auto = 'autocreate'
+                auto = ''
                 if log_action == '':
                     auto = '自動'
                 email = ''
