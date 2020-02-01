@@ -333,7 +333,7 @@ CREATE TABLE `RC_log_move` (
 CREATE TABLE `RC_log_newusers` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `id` int(11) NOT NULL,
+  `id` int(11) DEFAULT NULL,
   `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
@@ -572,9 +572,6 @@ ALTER TABLE `RC_log_merge`
   ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `RC_log_move`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `RC_log_newusers`
   ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `RC_log_protect`
