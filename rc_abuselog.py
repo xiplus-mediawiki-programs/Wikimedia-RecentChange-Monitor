@@ -121,7 +121,7 @@ def tz2int(timetz):
 
 timestamp = int2tz(int(time.time()))
 
-aflprop = 'ids|user|title|action|result|timestamp|revid|filter|details'
+aflprop = 'ids|user|title|action|result|timestamp|revid|filter'
 if args.hidden:
     aflprop += '|hidden'
     logging.info('Include hidden log')
@@ -167,8 +167,8 @@ while True:
                 'domain': domain
             }
 
-            logging.info('{} {} {} {} {} {} {}'.format(
-                log['timestamp'], log['wiki'], log['id'], log['user'], log['filter_id'], log['filter'], len(log['details'])))
+            logging.info('{} {} {} {} {} {}'.format(
+                log['timestamp'], log['wiki'], log['id'], log['user'], log['filter_id'], log['filter']))
 
             data = json.dumps(log)
             data = data.encode('utf-8')
