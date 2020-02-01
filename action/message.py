@@ -95,11 +95,20 @@ def main(M, change):
             elif log_type == 'newusers':
                 target = re.sub(r"^[^:]+:(.+)$", "\\1", change['title'])
 
-                message = '#新用戶 {0} {1}已建立使用者帳號{2}（{3}）'.format(
+                auto = 'autocreate'
+                if log_action == '':
+                    auto = '自動'
+                email = ''
+                if log_action == 'byemail':
+                    email = '並且以電子郵件通知密碼'
+
+                message = '#新用戶 {0} {1}已{4}建立使用者帳號{2}{5}（{3}）'.format(
                     timestr,
                     M.link_user(change['user']) if change['user'] != target else '',
                     M.link_user(target),
                     M.parse_wikicode(change['comment']),
+                    auto,
+                    email,
                 ).replace('（）', '')
 
             elif log_type == 'rights':
