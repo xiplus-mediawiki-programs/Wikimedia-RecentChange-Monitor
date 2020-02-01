@@ -126,6 +126,9 @@ if args.hidden:
     aflprop += '|hidden'
     logging.info('Include hidden log')
 
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.connect((SOCKET_HOST, SOCKET_PORT))
+
 while True:
     try:
         logging.info('query {}'.format(timestamp))
@@ -174,11 +177,8 @@ while True:
             data = data.encode('utf-8')
             length = struct.pack('>Q', len(data))
             try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((SOCKET_HOST, SOCKET_PORT))
                 sock.sendall(length)
                 sock.sendall(data)
-                sock.close()
             except Exception as e:
                 msg = 'Send {} bytes failed. {}'.format(len(data), e)
                 logging.error(msg)
