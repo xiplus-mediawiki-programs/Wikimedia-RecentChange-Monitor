@@ -4,6 +4,7 @@ import logging
 import os
 import socket
 import struct
+import time
 import traceback
 
 from Monitor import Monitor
@@ -23,6 +24,7 @@ M = Monitor()
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.connect((SOCKET_HOST, SOCKET_PORT))
 
+errorWaitTime = 1
 while True:
     try:
         for event in EventSource(url):
@@ -32,15 +34,24 @@ while True:
                 except ValueError:
                     continue
 
+                noError = True
+
                 data = event.data.encode('utf-8')
                 length = struct.pack('>Q', len(data))
                 try:
                     sock.sendall(length)
                     sock.sendall(data)
                 except Exception as e:
-                    msg = 'Send {} bytes failed. {}'.format(len(data), e)
+                    msg = 'Send {} bytes failed: {}. Wait {} seconds to retry'.format(len(data), e, errorWaitTime)
                     logging.error(msg)
                     M.error(msg)
+
+                    time.sleep(errorWaitTime)
+                    errorWaitTime *= 2
+                    noError = False
+
+                if noError and errorWaitTime > 1:
+                    errorWaitTime //= 2
 
     except Exception as e:
         traceback.print_exc()
