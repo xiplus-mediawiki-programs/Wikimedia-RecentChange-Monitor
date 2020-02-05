@@ -31,23 +31,24 @@ def main(M, log):
         if log['wiki'] != M.defaultwiki:
             message += '(' + log['wiki'] + ')'
 
-        rows = M.check_user_blacklist(log["user"])
-        if len(rows) != 0:
-            blackuser = log["user"] + "|" + rows[0][3]
+        user_blacklist = M.check_user_blacklist(log["user"])
+        if len(user_blacklist) != 0:
+            row = user_blacklist[0]
+            blackuser = log["user"] + "|" + row[3]
             message += (
-                "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
-            if rows[0][2] != "" and rows[0][2] != log["user"]:
-                message += "，\u200b" + rows[0][2] + "\u200b"
-                blackuser = rows[0][2] + "|" + rows[0][3]
+                "\n（黑名單：\u200b" + M.parse_wikicode(row[0]) + "\u200b")
+            if row[2] != "" and row[2] != log["user"]:
+                message += "，\u200b" + row[2] + "\u200b"
+                blackuser = row[2] + "|" + row[3]
             message += '，{0}，{1}p）'.format(
-                M.formattimediff(rows[0][1]), rows[0][4])
+                M.formattimediff(row[1]), row[4])
 
-        on_watch = M.check_abusefilter_watch(af_name=log["filter"])
-        on_af_blacklist = M.check_abusefilter_blacklist(af_name=log["filter"])
-        on_user_whitelist = M.check_user_whitelist(log["user"])
+        on_watch = M.check_abusefilter_watch(af_name=log["filter"], wiki=log['wiki'])
+        on_af_blacklist = M.check_abusefilter_blacklist(af_name=log["filter"], wiki=log['wiki'])
+        user_whitelist = M.check_user_whitelist(log["user"])
 
-        if not on_user_whitelist and (
-                len(rows) != 0
+        if not user_whitelist and (
+                len(user_blacklist) != 0
                 or on_watch
                 or on_af_blacklist):
             M.sendmessage(
