@@ -30,6 +30,7 @@ class Monitor():
         self.chat_id = config.getint('telegram', 'default_chat_id')
         self.response_chat_id = json.loads(
             config.get('telegram', 'response_chat_id'))
+        self.admin_chat_id = config.getint('telegram', 'admin_chat_id')
         self.dbhost = config.get('database', 'host')
         self.dbuser = config.get('database', 'user')
         self.dbpasswd = config.get('database', 'passwd')
@@ -74,7 +75,7 @@ class Monitor():
         else:
             self.dbconnected = True
 
-    def db_execute(self, query, args):
+    def db_execute(self, query, args=tuple()):
         if not self.dbconnected:
             self.db_connect(noRaise=False)
         for tryCnt in range(self.dbretry + 1):
