@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import argparse
 import json
 import logging
 import os
@@ -12,7 +13,13 @@ from rc_config import SOCKET_HOST, SOCKET_PORT
 from sseclient import SSEClient as EventSource
 
 
-logging.basicConfig(level=logging.INFO,
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG)
+parser.set_defaults(loglevel=logging.WARNING)
+args = parser.parse_args()
+print(args)
+
+logging.basicConfig(level=args.loglevel,
                     format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
 
 os.environ['TZ'] = 'UTC'
@@ -29,10 +36,7 @@ while True:
     try:
         for event in EventSource(url):
             if event.event == 'message':
-                try:
-                    change = json.loads(event.data)
-                except ValueError:
-                    continue
+                logging.debug(event.data)
 
                 noError = True
 
