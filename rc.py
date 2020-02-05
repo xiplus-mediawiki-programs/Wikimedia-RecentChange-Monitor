@@ -72,40 +72,42 @@ for module_name in module_list:
 errorWaitTime = 1
 while True:
     try:
-        starttime = time.time()
         while True:
             change = None
             try:
                 length, address = sock.recvfrom(8)
-
-                try:
-                    (length,) = struct.unpack('>Q', length)
-                except struct.error as e:
-                    msg = '{} from {}: {}'.format(e, address, length)
-                    logging.error(msg)
-                    M.error(msg)
-                    break
-
-                rawdata = b''
-                while len(rawdata) < length:
-                    to_read = min(length - len(rawdata), SOCKET_MAX_BYTES)
-                    temp, address = sock.recvfrom(to_read)
-                    rawdata += temp
-                rawdata = rawdata.decode('utf-8')
-                try:
-                    change = json.loads(rawdata)
-                except json.decoder.JSONDecodeError as e:
-                    logging.error(e)
-                    M.error('[rc_handler] JSONDecodeError: {}'.format(rawdata))
-                    continue
             except socket.timeout as e:
                 logging.error(e)
                 break
+
+            try:
+                (length,) = struct.unpack('>Q', length)
+            except struct.error as e:
+                msg = '{} from {}: {}'.format(e, address, length)
+                logging.error(msg)
+                M.error(msg)
+                break
+
+            rawdata = b''
+            while len(rawdata) < length:
+                to_read = min(length - len(rawdata), SOCKET_MAX_BYTES)
+                temp, address = sock.recvfrom(to_read)
+                rawdata += temp
+
+            try:
+                rawdata = rawdata.decode('utf-8')
             except UnicodeDecodeError as e:
                 msg = '{} from {}'.format(e, address)
                 logging.error(msg)
                 M.error(msg)
                 break
+
+            try:
+                change = json.loads(rawdata)
+            except json.decoder.JSONDecodeError as e:
+                logging.error(e)
+                M.error('JSONDecodeError: {}'.format(rawdata))
+                continue
 
             noError = True
             for module in modules:

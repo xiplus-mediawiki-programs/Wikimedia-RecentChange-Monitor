@@ -30,7 +30,7 @@ if domain is None:
     exit()
 else:
     domain = domain[0]
-    logging.info('domain is {}'.format(domain))
+    logging.debug('domain is {}'.format(domain))
 
 url = ('https://{}/w/api.php'
        + '?action=query&list=abusefilters&abfprop=id%7Cdescription'

@@ -20,6 +20,17 @@ import pymysql
 from bs4 import BeautifulSoup
 
 
+class MonitorLogHandler(logging.Handler):
+    def __init__(self, M, wiki):
+        logging.Handler.__init__(self)
+        self.M = M
+        self.setFormatter(logging.Formatter('{: <15} [%(filename)25s:%(lineno)4s] %(levelname)7s %(message)s'.format(wiki)))
+
+    def emit(self, record):
+        if record.levelno >= logging.INFO:
+            self.M.error(self.format(record))
+
+
 class Monitor():
     def __init__(self):
         config = configparser.ConfigParser()
@@ -60,7 +71,7 @@ class Monitor():
 
     def db_connect(self, noRaise=True):
         try:
-            logging.info('Connecting to database.')
+            logging.debug('Connecting to database.')
             self.db = pymysql.connect(host=self.dbhost,
                                       user=self.dbuser,
                                       passwd=self.dbpasswd,

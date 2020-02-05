@@ -14,18 +14,24 @@ import dateutil.parser
 import pytz
 import requests
 
-from Monitor import Monitor
+from Monitor import Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 
 parser = argparse.ArgumentParser()
 parser.add_argument('wiki', nargs='?', default='zhwiki')
 parser.add_argument('--sleep', type=int, default=60)
+parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG)
+parser.set_defaults(loglevel=logging.INFO)
 args = parser.parse_args()
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s {: <15} [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s'.format(args.wiki))
+logging.basicConfig(level=args.loglevel,
+                    format='%(asctime)s {: <15} [%(filename)25s:%(lineno)4s] %(levelname)7s %(message)s'.format(args.wiki))
+
+M = Monitor()
+
+logging.getLogger().addHandler(MonitorLogHandler(M, args.wiki))
 
 os.environ['TZ'] = 'UTC'
 
@@ -38,7 +44,7 @@ if domain is None:
     exit()
 else:
     domain = domain[0]
-    logging.info('domain is {}'.format(domain))
+    logging.debug('domain is {}'.format(domain))
 
 M.change_wiki_and_domain(args.wiki, domain)
 
@@ -61,10 +67,11 @@ timestamp = int2tz(int(time.time()))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.connect((SOCKET_HOST, SOCKET_PORT))
+logging.info('My address is {}'.format(sock.getsockname()))
 
 while True:
     try:
-        logging.info('query {}'.format(timestamp))
+        logging.debug('query {}'.format(timestamp))
 
         params = {
             'action': 'query',

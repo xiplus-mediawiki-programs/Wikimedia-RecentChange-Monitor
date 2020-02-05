@@ -14,7 +14,7 @@ import dateutil.parser
 import pytz
 import requests
 
-from Monitor import Monitor
+from Monitor import Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 
 parser = argparse.ArgumentParser()
@@ -27,6 +27,10 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + '/action')
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s {: <15} [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s'.format(args.wiki))
 
+M = Monitor()
+
+logging.getLogger().addHandler(MonitorLogHandler(M, args.wiki))
+
 os.environ['TZ'] = 'UTC'
 
 M = Monitor()
@@ -38,7 +42,7 @@ if domain is None:
     exit()
 else:
     domain = domain[0]
-    logging.info('domain is {}'.format(domain))
+    logging.debug('domain is {}'.format(domain))
 
 M.change_wiki_and_domain(args.wiki, domain)
 
@@ -61,10 +65,11 @@ timestamp = int2tz(int(time.time()))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.connect((SOCKET_HOST, SOCKET_PORT))
+logging.info('My address is {}'.format(sock.getsockname()))
 
 while True:
     try:
-        logging.info('query {}'.format(timestamp))
+        logging.debug('query {}'.format(timestamp))
 
         params = {
             'action': 'query',
@@ -80,11 +85,10 @@ while True:
         res = session.get(M.wp_api, params=params).json()
 
         if 'error' in res:
-            logging.error('{}'.format(res['error']))
-            M.error(res['error'])
+            logging.error(res['error'])
 
         if 'query' not in res:
-            logging.info('{}'.format(res))
+            logging.warning(res)
             time.sleep(args.sleep)
             continue
 
