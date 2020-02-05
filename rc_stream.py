@@ -39,6 +39,9 @@ while True:
     try:
         for event in EventSource(url):
             if event.event == 'message':
+                if len(event.data) == 0:
+                    continue
+
                 logging.debug(event.data)
 
                 noError = True
