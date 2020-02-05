@@ -54,7 +54,6 @@ while True:
                 except Exception as e:
                     msg = 'Send {} bytes failed: {}. Wait {} seconds to retry'.format(len(data), e, errorWaitTime)
                     logging.error(msg)
-                    M.error(msg)
 
                     time.sleep(errorWaitTime)
                     errorWaitTime *= 2
