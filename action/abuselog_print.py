@@ -1,5 +1,4 @@
 import traceback
-import json
 
 
 def main(M, log):
