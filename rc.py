@@ -19,7 +19,7 @@ from rc_config import SOCKET_HOST, SOCKET_MAX_BYTES, SOCKET_PORT
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG, default=logging.WARNING)
+parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG)
 parser.add_argument('-v', '--verbose', action='store_const', dest='loglevel', const=logging.INFO)
 parser.set_defaults(loglevel=logging.WARNING)
 args = parser.parse_args()
@@ -77,7 +77,15 @@ while True:
             change = None
             try:
                 length, address = sock.recvfrom(8)
-                (length,) = struct.unpack('>Q', length)
+
+                try:
+                    (length,) = struct.unpack('>Q', length)
+                except struct.error as e:
+                    msg = '{} from {}: {}'.format(e, address, length)
+                    logging.error(msg)
+                    M.error(msg)
+                    break
+
                 rawdata = b''
                 while len(rawdata) < length:
                     to_read = min(length - len(rawdata), SOCKET_MAX_BYTES)
