@@ -57,7 +57,6 @@ else:
     logging.debug('domain is {}'.format(domain))
 
 M.change_wiki_and_domain(args.wiki, domain)
-M.load_abusefilter_mode()
 
 api = 'https://{}/w/api.php'.format(domain)
 

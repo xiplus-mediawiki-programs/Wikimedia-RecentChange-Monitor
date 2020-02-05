@@ -29,6 +29,7 @@ logging.basicConfig(level=args.loglevel,
                     format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
 
 M = Monitor()
+M.load_abusefilter_mode()
 
 logging.getLogger().addHandler(MonitorLogHandler(M, 'allwiki'))
 

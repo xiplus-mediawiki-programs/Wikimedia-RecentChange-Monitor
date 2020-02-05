@@ -1599,46 +1599,42 @@ class Monitor():
 
         return '0'
 
-    def load_abusefilter_mode(self, wiki=None):
-        if wiki is None:
-            wiki = self.wiki
-
+    def load_abusefilter_mode(self):
         self.db_execute(
-            """SELECT `af_id`, `af_name` FROM `abusefilter`
-                WHERE `mode` = 'watch' AND `wiki` = %s""",
-            (wiki)
+            """SELECT `af_id`, `af_name`, `wiki` FROM `abusefilter`
+                WHERE `mode` = 'watch'"""
         )
         rows = self.db_fetchall()
         self.abusefilter_watch_id = []
         self.abusefilter_watch_name = []
         for row in rows:
-            self.abusefilter_watch_id.append(row[0])
-            self.abusefilter_watch_name.append(row[1])
+            self.abusefilter_watch_id.append('{}-{}'.format(row[2], row[0]))
+            self.abusefilter_watch_name.append('{}-{}'.format(row[2], row[1]))
 
         self.db_execute(
-            """SELECT `af_id`, `af_name` FROM `abusefilter`
-                WHERE `mode` = 'blacklist' AND `wiki` = %s""",
-            (wiki)
+            """SELECT `af_id`, `af_name`, `wiki` FROM `abusefilter`
+                WHERE `mode` = 'blacklist'"""
         )
         rows = self.db_fetchall()
         self.abusefilter_blacklist_id = []
         self.abusefilter_blacklist_name = []
         for row in rows:
-            self.abusefilter_blacklist_id.append(row[0])
-            self.abusefilter_blacklist_name.append(row[1])
+            self.abusefilter_blacklist_id.append('{}-{}'.format(row[2], row[0]))
+            self.abusefilter_blacklist_name.append('{}-{}'.format(row[2], row[1]))
 
     def check_abusefilter_watch(self, af_id=None, af_name=None, wiki=None):
         if wiki is None:
             wiki = self.wiki
 
         if self.abusefilter_watch_id is None:
+            logging.warning('abusefilter mode is not loaded')
             return False
 
         if af_id is not None:
-            return af_id in self.abusefilter_watch_id
+            return '{}-{}'.format(wiki, af_id) in self.abusefilter_watch_id
 
         if af_name is not None:
-            return af_name in self.abusefilter_watch_name
+            return '{}-{}'.format(wiki, af_name) in self.abusefilter_watch_name
 
         return False
 
@@ -1650,10 +1646,10 @@ class Monitor():
             return False
 
         if af_id is not None:
-            return af_id in self.abusefilter_blacklist_id
+            return '{}-{}'.format(wiki, af_id) in self.abusefilter_blacklist_id
 
         if af_name is not None:
-            return af_name in self.abusefilter_blacklist_name
+            return '{}-{}'.format(wiki, af_name) in self.abusefilter_blacklist_name
 
         return False
 
