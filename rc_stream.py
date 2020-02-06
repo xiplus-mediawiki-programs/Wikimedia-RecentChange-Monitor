@@ -3,7 +3,6 @@ import argparse
 import logging
 import os
 import socket
-import struct
 import time
 import traceback
 
@@ -47,9 +46,7 @@ while True:
                 noError = True
 
                 data = event.data.encode('utf-8')
-                length = struct.pack('>Q', len(data))
                 try:
-                    sock.sendall(length)
                     sock.sendall(data)
                 except Exception as e:
                     msg = 'Send {} bytes failed: {}. Wait {} seconds to retry'.format(len(data), e, errorWaitTime)

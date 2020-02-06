@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import socket
-import struct
 import sys
 import time
 import traceback
@@ -119,9 +118,7 @@ while True:
 
             data = json.dumps(change)
             data = data.encode('utf-8')
-            length = struct.pack('>Q', len(data))
             try:
-                sock.sendall(length)
                 sock.sendall(data)
             except Exception as e:
                 msg = 'Send {} bytes failed. {}'.format(len(data), e)

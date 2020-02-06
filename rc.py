@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import socket
-import struct
 import sys
 import time
 import traceback
@@ -81,18 +80,7 @@ while True:
                 logging.error(e)
                 break
 
-            try:
-                (length,) = struct.unpack('>Q', length)
-            except struct.error as e:
-                msg = '{} from {}: {}'.format(e, address, length)
-                logging.error(msg)
-                break
-
-            rawdata = b''
-            while len(rawdata) < length:
-                to_read = min(length - len(rawdata), SOCKET_MAX_BYTES)
-                temp, address = sock.recvfrom(to_read)
-                rawdata += temp
+            rawdata, address = sock.recvfrom(SOCKET_MAX_BYTES)
 
             try:
                 rawdata = rawdata.decode('utf-8')
