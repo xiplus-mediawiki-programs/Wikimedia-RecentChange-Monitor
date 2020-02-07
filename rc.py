@@ -102,7 +102,7 @@ while True:
                     module(M, change)
                 except Exception as e:
                     if not isinstance(e, (pymysql.err.InterfaceError, pymysql.err.OperationalError)):
-                        logging.error(traceback.format_exc(), noRaise=True)
+                        logging.error(traceback.format_exc())
                     logging.warning(
                         '(A) %s. Wait %s seconds to retry', e, errorWaitTime)
                     time.sleep(errorWaitTime)
@@ -113,7 +113,7 @@ while True:
                 errorWaitTime //= 2
 
     except Exception as e:
-        logging.error(traceback.format_exc(), noRaise=True)
+        logging.error(traceback.format_exc())
         logging.warning('(B) %s. Wait %s seconds to retry', e, errorWaitTime)
         print(errorWaitTime)
         time.sleep(errorWaitTime)
