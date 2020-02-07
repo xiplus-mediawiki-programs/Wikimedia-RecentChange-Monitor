@@ -82,7 +82,12 @@ while True:
             'lelimit': '500',
             'leaction': 'newusers/autocreate'
         }
-        res = session.get(M.wp_api, params=params).json()
+        try:
+            res = session.get(M.wp_api, params=params).json()
+        except json.decoder.JSONDecodeError as e:
+            logging.error('JSONDecodeError: {}'.format(e))
+            time.sleep(args.sleep)
+            continue
 
         if 'error' in res:
             logging.error('{}'.format(res['error']))
