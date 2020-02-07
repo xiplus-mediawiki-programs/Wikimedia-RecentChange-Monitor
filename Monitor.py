@@ -28,7 +28,7 @@ class MonitorLogHandler(logging.Handler):
 
     def emit(self, record):
         if record.levelno >= logging.INFO:
-            self.M.error(self.format(record))
+            self.M.error(self.format(record), noRaise=True)
 
 
 class Monitor():
