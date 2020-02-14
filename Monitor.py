@@ -27,6 +27,8 @@ class MonitorLogHandler(logging.Handler):
         self.setFormatter(logging.Formatter('{: <15} [%(filename)25s:%(lineno)4s] %(levelname)7s %(message)s'.format(wiki)))
 
     def emit(self, record):
+        if hasattr(record, 'noRaise') and getattr(record, 'noRaise'):
+            return
         if record.levelno >= logging.INFO:
             self.M.error(self.format(record), noRaise=True)
 
@@ -79,7 +81,7 @@ class Monitor():
                                       charset=self.dbcharset)
             self.cur = self.db.cursor()
         except pymysql.err.OperationalError as e:
-            logging.warning(e)
+            logging.warning(e, extra={'noRaise': noRaise})
             self.dbconnected = False
             if not noRaise:
                 raise e
