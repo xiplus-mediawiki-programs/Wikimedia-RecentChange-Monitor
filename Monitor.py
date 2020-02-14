@@ -1353,8 +1353,8 @@ class Monitor():
                             (timestamp, str(error)))
 
         except Exception as e:
+            logging.warning('Failed to log error (%s)', e)
             if not noRaise:
-                logging.warning('Failed to log error (%s)', e)
                 raise e
 
     def formattimediff(self, timestamp, basetime=None):
