@@ -27,7 +27,15 @@ def main(M, change):
 
         message = ''
 
-        if ctype == 'log':
+        if ctype == 'edit':
+            message = '{0}編輯{1}（{2}）（\u200b{3}\u200b）'.format(
+                M.link_user(change['user']),
+                M.link_page(change['title']),
+                M.link_diff(change['revision']['new']),
+                M.parse_wikicode(change['comment']),
+            ).replace('（\u200b\u200b）', '')
+
+        elif ctype == 'log':
             log_type = change['log_type']
             log_action = change['log_action']
 
