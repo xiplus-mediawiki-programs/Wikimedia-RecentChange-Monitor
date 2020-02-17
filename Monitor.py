@@ -101,7 +101,9 @@ class Monitor():
                     logging.warning('%s. Quitting.', e)
                     raise e
                 logging.warning(
-                    '%s. Wait %s seconds and try to reconnect database.', e, 2**tryCnt)
+                    '%s. Wait %s seconds and try to reconnect database.', e, 2**tryCnt,
+                    extra={'noRaise': True}
+                )
                 time.sleep(2**tryCnt)
                 self.db_connect()
 
