@@ -112,7 +112,7 @@ if "error" in res:
         exit()
 
 else:
-    logging.debug("logged in")
+    logging.info('logged in as {}'.format(M.wp_user))
 
 with open('cookie.txt', 'wb') as f:
     pickle.dump(session.cookies, f)
