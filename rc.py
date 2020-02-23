@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-import argparse
 import importlib
 import json
 import logging
 import os
-import socket
 import sys
-import time
 import traceback
 
 import pymysql
 
 from celery import Celery
-from Monitor import Monitor, MonitorLogHandler
-from rc_config import SOCKET_HOST, SOCKET_MAX_BYTES, SOCKET_PORT, SOCKET_WAIT
+from Monitor import Monitor
 
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
@@ -58,8 +54,8 @@ for module_name in module_list:
         raise e
 
 
-@celery.task(bind=True, name='wmrcm.process', queue='wmrcm')
-def process(self, rawdata):
+@celery.task(name='wmrcm.process', queue='wmrcm')
+def process(rawdata):
     logging.info(rawdata)
     try:
         change = json.loads(rawdata)
