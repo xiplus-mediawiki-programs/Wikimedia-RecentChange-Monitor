@@ -13,6 +13,7 @@ import dateutil.parser
 import pytz
 import requests
 
+from rc import process
 from Monitor import Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 
@@ -118,12 +119,7 @@ while True:
 
             data = json.dumps(change)
             data = data.encode('utf-8')
-            try:
-                sock.sendall(data)
-            except Exception as e:
-                msg = 'Send {} bytes failed. {}'.format(len(data), e)
-                logging.error(msg)
-                M.error(msg)
+            process(data)
 
         if len(res['query']['logevents']) > 0:
             timestamp = res['query']['logevents'][-1]['timestamp']

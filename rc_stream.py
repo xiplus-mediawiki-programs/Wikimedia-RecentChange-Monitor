@@ -9,6 +9,7 @@ import traceback
 from Monitor import Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 from sseclient import SSEClient as EventSource
+from rc import process
 
 
 parser = argparse.ArgumentParser()
@@ -46,18 +47,7 @@ while True:
                 noError = True
 
                 data = event.data.encode('utf-8')
-                try:
-                    sock.sendall(data)
-                except Exception as e:
-                    msg = 'Send {} bytes failed: {}. Wait {} seconds to retry'.format(len(data), e, errorWaitTime)
-                    logging.error(msg)
-
-                    time.sleep(errorWaitTime)
-                    errorWaitTime *= 2
-                    noError = False
-
-                if noError and errorWaitTime > 1:
-                    errorWaitTime //= 2
+                process(data)
 
     except Exception as e:
         traceback.print_exc()
