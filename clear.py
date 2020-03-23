@@ -15,7 +15,6 @@ dbs = [
     'RC_142',
     'RC_categorize',
     'RC_edit',
-    'RC_log_abusefilter_hit',
     'RC_log_abusefilter_modify',
     'RC_log_abuselog',
     'RC_log_block',

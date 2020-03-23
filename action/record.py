@@ -117,7 +117,7 @@ def main(M, change):
 
             elif log_type == "abusefilter":
                 if log_action == "hit":
-                    M.addRC_log_abusefilter_hit(change)
+                    # Skip. Use abuselog.
                     unknowntype = False
 
                 elif log_action in["modify", "create"]:

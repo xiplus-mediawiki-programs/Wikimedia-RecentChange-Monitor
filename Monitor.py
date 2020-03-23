@@ -227,28 +227,6 @@ class Monitor():
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
 
-    def addRC_log_abusefilter_hit(self, change):
-        self.db_execute(
-            """INSERT INTO `RC_log_abusefilter_hit`
-                (`bot`, `log_action_comment`,
-                `log_id`, `log_params_action`,
-                `log_params_actions`,
-                `log_params_filter`, `log_params_log`,
-                `namespace`, `timestamp`,
-                `title`, `user`, `wiki`)
-                VALUES (%r, %s,
-                        %s, %s,
-                        %s,
-                        %s, %s,
-                        %s, %s,
-                        %s, %s, %s)""",
-            (change["bot"], change["log_action_comment"],
-                change["log_id"], change["log_params"]["action"],
-                change["log_params"]["actions"],
-                change["log_params"]["filter"], change["log_params"]["log"],
-                change["namespace"], change["timestamp"],
-                change["title"], change["user"], change["wiki"]))
-
     def addRC_log_abuselog(self, change):
         import dateutil.parser
         if change["global"]:
