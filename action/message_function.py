@@ -47,6 +47,8 @@ rightname = {
 def parse_rights(groups, metadatas):
     if len(groups) == 0:
         return '無'
+    if isinstance(groups, dict):
+        groups = list(groups.values())
     res = []
     for group, metadata in zip(groups, metadatas):
         if 'expiry' in metadata:
