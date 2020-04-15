@@ -30,5 +30,11 @@
 | /newtoken | 產生新的存取權杖 |
 | /gettoken | 取得舊的存取權杖 |
 
-## 架構
-![架構圖](structure.png)
+## 執行
+```
+celery worker -A rc.celery --loglevel=info -Q wmrcm
+py rc_stream.py -v
+py rc_abuselog.py -v
+py rc_abusefilter.py
+py rc_newusers_autocreate.py
+```
