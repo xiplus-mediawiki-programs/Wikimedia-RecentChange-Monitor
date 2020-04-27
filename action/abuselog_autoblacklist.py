@@ -36,7 +36,7 @@ def main(M, log):
             row = user_blacklist[0]
             blackuser = log["user"] + "|" + row[3]
             message += (
-                "\n（黑名單：\u200b" + M.parse_wikicode(row[0]) + "\u200b")
+                "\n（黑名單：" + M.parse_wikicode(row[0]))
             if row[2] != "" and row[2] != log["user"]:
                 message += "，" + M.link_user(rows[0])
                 blackuser = row[2] + "|" + row[3]

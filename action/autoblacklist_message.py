@@ -35,7 +35,7 @@ def main(M, change):
             isblackuser = True
             blackuser = user + "|" + rows[0][3]
             message_append += (
-                "\n（黑名單：\u200b" + M.parse_wikicode(rows[0][0]) + "\u200b")
+                "\n（黑名單：" + M.parse_wikicode(rows[0][0]))
             if rows[0][2] != "" and rows[0][2] != user:
                 message_append += "，" + M.link_user(rows[0][2])
                 blackuser = rows[0][2] + "|" + rows[0][3]
