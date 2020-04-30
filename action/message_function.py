@@ -26,7 +26,7 @@ def protect_description(description):
 
 
 rightname = {
-    'accountcreator': '帳號建立員',
+    'accountcreator': '大量帳號建立者',
     'autoreviewer': '巡查豁免者',
     'bot': '機器人',
     'bureaucrat': '行政員',
@@ -34,13 +34,15 @@ rightname = {
     'eventparticipant': '活動參與者',
     'filemover': '檔案移動員',
     'flood': '機器使用者',
+    'import': '匯入者',
     'interface-admin': '介面管理員',
     'ipblock-exempt': 'IP 封鎖例外',
     'massmessage-sender': '大量訊息傳送者',
     'oversight': '監督員',
     'patroller': '巡查員',
     'rollbacker': '回退員',
-    'sysop': '管理員'
+    'sysop': '管理員',
+    'transwiki': '跨維基匯入者',
 }
 
 
