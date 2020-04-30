@@ -104,7 +104,7 @@ def main(M, change):
                 target = re.sub(r"^[^:]+:(.+)$", "\\1", change['title'])
 
                 auto = ''
-                if log_action == '':
+                if log_action == 'autocreate':
                     auto = '自動'
                 email = ''
                 if log_action == 'byemail':
