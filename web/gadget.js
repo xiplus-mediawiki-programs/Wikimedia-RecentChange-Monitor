@@ -1,6 +1,6 @@
 (function() {
 
-	mw.loader.using(['mediawiki.util', 'mediawiki.api', 'mediawiki.notify']).done(function() {
+	mw.loader.using(['mediawiki.util', 'mediawiki.api']).done(function() {
 
 		function gettoken() {
 			if (localStorage.getItem("cvn_smart_authorized") !== "1") {
