@@ -37,4 +37,5 @@ py rc_stream.py -v
 py rc_abuselog.py -v
 py rc_abusefilter.py
 py rc_newusers_autocreate.py
+py action/ores_handler.py
 ```
