@@ -38,7 +38,7 @@ def main(M, log):
             message += (
                 "\n（黑名單：" + M.parse_wikicode(row[0]))
             if row[2] != "" and row[2] != log["user"]:
-                message += "，" + M.link_user(row[0])
+                message += "，" + M.link_user(row[2])
                 blackuser = row[2] + "|" + row[3]
             message += '，{0}，{1}p）'.format(
                 M.formattimediff(row[1]), row[4])
