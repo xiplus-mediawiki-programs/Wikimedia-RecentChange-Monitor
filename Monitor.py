@@ -976,7 +976,7 @@ class Monitor():
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
             self.db_execute(
-                """SELECT `reason`, `black_user`.`timestamp`, '' AS `val`, `wiki`, `point`
+                """SELECT `reason`, `black_user`.`timestamp`, `black_user`.`user` AS `val`, `wiki`, `point`
                    FROM `black_user`
                    LEFT JOIN `user_score`
                    ON `black_user`.`userhash` = `user_score`.`userhash`
