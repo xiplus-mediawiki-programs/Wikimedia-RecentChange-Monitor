@@ -478,6 +478,12 @@ class Monitor():
                 change["title"], change["user"], change["wiki"]))
 
     def addRC_log_rights(self, change):
+        if 'newmetadata' not in change['log_params']:
+            self.error('No newmetadata in rights: {}'.format(change))
+            change['log_params']['newmetadata'] = []
+        if 'oldmetadata' not in change['log_params']:
+            self.error('No oldmetadata in rights: {}'.format(change))
+            change['log_params']['oldmetadata'] = []
         self.db_execute(
             """INSERT INTO `RC_log_rights`
                 (`bot`, `comment`, `id`,
