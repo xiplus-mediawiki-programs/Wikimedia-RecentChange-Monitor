@@ -265,6 +265,8 @@ def web():
                         'username', type=str, default=None, nargs='?', help='用戶名')
                     parser.add_argument(
                         'reason', type=str, default=None, nargs='?', help='原因')  # Unused
+                    parser.add_argument(
+                        '-r', '--reason', type=str, metavar='原因')  # Unused
                     parser.add_argument('-w', '--wiki', type=str, metavar='站點',
                                         help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
 
