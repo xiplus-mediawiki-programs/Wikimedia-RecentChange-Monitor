@@ -120,7 +120,7 @@ def main(M, change):
                     # Skip. Use abuselog.
                     unknowntype = False
 
-                elif log_action in["modify", "create"]:
+                elif log_action in ["modify", "create"]:
                     M.addRC_log_abusefilter_modify(change)
                     unknowntype = False
 
