@@ -19,6 +19,7 @@ def protect_description(description):
         '[create=': '[建立=',
         '=autoconfirmed]': '=僅允許已自動確認的使用者]',
         '=sysop]': '=僅限管理員]',
+        '=templateeditor]': '=僅允許模板編輯員和管理員]',
     }
     for key in r:
         description = description.replace(key, r[key])
@@ -42,6 +43,7 @@ rightname = {
     'patroller': '巡查員',
     'rollbacker': '回退員',
     'sysop': '管理員',
+    'templateeditor': '模板編輯員',
     'transwiki': '跨維基匯入者',
 }
 
