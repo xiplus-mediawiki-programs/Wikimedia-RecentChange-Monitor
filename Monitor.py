@@ -1244,10 +1244,10 @@ class Monitor():
                     self.bot_message(
                         res["result"]["message_id"], user, page, message)
             else:
-                self.error("send message error:\n{}".format(json.dumps(res)))
+                self.error("send message to {} error:\n{}".format(chat_id, json.dumps(res)))
         except urllib.error.HTTPError as e:
-            self.error("send message error:{}\n{}\nmessage:{}".format(
-                e.code, e.read().decode("utf-8"), message))
+            self.error("send message to {} error:{}\n{}\nmessage:{}".format(
+                chat_id, e.code, e.read().decode("utf-8"), message))
 
     def editmessage(self, message_id, message, chat_id=None, token=None):
         if len(message) == 0:
