@@ -4,13 +4,13 @@ import json
 import logging
 import os
 import sys
+import time
 import traceback
 
 import pymysql
-
 from celery import Celery
-from Monitor import Monitor
 
+from Monitor import Monitor
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
@@ -54,6 +54,9 @@ for module_name in module_list:
         raise e
 
 
+from rc_config import LAG_LIMIT
+
+
 @celery.task(name='wmrcm.process', queue='wmrcm')
 def process(rawdata):
     logging.info(rawdata)
@@ -62,6 +65,9 @@ def process(rawdata):
     except json.decoder.JSONDecodeError as e:
         msg = 'UnicodeDecodeError: {}. {}'.format(e, rawdata)
         logging.error(msg)
+        return
+
+    if change['timestamp'] < time.time() - LAG_LIMIT:
         return
 
     for module in modules:
