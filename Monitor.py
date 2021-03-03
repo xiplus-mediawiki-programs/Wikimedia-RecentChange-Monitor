@@ -237,8 +237,6 @@ class Monitor():
             revid = 0
         else:
             revid = change["revid"]
-        timestamp = str(int(
-            dateutil.parser.parse(change["timestamp"]).timestamp()))
         self.db_execute(
             """INSERT INTO `RC_log_abuselog`
                 (`id`, `filter_id`, `filter`,
@@ -254,7 +252,7 @@ class Monitor():
             (change["id"], filter_id, change["filter"],
                 change["user"], change["ns"],
                 revid, change["result"],
-                change["action"], timestamp,
+                change["action"], change["timestamp"],
                 change["title"], self.wiki))
 
     def addRC_log_abusefilter_modify(self, change):

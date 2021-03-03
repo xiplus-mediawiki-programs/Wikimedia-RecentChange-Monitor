@@ -1,3 +1,4 @@
+import datetime
 import logging
 import time
 import traceback
@@ -13,8 +14,7 @@ def main(M, log):
         if log['type'] != 'abuselog':
             return
 
-        timestr = dateutil.parser.parse(log['timestamp'])
-        timestamp = int(timestr.timestamp()) + 3600 * 8
+        timestamp = log['timestamp'] + 3600 * 8
         day = '一二三四五六日'
 
         detailtext = M.link_abuselog(log['id'])
@@ -27,7 +27,7 @@ def main(M, log):
 
         message = '{0}{1}：{2} ({3}) 在 {4} 執行操作 "{5}" 時觸發{6}。採取的行動：{7} ； 過濾器描述：{8}（{9}）'.format(
             afLogo(log['filter_id'], log['filter']),
-            time.strftime('%Y年%m月%d日 ({}) %H:%M', time.gmtime(timestamp)).format(day[timestr.weekday()]),
+            time.strftime('%Y年%m月%d日 ({}) %H:%M', time.gmtime(timestamp)).format(day[datetime.datetime.fromtimestamp(log['timestamp']).weekday()]),
             M.link_user(log['user']),
             M.link_all('User_talk:{0}'.format(log['user']), '對話'),
             M.link_page(log['title']),

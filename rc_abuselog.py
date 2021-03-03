@@ -169,26 +169,30 @@ while True:
             continue
 
         for log in res["query"]["abuselog"]:
-            if log['filter_id'] == '':
-                log['filter_id'] = M.get_af_id_by_name(log['filter'], args.wiki)
+            newlog = log.copy()
 
-            if log['filter_id'].startswith('global-'):
-                log['filter_id'] = int(log['filter_id'][7:])
-                log['global'] = True
+            if newlog['filter_id'] == '':
+                newlog['filter_id'] = M.get_af_id_by_name(newlog['filter'], args.wiki)
+
+            if newlog['filter_id'].startswith('global-'):
+                newlog['filter_id'] = int(newlog['filter_id'][7:])
+                newlog['global'] = True
             else:
-                log['filter_id'] = int(log['filter_id'])
-                log['global'] = False
+                newlog['filter_id'] = int(newlog['filter_id'])
+                newlog['global'] = False
 
-            log['wiki'] = args.wiki
-            log['type'] = 'abuselog'
-            log['meta'] = {
+            newlog['wiki'] = args.wiki
+            newlog['type'] = 'abuselog'
+            newlog['meta'] = {
                 'domain': domain
             }
 
             logging.debug('{} {} {} {} {} {}'.format(
-                log['timestamp'], log['wiki'], log['id'], log['user'], log['filter_id'], log['filter']))
+                newlog['timestamp'], newlog['wiki'], newlog['id'], newlog['user'], newlog['filter_id'], newlog['filter']))
 
-            data = json.dumps(log)
+            newlog['timestamp'] = tz2int(newlog['timestamp'])
+
+            data = json.dumps(newlog)
             data = data.encode('utf-8')
             process(data)
 
