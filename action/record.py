@@ -115,6 +115,10 @@ def main(M, change):
                     M.addRC_log_delete_revision(change)
                     unknowntype = False
 
+                elif log_action == "event":
+                    M.addRC_log_delete_event(change)
+                    unknowntype = False
+
             elif log_type == "abusefilter":
                 if log_action == "hit":
                     # Skip. Use abuselog.
