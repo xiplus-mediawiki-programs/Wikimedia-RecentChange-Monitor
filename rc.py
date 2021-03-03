@@ -67,7 +67,7 @@ def process(rawdata):
         logging.error(msg)
         return
 
-    if change['timestamp'] < time.time() - LAG_LIMIT:
+    if int(change['timestamp']) < time.time() - LAG_LIMIT:
         return
 
     for module in modules:
