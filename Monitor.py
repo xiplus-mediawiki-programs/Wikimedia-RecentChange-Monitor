@@ -624,6 +624,31 @@ class Monitor():
                 change["parsedcomment"], change["timestamp"],
                 change["title"], change["user"], change["wiki"]))
 
+    def addRC_log_delete_event(self, change):
+        self.db_execute(
+            """INSERT INTO `RC_log_delete_revision`
+                (`bot`, `comment`, `id`,
+                `log_action_comment`, `log_id`,
+                `log_params_ids`,
+                `log_params_type`, `log_params_nfield`,
+                `log_params_ofield`, `namespace`,
+                `parsedcomment`, `timestamp`,
+                `title`, `user`, `wiki`)
+                VALUES (%r, %s, %s,
+                        %s, %s,
+                        %s,
+                        %s, %s,
+                        %s, %s,
+                        %s, %s,
+                        %s, %s, %s)""",
+            (change["bot"], change["comment"], change["id"],
+                change["log_action_comment"], change["log_id"],
+                json.dumps(change["log_params"]["ids"]),
+                'event', change["log_params"]["nfield"],
+                change["log_params"]["ofield"], change["namespace"],
+                change["parsedcomment"], change["timestamp"],
+                change["title"], change["user"], change["wiki"]))
+
     def addRC_log_globalauth(self, change):
         self.db_execute(
             """INSERT INTO `RC_log_globalauth`
