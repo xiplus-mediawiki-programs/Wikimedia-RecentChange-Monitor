@@ -32,7 +32,7 @@
 
 ## 執行
 ```
-celery worker -A rc.celery --loglevel=info -Q wmrcm
+celery worker -A rc.celery --loglevel=info -Q wmrcm -n wmrcm
 py rc_stream.py -v
 py rc_abuselog.py -v
 py rc_abusefilter.py
