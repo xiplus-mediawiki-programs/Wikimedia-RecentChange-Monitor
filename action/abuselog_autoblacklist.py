@@ -63,8 +63,7 @@ def main(M, log):
             if len(rows) == 0:
                 M.addblack_user(
                     log["user"],
-                    str(int(dateutil.parser.parse(log["timestamp"])
-                                    .timestamp())),
+                    log["timestamp"],
                     reason,
                     msgprefix="自動"
                 )
