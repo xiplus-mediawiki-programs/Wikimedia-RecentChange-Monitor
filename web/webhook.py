@@ -447,6 +447,8 @@ def web():
                         'username', type=str, default=None, nargs='?', help='用戶名')
                     parser.add_argument('-w', '--wiki', type=str, metavar='站點',
                                         help='參見 https://quarry.wmflabs.org/query/278 ，預設：zhwiki')
+                    parser.add_argument('-r', '--reason', type=str, metavar='原因',
+                                        help='篩選指定原因')
 
                     args = handle_parser(parser, cmd)
                     if args is None:
@@ -470,7 +472,7 @@ def web():
                     if args.wiki is not None:
                         wiki = args.wiki
 
-                    message = M.checkuser(user, wiki)
+                    message = M.checkuser(user, wiki, reason=args.reason)
                     M.sendmessage(message, user + '|' + wiki)
                     return "OK"
 

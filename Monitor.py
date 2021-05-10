@@ -13,10 +13,10 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-
-import requests
+from collections import defaultdict
 
 import pymysql
+import requests
 from bs4 import BeautifulSoup
 
 
@@ -70,6 +70,11 @@ class Monitor():
         self.session = requests.Session()
         self.session.headers.update({'User-Agent': self.wp_user_agent})
         self.csrftoken = None
+        self.black_ipv4 = defaultdict(list)
+        self.black_ipv6 = defaultdict(list)
+        self.black_user = defaultdict(lambda: defaultdict(list))
+        self.black_page = defaultdict(list)
+        self.load_blacklist()
 
     def db_connect(self, noRaise=True):
         try:
@@ -112,6 +117,58 @@ class Monitor():
 
     def db_fetchone(self):
         return self.cur.fetchone()
+
+    def load_blacklist(self):
+        # ipv4
+        self.db_execute(
+            """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `wiki`, `point`, `start`, `end`
+                FROM `black_ipv4`
+                LEFT JOIN `user_score`
+                ON `black_ipv4`.`userhash` = `user_score`.`userhash`
+                ORDER BY `black_ipv4`.`timestamp` DESC"""
+        )
+        rows = self.db_fetchall()
+        for row in rows:
+            wiki = row[3]
+            self.black_ipv4[wiki].append(row)
+
+        # ipv6
+        self.db_execute(
+            """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `wiki`, `point`, `start`, `end`
+                FROM `black_ipv6`
+                LEFT JOIN `user_score`
+                ON `black_ipv6`.`userhash` = `user_score`.`userhash`
+                ORDER BY `black_ipv6`.`timestamp` DESC"""
+        )
+        rows = self.db_fetchall()
+        for row in rows:
+            wiki = row[3]
+            self.black_ipv6[wiki].append(row)
+
+        # user
+        self.db_execute(
+            """SELECT `reason`, `black_user`.`timestamp`, `black_user`.`user` AS `val`, `wiki`, `point`
+                   FROM `black_user`
+                   LEFT JOIN `user_score`
+                   ON `black_user`.`userhash` = `user_score`.`userhash`
+                   ORDER BY `black_user`.`timestamp` DESC""")
+        rows = self.db_fetchall()
+        for row in rows:
+            user = row[2]
+            wiki = row[3]
+            self.black_user[wiki][user].append(row)
+
+        # page
+        self.db_execute(
+            """SELECT `reason`, `timestamp`, `point`, `pagehash`
+                FROM `black_page`
+                ORDER BY `timestamp` DESC"""
+        )
+        for row in rows:
+            pagehash = row[3]
+            self.black_page[pagehash].append(row)
+
+        self.log('Load blacklist from database', logtype='load_blacklist')
 
     def change_wiki_and_domain(self, wiki, domain):
         self.wiki = wiki
@@ -747,6 +804,8 @@ class Monitor():
             (userhash, point, timestamp, point, timestamp)
         )
 
+        self.load_blacklist()
+
         newpoint = self.getuser_score(userobj)
         if oldpoint > 0 and newpoint <= 0:  # pylint: disable=R1716
             self.sendmessage("{}的分數小於等於0，已停止監視".format(
@@ -805,6 +864,9 @@ class Monitor():
             message = "cannot detect user type: " + user
             self.error(message)
             return message
+
+        self.load_blacklist()
+
         if isinstance(userobj, (IPv4, IPv6)):
             if userobj.start == userobj.end:  # pylint: disable=R1705
                 message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
@@ -836,14 +898,17 @@ class Monitor():
                 return message
         return None
 
-    def getblackuser(self, user, wiki=None, prefix=True):
+    def getblackuser(self, user, wiki=None, prefix=True, reason=None):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
         wiki = self.normalize_wiki(wiki)
 
         message = ""
-        rows = self.check_user_blacklist(user, wiki, white=True)
+        if reason is None:
+            rows = self.check_user_blacklist(user, wiki, white=True)
+        else:
+            rows = self.check_user_blacklist_with_reason(user, reason, wiki, white=True)
         if len(rows) != 0:
             if prefix:
                 message += "於名單："
@@ -857,13 +922,13 @@ class Monitor():
 
         return message.strip()
 
-    def checkuser(self, user, wiki=None):
+    def checkuser(self, user, wiki=None, reason=None):
         if wiki is None:
             wiki = self.wiki
         user = self.normalize_user(user)
         wiki = self.normalize_wiki(wiki)
 
-        message = (self.getblackuser(user, wiki)).strip()
+        message = (self.getblackuser(user, wiki, reason=reason)).strip()
 
         userobj = self.user_type(user)
         point = self.getuser_score(userobj)
@@ -996,42 +1061,32 @@ class Monitor():
         user = self.normalize_user(user)
         wiki = self.normalize_wiki(wiki)
 
+        wikis = [wiki]
+        if wiki != 'global':
+            wikis.append('global')
+
         userobj = self.user_type(user)
         if isinstance(userobj, User):  # pylint: disable=R1705
-            self.db_execute(
-                """SELECT `reason`, `black_user`.`timestamp`, `black_user`.`user` AS `val`, `wiki`, `point`
-                   FROM `black_user`
-                   LEFT JOIN `user_score`
-                   ON `black_user`.`userhash` = `user_score`.`userhash`
-                   WHERE `user` = %s
-                   AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `black_user`.`timestamp` DESC""",
-                (user, wiki))
-            rows = self.db_fetchall()
+            rows = []
+            for checkwiki in wikis:
+                rows += self.black_user[checkwiki][user]
+            rows.sort(key=lambda row: row[1], reverse=True)
         elif isinstance(userobj, IPv4):
-            self.db_execute(
-                """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `wiki`, `point`
-                   FROM `black_ipv4`
-                   LEFT JOIN `user_score`
-                   ON `black_ipv4`.`userhash` = `user_score`.`userhash`
-                   WHERE `start` <= %s AND `end` >= %s
-                   AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `black_ipv4`.`timestamp` DESC""",
-                (int(userobj.start), int(userobj.end), wiki))
-            rows = self.db_fetchall()
+            rows = []
+            for checkwiki in wikis:
+                for row in self.black_ipv4[checkwiki]:
+                    if row[5] <= userobj.start and userobj.end <= row[6]:
+                        rows.append(row)
+            rows.sort(key=lambda row: row[1], reverse=True)
         elif isinstance(userobj, IPv6):
-            self.db_execute(
-                """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `wiki`, `point`
-                   FROM `black_ipv6`
-                   LEFT JOIN `user_score`
-                   ON `black_ipv6`.`userhash` = `user_score`.`userhash`
-                   WHERE `start` <= %s AND  `end` >= %s
-                   AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `black_ipv6`.`timestamp` DESC""",
-                (int(userobj.start), int(userobj.end), wiki))
-            rows = self.db_fetchall()
+            rows = []
+            for checkwiki in wikis:
+                for row in self.black_ipv6[checkwiki]:
+                    if row[5] <= userobj.start and userobj.end <= row[6]:
+                        rows.append(row)
+            rows.sort(key=lambda row: row[1], reverse=True)
         else:
-            self.error("cannot detect user type: " + user)
+            self.error('cannot detect user type: {}'.format(user))
             rows = []
         return rows
 
@@ -1051,45 +1106,8 @@ class Monitor():
             wiki = self.wiki
         user = self.normalize_user(user)
 
-        userobj = self.user_type(user)
-        if isinstance(userobj, User):  # pylint: disable=R1705
-            self.db_execute(
-                """SELECT `reason`, `black_user`.`timestamp`, `user`, `point`
-                   FROM `black_user`
-                   LEFT JOIN `user_score`
-                   ON `black_user`.`userhash` = `user_score`.`userhash`
-                   WHERE `user` = %s AND `reason` = %s
-                   AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `black_user`.`timestamp` DESC""",
-                (user, reason, wiki))
-            rows = self.db_fetchall()
-        elif isinstance(userobj, IPv4):
-            self.db_execute(
-                """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `point`
-                   FROM `black_ipv4`
-                   LEFT JOIN `user_score`
-                   ON `black_ipv4`.`userhash` = `user_score`.`userhash`
-                   WHERE `start` <= %s AND  `end` >= %s
-                   AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `black_ipv4`.`timestamp` DESC""",
-                (int(userobj.start), int(userobj.end), reason, wiki))
-            rows = self.db_fetchall()
-        elif isinstance(userobj, IPv6):
-            self.db_execute(
-                """SELECT `reason`, `black_ipv6`.`timestamp`, `val`, `point`
-                   FROM `black_ipv6`
-                   LEFT JOIN `user_score`
-                   ON `black_ipv6`.`userhash` = `user_score`.`userhash`
-                   WHERE `start` <= %s AND  `end` >= %s
-                   AND `reason` = %s AND (`wiki` = %s OR `wiki` = 'global')
-                   ORDER BY `black_ipv6`.`timestamp` DESC""",
-                (int(userobj.start), int(userobj.end), reason, wiki))
-            rows = self.db_fetchall()
-        else:
-            self.error("cannot detect user type: " + user)
-            rows = []
-        if not white:
-            rows = filter(lambda v: v[4] > 0, rows)
+        rows = self.check_user_blacklist(user, wiki, white)
+        rows = list(filter(lambda row: row[0] == reason, rows))
         return rows
 
     def getpage_hash(self, page, wiki=None):
@@ -1142,6 +1160,8 @@ class Monitor():
             (point, pagehash)
         )
 
+        self.load_blacklist()
+
         newpoint = self.getpage_score(page, wiki)
         if oldpoint > 0 and newpoint <= 0:  # pylint: disable=R1716
             self.sendmessage("{}的分數小於等於0，已停止監視".format(
@@ -1162,6 +1182,8 @@ class Monitor():
                UPDATE `point` = `point` + %s, `timestamp` = %s, `reason` = %s""",
             (pagehash, wiki, page, timestamp, reason, point, point, timestamp, reason))
 
+        self.load_blacklist()
+
         message = "{}加入{}({})至監視頁面\n原因：{}".format(
             msgprefix,
             self.link_page(page, wiki), wiki, self.parse_wikicode(reason)
@@ -1180,6 +1202,8 @@ class Monitor():
             """DELETE FROM `black_page` WHERE `pagehash` = %s""",
             (pagehash))
 
+        self.load_blacklist()
+
         message = "{}{}條對於{}({})從監視頁面刪除".format(
             msgprefix,
             count,
@@ -1197,11 +1221,9 @@ class Monitor():
 
         pagehash = self.getpage_hash(page, wiki)
         timestamp = int(time.time())
-        self.db_execute("""SELECT `reason`, `timestamp`, `point` FROM `black_page`
-                            WHERE `pagehash` = %s AND `timestamp` < %s
-                            ORDER BY `timestamp` DESC""",
-                        (pagehash, timestamp))
-        return self.db_fetchall()
+        rows = self.black_page[pagehash]
+        rows = list(filter(lambda row: row[1] < timestamp, rows))
+        return rows
 
     def link_all(self, page, text=None, wiki=None):
         page = re.sub(r'^:', '', page)
@@ -1253,7 +1275,7 @@ class Monitor():
             nolog = True
         try:
             if not nolog:
-                self.log(message, logtype='Monitor/sendmessage')
+                self.log(message, logtype='sendmessage')
             url = ("https://api.telegram.org/bot{}/sendMessage" +
                    "?chat_id={}&parse_mode=HTML&disable_web_page_preview=1"
                    + "&text={}"
@@ -1714,8 +1736,8 @@ class User():
 
 class IPv4():
     def __init__(self, start, end, usertype, val):
-        self.start = start
-        self.end = end
+        self.start = int(start)
+        self.end = int(end)
         self.type = usertype
         self.val = str(val)
         self.userhash = int(hashlib.sha1(str(val).encode(
@@ -1727,8 +1749,8 @@ class IPv4():
 
 class IPv6():
     def __init__(self, start, end, usertype, val):
-        self.start = start
-        self.end = end
+        self.start = int(start)
+        self.end = int(end)
         self.type = usertype
         self.val = str(val).upper()
         self.userhash = int(hashlib.sha1(str(val).encode(
