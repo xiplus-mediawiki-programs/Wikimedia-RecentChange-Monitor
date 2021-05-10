@@ -3,8 +3,6 @@ import logging
 import time
 import traceback
 
-import dateutil
-
 from abuselog_message_config import chats, token
 from abuselog_message_function import afLogo, result
 

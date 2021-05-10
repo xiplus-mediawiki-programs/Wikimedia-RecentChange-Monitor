@@ -111,6 +111,7 @@ class Monitor():
                 )
                 time.sleep(2**tryCnt)
                 self.db_connect()
+        return None
 
     def db_fetchall(self):
         return self.cur.fetchall()
@@ -285,7 +286,6 @@ class Monitor():
                 change["title"], change["user"], change["wiki"]))
 
     def addRC_log_abuselog(self, change):
-        import dateutil.parser
         if change["global"]:
             filter_id = 'global-{}'.format(change["filter_id"])
         else:

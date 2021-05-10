@@ -2,8 +2,6 @@
 import os
 import traceback
 
-import dateutil
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 os.environ['TZ'] = 'UTC'
