@@ -70,10 +70,10 @@ class Monitor():
         self.session = requests.Session()
         self.session.headers.update({'User-Agent': self.wp_user_agent})
         self.csrftoken = None
-        self.black_ipv4 = defaultdict(list)
-        self.black_ipv6 = defaultdict(list)
-        self.black_user = defaultdict(lambda: defaultdict(list))
-        self.black_page = defaultdict(list)
+        self.black_ipv4 = None
+        self.black_ipv6 = None
+        self.black_user = None
+        self.black_page = None
         self.load_blacklist()
 
     def db_connect(self, noRaise=True):
@@ -120,6 +120,11 @@ class Monitor():
         return self.cur.fetchone()
 
     def load_blacklist(self):
+        self.black_ipv4 = defaultdict(list)
+        self.black_ipv6 = defaultdict(list)
+        self.black_user = defaultdict(lambda: defaultdict(list))
+        self.black_page = defaultdict(list)
+
         # ipv4
         self.db_execute(
             """SELECT `reason`, `black_ipv4`.`timestamp`, `val`, `wiki`, `point`, `start`, `end`
