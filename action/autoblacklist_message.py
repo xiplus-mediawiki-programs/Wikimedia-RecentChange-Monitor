@@ -22,6 +22,9 @@ def main(M, change):
         title = change["title"]
         comment = change["comment"]
 
+        if ctype == 'log' and change['log_type'] == 'block':
+            user = re.sub(r'^[^:]+:(.+)$', r'\1', title)
+
         issend = False
         isblackuser = False
         message_append = ""
@@ -85,9 +88,7 @@ def main(M, change):
             log_action = change["log_action"]
 
             if log_type == "block":
-                blockuser = re.sub(r"^[^:]+:(.+)$", "\\1", title)
-
-                user_type = M.user_type(blockuser)
+                user_type = M.user_type(user)
                 if (not user_type.isuser
                         and user_type.start != user_type.end):
                     blockwiki = wiki
@@ -103,20 +104,20 @@ def main(M, change):
                     pass
                 else:
                     message = (
-                        M.link_user(user) + blockname[log_action]
-                        + M.link_user(blockuser) + '（'
+                        M.link_user(change['user']) + blockname[log_action]
+                        + M.link_user(user) + '（'
                         + M.parse_wikicode(change["log_action_comment"]) + '）')
                     M.sendmessage(
-                        message + message_append, blockuser + "|" + blockwiki)
+                        message + message_append, user + "|" + blockwiki)
 
                 if log_action == 'block':
                     M.log('[message] search bot message for {} after {}'.format(
-                        blockuser + "|" + wiki, int(time.time() - 3600 * 8)), logtype='message/markblock')
+                        user + "|" + wiki, int(time.time() - 3600 * 8)), logtype='message/markblock')
                     M.db_execute(
                         """SELECT `message_id`, `message` FROM `bot_message`
                         WHERE (`user` = %s OR `user` = %s) AND `timestamp` > %s ORDER BY `timestamp` DESC
                         LIMIT 10""",
-                        (blockuser + "|" + wiki, blockuser + "|global", int(time.time() - 3600 * 8))
+                        (user + "|" + wiki, user + "|global", int(time.time() - 3600 * 8))
                     )
                     rows = M.db_fetchall()
                     M.log('[message] find {} itmes'.format(len(rows)), logtype='message/markblock')
