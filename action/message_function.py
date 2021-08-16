@@ -33,11 +33,12 @@ rightname = {
     'bureaucrat': '行政員',
     'confirmed': '已確認的使用者',
     'eventparticipant': '活動參與者',
+    'extendedconfirmed': '延伸確認使用者',
     'filemover': '檔案移動員',
     'flood': '機器使用者',
     'import': '匯入者',
     'interface-admin': '介面管理員',
-    'ipblock-exempt': 'IP 封鎖例外',
+    'ipblock-exempt': 'IP封鎖例外',
     'massmessage-sender': '大量訊息傳送者',
     'oversight': '監督員',
     'patroller': '巡查員',
@@ -54,6 +55,8 @@ def parse_rights(groups, metadatas):
     if isinstance(groups, dict):
         groups = list(groups.values())
     res = []
+    if len(metadatas) == 0:
+        metadatas = [{}] * len(groups)
     for group, metadata in zip(groups, metadatas):
         if 'expiry' in metadata:
             res.append('{}（{}/{}/{} {}:{}）'.format(
