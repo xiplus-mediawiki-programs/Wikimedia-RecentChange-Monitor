@@ -213,6 +213,6 @@ def main(M, change):
     except pymysql.err.IntegrityError as e:
         M.error(e)
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         M.error(traceback.format_exc())

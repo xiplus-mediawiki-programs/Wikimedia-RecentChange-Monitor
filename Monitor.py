@@ -1514,7 +1514,7 @@ class Monitor():
             else:
                 self.error("cannot detect user type: " + user)
                 raise ValueError
-        except ValueError as e:
+        except ValueError:
             return User(user)
         except Exception as e:
             exc_type, _, exc_tb = sys.exc_info()
