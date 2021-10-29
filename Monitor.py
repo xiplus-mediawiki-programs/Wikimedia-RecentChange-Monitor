@@ -1391,7 +1391,7 @@ class Monitor():
                             (timestamp, str(error)))
 
         except Exception as e:
-            logging.warning('Failed to log error (%s)', e)
+            print('Failed to log error (%s)', e)
             if not noRaise:
                 raise e
 
