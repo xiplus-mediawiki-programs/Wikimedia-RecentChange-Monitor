@@ -52,7 +52,7 @@ while True:
                 try:
                     score = result['zhwiki']['scores'][str(data['revid'])]['damaging']['score']
                 except Exception as e:
-                    M.error('[ores_handler] {}: {}', e, result['zhwiki']['scores'][str(data['revid'])]['damaging'])
+                    M.error('[ores_handler] {}: {}'.format(repr(e), result['zhwiki']['scores'][str(data['revid'])]['damaging']))
                     continue
                 if score['prediction']:
                     summary = data['summary']
