@@ -158,6 +158,10 @@ while True:
             logging.error('JSONDecodeError: {}'.format(e))
             time.sleep(args.sleep)
             continue
+        except requests.exceptions.ConnectionError as e:
+            logging.error('ConnectionError: {}'.format(e))
+            time.sleep(args.sleep)
+            continue
 
         if 'error' in res:
             logging.error('{}'.format(res['error']))
