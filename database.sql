@@ -53,6 +53,7 @@ CREATE TABLE `black_page` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `black_user` (
+  `id` int(11) NOT NULL,
   `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `userhash` bigint(20) NOT NULL,
@@ -168,7 +169,7 @@ CREATE TABLE `RC_log_block` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_flags` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
@@ -185,7 +186,7 @@ CREATE TABLE `RC_log_delete` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -234,7 +235,7 @@ CREATE TABLE `RC_log_gblblock` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
@@ -250,7 +251,7 @@ CREATE TABLE `RC_log_gblrename` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_movepages` tinyint(1) NOT NULL,
@@ -269,7 +270,7 @@ CREATE TABLE `RC_log_globalauth` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
@@ -285,7 +286,7 @@ CREATE TABLE `RC_log_merge` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_dest` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -302,7 +303,7 @@ CREATE TABLE `RC_log_move` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_noredir` tinyint(1) NOT NULL,
@@ -319,7 +320,7 @@ CREATE TABLE `RC_log_newusers` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) DEFAULT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_userid` int(11) NOT NULL,
@@ -333,7 +334,7 @@ CREATE TABLE `RC_log_newusers` (
 
 CREATE TABLE `RC_log_patrol` (
   `bot` tinyint(1) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_auto` tinyint(1) NOT NULL,
@@ -350,7 +351,7 @@ CREATE TABLE `RC_log_protect` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_details` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
@@ -368,7 +369,7 @@ CREATE TABLE `RC_log_protect_move_prot` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_oldtitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -384,7 +385,7 @@ CREATE TABLE `RC_log_protect_unprotect` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -399,7 +400,7 @@ CREATE TABLE `RC_log_renameuser` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_olduser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -417,7 +418,7 @@ CREATE TABLE `RC_log_rights` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_newgroups` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
@@ -434,7 +435,7 @@ CREATE TABLE `RC_log_rights` (
 
 CREATE TABLE `RC_log_thanks` (
   `bot` tinyint(1) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -448,7 +449,7 @@ CREATE TABLE `RC_log_upload` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_img_timestamp` bigint(20) NOT NULL,
@@ -506,6 +507,7 @@ ALTER TABLE `black_page`
   ADD KEY `wiki` (`wiki`,`page`(191));
 
 ALTER TABLE `black_user`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `userhash` (`userhash`);
 
 ALTER TABLE `bot_message`
@@ -586,6 +588,9 @@ ALTER TABLE `RC_wiki`
 ALTER TABLE `user_score`
   ADD UNIQUE KEY `user` (`userhash`) USING BTREE;
 
+
+ALTER TABLE `black_user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `error`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
