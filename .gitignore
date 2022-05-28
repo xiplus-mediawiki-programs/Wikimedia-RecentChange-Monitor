@@ -1,7 +1,6 @@
 .vs/
 .vscode/
 action/abusefilter_list.csv
-action/TextClassifier/
 action/user-config.py
 action/user-password.py
 apicache-py3/
@@ -13,4 +12,5 @@ config.ini
 cookie.txt
 handler.wsgi
 pywikibot.lwp
+temp.*
 throttle.ctrl
