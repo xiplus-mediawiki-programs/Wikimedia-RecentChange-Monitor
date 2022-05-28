@@ -1,9 +1,15 @@
 .vs/
 .vscode/
 action/abusefilter_list.csv
+action/TextClassifier/
 action/user-config.py
 action/user-password.py
-config.ini
-cookie.txt
+apicache-py3/
+log/
 *_config.py
 *.pyc
+config.ini
+cookie.txt
+handler.wsgi
+pywikibot.lwp
+throttle.ctrl

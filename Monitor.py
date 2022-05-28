@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import time
+import traceback
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -18,6 +19,8 @@ from collections import defaultdict
 import pymysql
 import requests
 from bs4 import BeautifulSoup
+
+logging.basicConfig(format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
 
 
 class MonitorLogHandler(logging.Handler):
@@ -1392,6 +1395,7 @@ class Monitor():
 
         except Exception as e:
             print('Failed to log error (%s)', e)
+            traceback.print_exc()
             if not noRaise:
                 raise e
 

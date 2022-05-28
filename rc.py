@@ -12,6 +12,8 @@ from celery import Celery
 
 from Monitor import Monitor
 
+logging.basicConfig(format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
+
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
 
 celery = Celery('wmrcm')
