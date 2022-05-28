@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-# import json
+import argparse
 import os
 import sys
-import time
-import argparse
 
-os.environ['PYWIKIBOT2_DIR'] = os.path.dirname(os.path.realpath(__file__))
-import pywikibot
 sys.path.insert(0, os.path.realpath(
     os.path.dirname(os.path.realpath(__file__)) + '/../'))
 from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
