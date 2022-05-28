@@ -10,6 +10,7 @@ import web  # pylint: disable=W0611
 from Monitor import Monitor
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'web'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'private', 'web'))
 
 os.environ['TZ'] = 'UTC'
 
@@ -29,7 +30,7 @@ def website(path):
     if path.endswith('.js'):
         return send_file(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'web', path))
     try:
-        module = importlib.import_module('.' + path, 'web')
+        module = importlib.import_module(path)
         print(module)
     except ImportError as e:
         M.log('[handler][error] {}'.format(e))

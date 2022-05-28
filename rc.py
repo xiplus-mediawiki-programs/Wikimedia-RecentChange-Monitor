@@ -14,7 +14,8 @@ from Monitor import Monitor
 
 logging.basicConfig(format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
 
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/action")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'action'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'private', 'action'))
 
 celery = Celery('wmrcm')
 celery.config_from_object('rc_config')

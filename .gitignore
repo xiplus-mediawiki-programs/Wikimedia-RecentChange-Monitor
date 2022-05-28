@@ -6,6 +6,7 @@ action/user-config.py
 action/user-password.py
 apicache-py3/
 log/
+private/
 *_config.py
 *.pyc
 config.ini

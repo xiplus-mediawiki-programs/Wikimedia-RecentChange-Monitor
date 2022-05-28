@@ -1,0 +1,3 @@
+[submodule "private"]
+	path = private
+	url = git@github.com:Xi-Plus/Wikimedia-RecentChange-Monitor-Private.git
