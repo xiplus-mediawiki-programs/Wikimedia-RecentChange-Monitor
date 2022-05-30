@@ -54,7 +54,7 @@ while True:
                 except Exception as e:
                     M.error('[ores_handler] {}: {}'.format(repr(e), result['zhwiki']['scores'][str(data['revid'])]['damaging']))
                     continue
-                if score['prediction']:
+                if score['probability']['true'] > 0.7:
                     summary = data['summary']
                     summary = re.sub(r'/\*.*?\*/', '', summary)
                     summary = re.sub(r'^\s+$', '', summary)
