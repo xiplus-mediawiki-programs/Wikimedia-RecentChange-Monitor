@@ -895,10 +895,9 @@ class Monitor():
                 self.sendmessage(message, userobj.val + "|" + wiki)
                 return message
             elif userobj.type == "range":
-                message = "{}加入IP:{}-{}@{}至黑名單\n原因：{}".format(
+                message = "{}加入IP:{}@{}至黑名單\n原因：{}".format(
                     msgprefix,
-                    userobj.start,
-                    userobj.end,
+                    userobj.val,
                     wiki,
                     self.parse_wikicode(reason)
                 )
@@ -989,7 +988,7 @@ class Monitor():
                 message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
                     msgprefix,
                     count,
-                    self.link_user(str(userobj.start), wiki),
+                    self.link_user(userobj.val, wiki),
                     wiki,
                     blacklist
                 )
@@ -1004,11 +1003,10 @@ class Monitor():
                 )
                 self.sendmessage(message)
             elif userobj.type == "range":
-                message = "{}{}條對於IP:{}-{}@{}的紀錄從黑名單刪除\n{}".format(
+                message = "{}{}條對於IP:{}@{}的紀錄從黑名單刪除\n{}".format(
                     msgprefix,
                     count,
-                    userobj.start,
-                    userobj.end,
+                    userobj.val,
                     wiki,
                     blacklist
                 )
