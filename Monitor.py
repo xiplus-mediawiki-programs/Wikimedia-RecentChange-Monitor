@@ -177,7 +177,7 @@ class Monitor():
             pagehash = row[3]
             self.black_page[pagehash].append(row)
 
-        self.log('Load blacklist from database', logtype='load_blacklist')
+        # self.log('Load blacklist from database', logtype='load_blacklist')
 
     def change_wiki_and_domain(self, wiki, domain):
         self.wiki = wiki

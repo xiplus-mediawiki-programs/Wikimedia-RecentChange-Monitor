@@ -51,6 +51,7 @@ for module_name in module_list:
         if not hasattr(module, "main") or not callable(module.main):
             logging.error("modue '{}' does not contain main function".format(module_name))
             exit()
+        logging.info('Load {}'.format(module_name))
         modules.append(module.main)
     except ImportError as e:
         logging.error(traceback.format_exc())
