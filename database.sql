@@ -1,5 +1,4 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -11,55 +10,55 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `abusefilter` (
   `af_id` bigint(20) NOT NULL,
-  `af_name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `mode` enum('none','watch','blacklist') COLLATE utf8_bin NOT NULL DEFAULT 'none',
-  `wiki` varchar(20) COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `af_name` varchar(255) NOT NULL,
+  `mode` enum('none','watch','blacklist') NOT NULL DEFAULT 'none',
+  `wiki` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 CREATE TABLE `admin` (
   `user_id` int(11) NOT NULL,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `wiki_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `token` varchar(32) COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `name` varchar(255) NOT NULL,
+  `wiki_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `token` varchar(32) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 CREATE TABLE `black_ipv4` (
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `val` varchar(255) NOT NULL,
   `userhash` bigint(20) NOT NULL,
   `start` decimal(10,0) NOT NULL,
   `end` decimal(10,0) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `black_ipv6` (
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `val` varchar(255) NOT NULL,
   `userhash` bigint(20) NOT NULL,
   `start` decimal(39,0) NOT NULL,
   `end` decimal(39,0) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `black_page` (
   `pagehash` bigint(20) NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `page` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `point` int(11) NOT NULL DEFAULT '30',
+  `point` int(11) NOT NULL DEFAULT 30,
   `timestamp` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `black_user` (
   `id` int(11) NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `userhash` bigint(20) NOT NULL,
   `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `bot_message` (
   `timestamp` int(11) NOT NULL,
@@ -67,22 +66,22 @@ CREATE TABLE `bot_message` (
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `page` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 CREATE TABLE `error` (
   `id` int(11) NOT NULL,
   `timestamp` int(11) NOT NULL,
   `error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `autotime` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `log` (
   `id` int(11) NOT NULL,
   `timestamp` int(11) NOT NULL,
   `type` varchar(30) NOT NULL DEFAULT '',
   `log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `autotime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `autotime` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_142` (
   `bot` tinyint(1) NOT NULL,
@@ -91,10 +90,10 @@ CREATE TABLE `RC_142` (
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
-  `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_categorize` (
   `bot` tinyint(1) NOT NULL,
@@ -105,15 +104,15 @@ CREATE TABLE `RC_categorize` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_count` (
   `userhash` bigint(20) NOT NULL,
-  `wiki` varchar(20) COLLATE utf8_bin NOT NULL,
-  `type` varchar(20) COLLATE utf8_bin NOT NULL,
-  `count` int(11) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `wiki` varchar(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `count` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 CREATE TABLE `RC_edit` (
   `bot` tinyint(1) NOT NULL,
@@ -129,9 +128,9 @@ CREATE TABLE `RC_edit` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `userhash` bigint(20) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `userhash` bigint(20) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 DELIMITER $$
 CREATE TRIGGER `RC_edit_count` AFTER INSERT ON `RC_edit` FOR EACH ROW INSERT INTO `RC_count` (`userhash`, `wiki`, `type`, `count`) VALUES (NEW.userhash, NEW.wiki, 'edit', 1)
 ON DUPLICATE KEY UPDATE `count` = `count`+1
@@ -148,8 +147,8 @@ CREATE TABLE `RC_log_abusefilter_modify` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_abuselog` (
   `id` int(11) NOT NULL,
@@ -158,35 +157,35 @@ CREATE TABLE `RC_log_abuselog` (
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `ns` int(11) NOT NULL,
   `revid` int(11) NOT NULL,
-  `result` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `result` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_block` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params_flags` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `log_params_duration` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_flags` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `log_params_duration` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_delete` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -194,8 +193,8 @@ CREATE TABLE `RC_log_delete` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_delete_restore` (
   `bot` tinyint(1) NOT NULL,
@@ -210,8 +209,8 @@ CREATE TABLE `RC_log_delete_restore` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_delete_revision` (
   `bot` tinyint(1) NOT NULL,
@@ -219,8 +218,8 @@ CREATE TABLE `RC_log_delete_revision` (
   `id` int(11) NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params_ids` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `log_params_type` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_ids` text CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `log_params_type` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_params_nfield` int(11) NOT NULL,
   `log_params_ofield` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -228,65 +227,65 @@ CREATE TABLE `RC_log_delete_revision` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_gblblock` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_gblrename` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_movepages` tinyint(1) NOT NULL,
   `log_params_suppressredirects` tinyint(1) NOT NULL,
-  `log_params_olduser` varchar(255) COLLATE utf8_bin NOT NULL,
-  `log_params_newuser` varchar(255) COLLATE utf8_bin NOT NULL,
+  `log_params_olduser` varchar(255) NOT NULL,
+  `log_params_newuser` varchar(255) NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `wiki` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 CREATE TABLE `RC_log_globalauth` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_merge` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_dest` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -296,14 +295,14 @@ CREATE TABLE `RC_log_merge` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_move` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_noredir` tinyint(1) NOT NULL,
@@ -313,14 +312,14 @@ CREATE TABLE `RC_log_move` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_newusers` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) DEFAULT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_userid` int(11) NOT NULL,
@@ -329,12 +328,12 @@ CREATE TABLE `RC_log_newusers` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_patrol` (
   `bot` tinyint(1) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_auto` tinyint(1) NOT NULL,
@@ -344,17 +343,17 @@ CREATE TABLE `RC_log_patrol` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_protect` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params_details` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_details` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_params_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_params_cascade` tinyint(1) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -362,14 +361,14 @@ CREATE TABLE `RC_log_protect` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_protect_move_prot` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_oldtitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -378,14 +377,14 @@ CREATE TABLE `RC_log_protect_move_prot` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_protect_unprotect` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
@@ -393,14 +392,14 @@ CREATE TABLE `RC_log_protect_unprotect` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_renameuser` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_olduser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -411,56 +410,56 @@ CREATE TABLE `RC_log_renameuser` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_rights` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
-  `log_params_newgroups` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `log_params_oldgroups` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `log_params_newmetadata` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `log_params_oldmetadata` varchar(1000) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_newgroups` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `log_params_oldgroups` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `log_params_newmetadata` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `log_params_oldmetadata` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_thanks` (
   `bot` tinyint(1) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `namespace` int(11) NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_log_upload` (
   `bot` tinyint(1) NOT NULL,
   `comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `id` int(11) NOT NULL,
-  `log_action` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `log_action_comment` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `log_id` int(11) NOT NULL,
   `log_params_img_timestamp` bigint(20) NOT NULL,
-  `log_params_img_sha1` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `log_params_img_sha1` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `namespace` int(11) NOT NULL,
   `parsedcomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_new` (
   `bot` tinyint(1) NOT NULL,
@@ -475,19 +474,19 @@ CREATE TABLE `RC_new` (
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `wiki` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `wiki` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 CREATE TABLE `RC_wiki` (
-  `wiki` varchar(20) COLLATE utf8_bin NOT NULL,
-  `server_name` varchar(255) COLLATE utf8_bin NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `wiki` varchar(20) NOT NULL,
+  `server_name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 CREATE TABLE `user_score` (
   `userhash` bigint(20) NOT NULL,
-  `point` int(11) NOT NULL DEFAULT '0',
+  `point` int(11) NOT NULL DEFAULT 0,
   `timestamp` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 ALTER TABLE `abusefilter`
