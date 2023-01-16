@@ -29,5 +29,5 @@ elif args.action == 'get':
 else:
     exit('unknown action.')
 
-response = requests.get(url)
+response = requests.get(url, timeout=10)
 print(response.text)
