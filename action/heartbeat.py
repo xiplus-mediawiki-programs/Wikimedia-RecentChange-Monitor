@@ -11,7 +11,7 @@ M = Monitor()
 dbs = [
     ('RC_edit', 600),
     ('RC_log_abuselog', 3600),
-    ('rc_newusers_autocreate', 3600),
+    ('RC_log_newusers', 3600),
 ]
 
 timestamp = int(time.time())
