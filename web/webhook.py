@@ -59,8 +59,7 @@ def web():
                         except Exception:
                             M.error(traceback.format_exc())
                             return None
-                        else:
-                            return args
+                        return args
 
                 cmd = shlex.split(m_text)
                 action = cmd[0]
