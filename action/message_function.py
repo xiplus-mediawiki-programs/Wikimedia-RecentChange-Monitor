@@ -17,7 +17,8 @@ def protect_description(description):
         '[edit=': '[編輯=',
         '[move=': '[移動=',
         '[create=': '[建立=',
-        '=autoconfirmed]': '=僅允許已自動確認的使用者]',
+        '=autoconfirmed]': '=僅允許自動確認的使用者]',
+        '=extendedconfirmed]': '=僅允許延伸確認的使用者]',
         '=sysop]': '=僅限管理員]',
         '=templateeditor]': '=僅允許模板編輯員和管理員]',
     }
