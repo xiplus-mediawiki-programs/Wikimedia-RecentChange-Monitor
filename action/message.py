@@ -103,20 +103,23 @@ def main(M, change):
             elif log_type == 'newusers':
                 target = re.sub(r"^[^:]+:(.+)$", "\\1", change['title'])
 
-                auto = ''
-                if log_action == 'autocreate':
-                    auto = '自動'
-                email = ''
-                if log_action == 'byemail':
-                    email = '並且以電子郵件通知密碼'
+                if log_action == 'create':
+                    action_message = '已建立使用者帳號{0}'.format(M.link_user(target))
+                elif log_action == 'create2':
+                    action_message = '{0}已建立使用者帳號{1}'.format(M.link_user(change['user']), M.link_user(target))
+                elif log_action == 'autocreate':
+                    action_message = '已自動建立使用者帳號{0}'.format(M.link_user(target))
+                elif log_action == 'byemail':
+                    action_message = '{0}已建立使用者帳號{1}並且以電子郵件通知密碼'.format(M.link_user(change['user']), M.link_user(target))
+                elif log_action == 'forcecreatelocal':
+                    action_message = '已為{0}強制建立本地帳號'.format(M.link_user(target))
+                else:
+                    action_message = '已建立使用者帳號{0}（log_action={1}）'.format(M.link_user(target), log_action)
 
-                message = '#新用戶 {0} {1}已{4}建立使用者帳號{2}{5}（\u200b{3}\u200b）'.format(
+                message = '#新用戶 {0} {1}（\u200b{2}\u200b）'.format(
                     timestr,
-                    M.link_user(change['user']) if change['user'] != target else '',
-                    M.link_user(target),
+                    action_message,
                     M.parse_wikicode(change['comment']),
-                    auto,
-                    email,
                 ).replace('（\u200b\u200b）', '')
 
             elif log_type == 'rights':
