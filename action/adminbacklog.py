@@ -168,6 +168,11 @@ def main(M, change):
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 logging.debug('run eptemp')
 
+            elif change['title'] == 'Category:維基百科編輯延伸確認保護頁面請求':
+                subprocess.Popen(['php', adminbacklog, '-r', 'epext'],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                logging.debug('run epext')
+
             elif change['title'] == 'Category:維基百科編輯半保護頁面請求':
                 subprocess.Popen(['php', adminbacklog, '-r', 'epsemi'],
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
