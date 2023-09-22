@@ -39,7 +39,7 @@ while True:
 
         if len(pool):
             revids = '|'.join([str(data['revid']) for data in pool])
-            url = 'https://ores.wikimedia.org/v3/scores/zhwiki/?models=damaging&revids={}'.format(revids)
+            url = 'https://ores-legacy.wikimedia.org/v3/scores/zhwiki/?models=damaging&revids={}'.format(revids)
             req = urllib.request.Request(url, headers={'User-Agent': M.wp_user_agent})
             rawresult = urllib.request.urlopen(req).read().decode("utf8")
             try:
