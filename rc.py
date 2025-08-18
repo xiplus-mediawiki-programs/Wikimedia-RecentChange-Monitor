@@ -71,7 +71,12 @@ def process(rawdata):
         logging.error(msg)
         return
 
-    if int(change['timestamp']) < time.time() - LAG_LIMIT:
+    try:
+        if int(change['timestamp']) < time.time() - LAG_LIMIT:
+            return
+    except KeyError as e:
+        msg = 'KeyError: {}. {}'.format(e, change)
+        logging.error(msg)
         return
 
     for module in modules:
