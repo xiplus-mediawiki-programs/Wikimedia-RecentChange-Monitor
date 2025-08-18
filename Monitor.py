@@ -1260,7 +1260,7 @@ class Monitor():
         if afid == "":
             return "過濾器"
         if globalaf:
-            return ('<a href="https://meta.wikimedia.org/wiki/Special:Abusefilter/{1}">全域過濾器{1}</a>'
+            return ('<a href="https://meta.wikimedia.org/wiki/Special:Abusefilter/{0}">全域過濾器{0}</a>'
                     .format(afid))
         return ('<a href="https://{0}/wiki/Special:Abusefilter/{1}">過濾器{1}</a>'
                 .format(self.domain, afid))
