@@ -19,6 +19,9 @@ def web():
             m_date = data["message"]["date"]
             m_chat_id = int(data["message"]["chat"]["id"])
             m_user_id = int(data["message"]["from"]["id"])
+            from_user_id = None
+            from_firstname = None
+            from_lastname = None
             if "reply_to_message" in data["message"]:
                 reply_from = data["message"]["reply_to_message"]["from"]
                 from_user_id = reply_from["id"]
