@@ -13,7 +13,7 @@ def main(M, change):
 
         wiki = change["wiki"]
         ctype = change["type"]
-        user = change["user"]
+        user = change.get('user')
         title = change["title"]
         comment = change["comment"]
 

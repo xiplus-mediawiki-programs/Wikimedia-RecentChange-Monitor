@@ -17,7 +17,7 @@ def main(M, change):
 
         wiki = change["wiki"]
         ctype = change["type"]
-        user = change["user"]
+        user = change.get('user')
         blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
