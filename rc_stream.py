@@ -3,6 +3,7 @@ import argparse
 import logging
 import os
 import socket
+import time
 import traceback
 
 from Monitor import Monitor, MonitorLogHandler
@@ -12,6 +13,7 @@ from rc import process
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--sleep', type=int, default=60)
 parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG)
 parser.add_argument('-v', '--verbose', action='store_const', dest='loglevel', const=logging.INFO)
 parser.set_defaults(loglevel=logging.WARNING)
@@ -33,10 +35,14 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.connect((SOCKET_HOST, SOCKET_PORT))
 logging.info('My address is {}'.format(sock.getsockname()))
 
+headers = {
+    'User-Agent': M.wp_user_agent,
+}
+
 errorWaitTime = 1
 while True:
     try:
-        for event in EventSource(url):
+        for event in EventSource(url, headers=headers):
             if event.event == 'message':
                 if len(event.data) == 0:
                     continue
@@ -51,3 +57,5 @@ while True:
     except Exception as e:
         traceback.print_exc()
         M.error(traceback.format_exc(), noRaise=True)
+
+    time.sleep(args.sleep)
