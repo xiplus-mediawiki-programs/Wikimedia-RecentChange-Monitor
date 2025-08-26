@@ -18,6 +18,8 @@ def main(M, change):
         wiki = change["wiki"]
         ctype = change["type"]
         user = change.get('user')
+        if user is None:
+            return
         blackuser = user + "|" + wiki
         title = change["title"]
         comment = change["comment"]
