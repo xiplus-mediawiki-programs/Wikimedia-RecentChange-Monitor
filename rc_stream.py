@@ -62,7 +62,8 @@ def main(lastOffset):
                 logging.error(msg)
                 continue
             process(change)
-            lastOffset.value = int(change['timestamp'])
+            if 'timestamp' in change:
+                lastOffset.value = int(change['timestamp'])
 
 
 lastOffset = multiprocessing.Value('i', 0)
