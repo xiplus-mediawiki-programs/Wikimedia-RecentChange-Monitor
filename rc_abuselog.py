@@ -196,9 +196,7 @@ while True:
 
             newlog['timestamp'] = tz2int(newlog['timestamp'])
 
-            data = json.dumps(newlog)
-            data = data.encode('utf-8')
-            process(data)
+            process(newlog)
 
         if len(res["query"]["abuselog"]) > 0:
             timestamp = res["query"]["abuselog"][-1]["timestamp"]

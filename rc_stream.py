@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 import argparse
+import json
 import logging
+import multiprocessing
 import os
 import socket
 import time
 import traceback
+from datetime import datetime, timezone
+
+from sseclient import SSEClient as EventSource
 
 from Monitor import Monitor, MonitorLogHandler
-from rc_config import SOCKET_HOST, SOCKET_PORT
-from sseclient import SSEClient as EventSource
 from rc import process
-
+from rc_config import SOCKET_HOST, SOCKET_PORT
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--sleep', type=int, default=60)
+parser.add_argument('--timeout', type=int, default=900)
 parser.add_argument('-d', '--debug', action='store_const', dest='loglevel', const=logging.DEBUG)
 parser.add_argument('-v', '--verbose', action='store_const', dest='loglevel', const=logging.INFO)
 parser.set_defaults(loglevel=logging.WARNING)
@@ -29,7 +33,7 @@ logging.getLogger().addHandler(MonitorLogHandler(M, 'allwiki'))
 
 os.environ['TZ'] = 'UTC'
 
-url = 'https://stream.wikimedia.org/v2/stream/recentchange'
+URL = 'https://stream.wikimedia.org/v2/stream/recentchange'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.connect((SOCKET_HOST, SOCKET_PORT))
@@ -39,23 +43,42 @@ headers = {
     'User-Agent': M.wp_user_agent,
 }
 
-errorWaitTime = 1
+
+def main(lastOffset):
+    fullUrl = URL
+    if lastOffset.value > 0:
+        fullUrl += '?since={}'.format(datetime.fromtimestamp(lastOffset.value, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    for event in EventSource(fullUrl, headers=headers):
+        if event.event == 'message':
+            if len(event.data) == 0:
+                continue
+
+            logging.debug(event.data)
+
+            try:
+                change = json.loads(event.data)
+            except json.decoder.JSONDecodeError as e:
+                msg = 'UnicodeDecodeError: {}. {}'.format(e, event.data)
+                logging.error(msg)
+                continue
+            process(change)
+            lastOffset.value = int(change['timestamp'])
+
+
+lastOffset = multiprocessing.Value('i', 0)
 while True:
     try:
-        for event in EventSource(url, headers=headers):
-            if event.event == 'message':
-                if len(event.data) == 0:
-                    continue
+        print('Last-Event-ID', lastOffset.value)
+        p = multiprocessing.Process(target=main, args=(lastOffset,))
+        p.start()
+        p.join(timeout=args.timeout)
 
-                logging.debug(event.data)
-
-                noError = True
-
-                data = event.data.encode('utf-8')
-                process(data)
+        if p.is_alive():
+            p.terminate()
+            p.join()
 
     except Exception as e:
         traceback.print_exc()
         M.error(traceback.format_exc(), noRaise=True)
 
-    time.sleep(args.sleep)
+        time.sleep(args.sleep)

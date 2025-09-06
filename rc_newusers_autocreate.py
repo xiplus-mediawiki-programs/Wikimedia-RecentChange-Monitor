@@ -127,9 +127,7 @@ while True:
                 'parsedcomment': log['parsedcomment']
             }
 
-            data = json.dumps(change)
-            data = data.encode('utf-8')
-            process(data)
+            process(change)
 
         if len(res['query']['logevents']) > 0:
             timestamp = res['query']['logevents'][-1]['timestamp']

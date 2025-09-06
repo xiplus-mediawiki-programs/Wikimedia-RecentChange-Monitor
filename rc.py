@@ -62,13 +62,10 @@ from rc_config import LAG_LIMIT
 
 
 @celery.task(name='wmrcm.process', queue='wmrcm')
-def process(rawdata):
-    logging.info(rawdata)
-    try:
-        change = json.loads(rawdata)
-    except json.decoder.JSONDecodeError as e:
-        msg = 'UnicodeDecodeError: {}. {}'.format(e, rawdata)
-        logging.error(msg)
+def process(change):
+    logging.info(change)
+
+    if change['meta']['domain'] == 'canary':
         return
 
     try:
