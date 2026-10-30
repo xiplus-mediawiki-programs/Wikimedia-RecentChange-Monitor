@@ -8,7 +8,7 @@ import traceback
 import urllib.request
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../"))
-from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
+from Monitor import HTTP_TIMEOUT, Monitor  # noqa: E402, pylint: disable=C0413
 from ores_config import config  # noqa: E402, pylint: disable=E0611,W0614
 
 
@@ -41,7 +41,7 @@ while True:
             revids = '|'.join([str(data['revid']) for data in pool])
             url = 'https://ores-legacy.wikimedia.org/v3/scores/zhwiki/?models=damaging&revids={}'.format(revids)
             req = urllib.request.Request(url, headers={'User-Agent': M.wp_user_agent})
-            rawresult = urllib.request.urlopen(req).read().decode("utf8")
+            rawresult = urllib.request.urlopen(req, timeout=HTTP_TIMEOUT).read().decode("utf8")
             try:
                 result = json.loads(rawresult)
             except json.decoder.JSONDecodeError:

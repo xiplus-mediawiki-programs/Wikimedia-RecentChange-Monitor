@@ -14,7 +14,7 @@ import pytz
 import requests
 
 from rc import process
-from Monitor import Monitor, MonitorLogHandler
+from Monitor import HTTP_TIMEOUT, Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 
 parser = argparse.ArgumentParser()
@@ -82,7 +82,7 @@ while True:
             'lelimit': '500'
         }
 
-        res = session.get(M.wp_api, params=params).json()
+        res = session.get(M.wp_api, params=params, timeout=HTTP_TIMEOUT).json()
 
         if 'error' in res:
             logging.error(res['error'])

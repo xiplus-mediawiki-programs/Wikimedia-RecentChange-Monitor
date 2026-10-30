@@ -7,7 +7,7 @@ import sys
 import urllib.request
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../"))
-from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
+from Monitor import HTTP_TIMEOUT, Monitor  # noqa: E402, pylint: disable=C0413
 
 
 logging.basicConfig(level=logging.INFO,
@@ -37,7 +37,7 @@ url = ('https://{}/w/api.php'
        + '&abflimit=max&format=json').format(domain)
 
 logging.info('fetching from {}'.format(url))
-res = urllib.request.urlopen(url).read().decode('utf8')
+res = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode('utf8')
 res = json.loads(res)
 
 for row in res['query']['abusefilters']:

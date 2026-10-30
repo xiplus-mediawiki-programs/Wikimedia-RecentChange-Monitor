@@ -5,7 +5,7 @@ import sys
 
 import diff_match_patch as dmp_module
 sys.path.insert(0, os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../'))
-from Monitor import Monitor  # noqa: E402, pylint: disable=C0413
+from Monitor import HTTP_TIMEOUT, Monitor  # noqa: E402, pylint: disable=C0413
 
 
 parser = argparse.ArgumentParser()
@@ -25,7 +25,7 @@ result = M.session.get(M.wp_api, params={
     'prop': 'revisions',
     'revids': args.revid,
     'rvprop': 'comment'
-}).json()
+}, timeout=HTTP_TIMEOUT).json()
 summary = list(result['query']['pages'].values())[0]['revisions'][0]['comment']
 
 result = M.get_diff(args.revid, torelative='prev')

@@ -22,6 +22,8 @@ from bs4 import BeautifulSoup
 
 logging.basicConfig(format='%(asctime)s [%(filename)20s:%(lineno)4s] %(levelname)7s %(message)s')
 
+HTTP_TIMEOUT = 30
+
 
 class MonitorLogHandler(logging.Handler):
     def __init__(self, M, wiki):
@@ -1288,7 +1290,7 @@ class Monitor():
                    ).format(token,
                             chat_id,
                             urllib.parse.quote_plus(message.encode()))
-            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode("utf8")
             res = json.loads(res)
             if res["ok"]:
                 if not nolog and (user is not None or page is not None):
@@ -1316,7 +1318,7 @@ class Monitor():
                             chat_id,
                             message_id,
                             urllib.parse.quote_plus(message.encode()))
-            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode("utf8")
             res = json.loads(res)
             if res["ok"]:
                 pass
@@ -1333,7 +1335,7 @@ class Monitor():
                    ).format(self.token,
                             self.chat_id,
                             message_id)
-            urllib.request.urlopen(url)
+            urllib.request.urlopen(url, timeout=HTTP_TIMEOUT)
             self.log(message_id, logtype="delete")
             self.db_execute("""DELETE FROM `bot_message`
                                 WHERE `message_id` = %s""", (message_id))
@@ -1529,7 +1531,7 @@ class Monitor():
     @functools.lru_cache()
     def get_proxy_info(self, ip):
         url = 'https://tools.wmflabs.org/ipcheck/index.php?ip={}&api=true&key={}'.format(ip, self.wp_ipcheck_token)
-        jsonstr = urllib.request.urlopen(url).read().decode("utf8")
+        jsonstr = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode("utf8")
         try:
             res = json.loads(jsonstr)
         except json.decoder.JSONDecodeError as e:
@@ -1580,7 +1582,7 @@ class Monitor():
             params['torev'] = torev
         if torelative:
             params['torelative'] = torelative
-        diffhtml = self.session.get(self.wp_api, params=params).json()
+        diffhtml = self.session.get(self.wp_api, params=params, timeout=HTTP_TIMEOUT).json()
         if 'compare' not in diffhtml:
             self.error('[M.get_diff] fromrev={} torev={} result={}'.format(fromrev, torev, diffhtml))
             return result
@@ -1602,7 +1604,7 @@ class Monitor():
     def get_tags(self, title, revid):
         url = '{0}?action=query&format=json&prop=revisions&titles={1}&rvprop=tags&rvlimit=1&rvstartid={2}&rvendid={2}'.format(
             self.wp_api, urllib.parse.quote(title), revid)
-        apiresult = urllib.request.urlopen(url).read().decode('utf8')
+        apiresult = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode('utf8')
         apiresult = json.loads(apiresult)
         if 'query' not in apiresult:
             self.error('[M.get_tags] title={} revid={} result={}'.format(title, revid, apiresult))
@@ -1700,7 +1702,7 @@ class Monitor():
             'meta': 'tokens',
             'type': 'login',
             'format': 'json',
-        }).json()
+        }, timeout=HTTP_TIMEOUT).json()
         logintoken = res["query"]["tokens"]["logintoken"]
 
         logging.info("logging in")
@@ -1710,7 +1712,7 @@ class Monitor():
             'lgpassword': self.wp_pass,
             'lgtoken': logintoken,
             'format': 'json',
-        }).json()
+        }, timeout=HTTP_TIMEOUT).json()
         if res["login"]["result"] == "Success":
             logging.info("login success")
         else:
@@ -1722,7 +1724,7 @@ class Monitor():
             'meta': 'tokens',
             'type': 'csrf|rollback',
             'format': 'json',
-        }).json()
+        }, timeout=HTTP_TIMEOUT).json()
         self.csrftoken = res["query"]["tokens"]["csrftoken"]
 
     def __del__(self):

@@ -14,7 +14,7 @@ import pytz
 import requests
 
 from rc import process
-from Monitor import Monitor, MonitorLogHandler
+from Monitor import HTTP_TIMEOUT, Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 
 parser = argparse.ArgumentParser()
@@ -84,12 +84,12 @@ while True:
             'leaction': 'newusers/autocreate'
         }
         try:
-            res = session.get(M.wp_api, params=params).json()
+            res = session.get(M.wp_api, params=params, timeout=HTTP_TIMEOUT).json()
         except json.decoder.JSONDecodeError as e:
             logging.error('JSONDecodeError: {}'.format(e))
             time.sleep(args.sleep)
             continue
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             logging.error('ConnectionError: {}'.format(e))
             time.sleep(args.sleep)
             continue

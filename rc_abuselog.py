@@ -16,7 +16,7 @@ import pytz
 import requests
 
 from rc import process
-from Monitor import Monitor, MonitorLogHandler
+from Monitor import HTTP_TIMEOUT, Monitor, MonitorLogHandler
 from rc_config import SOCKET_HOST, SOCKET_PORT
 
 parser = argparse.ArgumentParser()
@@ -79,7 +79,7 @@ except Exception as e:
 
 logging.debug("checking is logged in")
 params = {'action': 'query', 'assert': 'user', 'assertuser': M.wp_user, 'format': 'json'}
-res = session.get(M.wp_api, params=params).json()
+res = session.get(M.wp_api, params=params, timeout=HTTP_TIMEOUT).json()
 if "error" in res:
     logging.info("fetching login token")
     params = {
@@ -88,7 +88,7 @@ if "error" in res:
         'type': 'login',
         'format': 'json'
     }
-    res = session.get(M.wp_api, params=params).json()
+    res = session.get(M.wp_api, params=params, timeout=HTTP_TIMEOUT).json()
     logintoken = res["query"]["tokens"]["logintoken"]
 
     if args.user:
@@ -105,7 +105,7 @@ if "error" in res:
         'lgtoken': logintoken,
         'format': 'json'
     }
-    res = session.post(M.wp_api, data=params).json()
+    res = session.post(M.wp_api, data=params, timeout=HTTP_TIMEOUT).json()
     if res["login"]["result"] == "Success":
         logging.info("login success")
     else:
@@ -153,12 +153,12 @@ while True:
             'format': 'json'
         }
         try:
-            res = session.get(M.wp_api, params=params).json()
+            res = session.get(M.wp_api, params=params, timeout=HTTP_TIMEOUT).json()
         except json.decoder.JSONDecodeError as e:
             logging.error('JSONDecodeError: {}'.format(e))
             time.sleep(args.sleep)
             continue
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             logging.error('ConnectionError: {}'.format(e))
             time.sleep(args.sleep)
             continue

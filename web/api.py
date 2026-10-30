@@ -6,7 +6,7 @@ import urllib
 
 from flask import request
 
-from Monitor import Monitor
+from Monitor import HTTP_TIMEOUT, Monitor
 
 
 def web():
@@ -49,7 +49,7 @@ def web():
             }
             query = urllib.parse.urlencode(query)
             url = "https://meta.wikimedia.org/w/api.php?" + query
-            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode("utf8")
             res = json.loads(res)
 
             if "query" in res:
@@ -78,7 +78,7 @@ def web():
             }
             query = urllib.parse.urlencode(query)
             url = "https://meta.wikimedia.org/w/api.php?" + query
-            res = urllib.request.urlopen(url).read().decode("utf8")
+            res = urllib.request.urlopen(url, timeout=HTTP_TIMEOUT).read().decode("utf8")
             res = json.loads(res)
 
             if "query" in res:
