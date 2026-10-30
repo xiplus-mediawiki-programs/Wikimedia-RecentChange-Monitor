@@ -115,7 +115,7 @@ CREATE TABLE `RC_log_abuselog` (
   `user` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `ns` int(11) NOT NULL,
   `revid` int(11) NOT NULL,
-  `result` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `result` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `action` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `timestamp` int(11) NOT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
