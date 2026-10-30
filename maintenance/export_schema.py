@@ -22,6 +22,7 @@ with tempfile.NamedTemporaryFile('w', suffix='.cnf') as cnf:
         'mysqldump',
         '--defaults-extra-file=' + cnf.name,
         '--no-data',
+        '--single-transaction',
         '--skip-add-drop-table',
         '--skip-comments',
         '--skip-dump-date',
