@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 from sseclient import SSEClient as EventSource
 
+import rc
 from Monitor import Monitor, MonitorLogHandler
 from rc import process
 from rc_config import SOCKET_HOST, SOCKET_PORT
@@ -45,6 +46,12 @@ headers = {
 
 
 def main(lastOffset):
+    # Open fresh connections in the child. Otherwise a terminated child can leave
+    # an uncommitted transaction on the socket inherited from the parent, which
+    # stays open and holds its locks forever.
+    M.db_connect()
+    rc.M.db_connect()
+
     fullUrl = URL
     if lastOffset.value > 0:
         fullUrl += '?since={}'.format(datetime.fromtimestamp(lastOffset.value, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
